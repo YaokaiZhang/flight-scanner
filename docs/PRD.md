@@ -98,8 +98,9 @@ All sources sit behind one adapter interface: `plan → fetch → raw payload`, 
 
 - Key: (origin city, destination airport, departure month, stay-nights bucket). Buckets: one-way, 1–2, 3–4, 5–7, 8–14, 15+ nights.
 - Statistic: median of daily-minimum prices over a trailing window (default 60 days of observations), with MAD as the spread measure.
-- Minimum support: default 20 observations. Below that, fall back to (origin city, destination **country**, month, bucket); below that, no Baseline.
-- Cold start: on first ingestion a provisional Baseline is computed from the cross-sectional distribution of prices across all dates in the month, flagged low-confidence.
+- Minimum support: default 20 observations spread over at least 7 distinct observation days.
+- Tiers, in order: route Baseline → destination-**country** Baseline → **Price insight** (Google's typical price range and price history, returned by the SerpApi Verification call) → provisional cross-sectional Baseline (all departure dates in the month, low-confidence; used to rank trips for Verification and for Unverified Deals).
+- Price-insight history points are stored as Fare observations, so each Verification also backfills that route's own history.
 - Baselines are versioned (computed_at, method, support) so any past Deal can be explained with the Baseline in force at the time.
 
 ### 5.8 Deal detection
@@ -109,7 +110,7 @@ A composed trip becomes a **Candidate** when:
 - its price is ≥ the Watch's sensitivity below the Baseline (default 30%), **and**
 - it is under the Price threshold, if the Watch has one.
 
-With no Baseline (cold start, sparse route), a Candidate is created only if the Watch has a Price threshold and the price is under it.
+With only a provisional Baseline, Verification re-judges the Candidate against the Price insight. With no Baseline at all, a Candidate is created only if the Watch has a Price threshold and the price is under it.
 
 ### 5.9 Verification
 

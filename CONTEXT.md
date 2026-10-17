@@ -56,8 +56,12 @@ _Avoid_: Return ticket (implies a single booking)
 Connecting between separately booked tickets within one direction of travel (e.g. Finnair HEL→BER then Ryanair BER→HRG). Not considered; separate tickets are only allowed between the outbound and the return.
 
 **Baseline**:
-The normal per-adult price for a comparable trip, learned from our own Fare observations over time.
+The normal per-adult price for a comparable trip. Learned from our own Fare observations when there are enough of them over enough days; otherwise taken from a Price insight, or estimated provisionally.
 _Avoid_: Average price, regular price
+
+**Price insight**:
+Google's view of a specific trip's normal price — a typical price range and recent price history — returned alongside a live price during Verification.
+_Avoid_: Price history (on its own), typical price
 
 **Candidate**:
 A trip whose observed (possibly cached) price passes the Deal test but has not yet been confirmed live.
