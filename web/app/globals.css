@@ -206,6 +206,59 @@ tr.paused td { color: var(--pencil); }
 .choice label { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; }
 .choice input { accent-color: var(--ink); width: 14px; height: 14px; }
 
+/* place picker (ticket 03) */
+.chips { display: flex; flex-wrap: wrap; gap: 6px; list-style: none; }
+.chip { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; padding: 3px 4px 3px 9px; border: 1px solid var(--graphite); }
+.chip .kind { font-size: 11px; color: var(--pencil); text-transform: uppercase; letter-spacing: 0.04em; }
+.chip button { display: inline-grid; place-items: center; width: 18px; height: 18px; color: var(--pencil); }
+.chip button:hover { color: var(--red); }
+.chip .icon, .chip button .icon { width: 11px; height: 11px; }
+.chip.exclude { border-style: dashed; color: var(--pencil); }
+.chip.exclude .name { text-decoration: line-through; text-decoration-color: var(--graphite); }
+.combo { position: relative; display: flex; flex-direction: column; }
+.options {
+  position: absolute; top: 100%; left: 0; right: 0; z-index: 4; list-style: none; background: var(--paper);
+  border: 1px solid var(--graphite); border-top: 0; max-height: 280px; overflow-y: auto;
+}
+.options li { display: flex; flex-direction: column; gap: 1px; padding: 7px 10px; cursor: pointer; }
+.options li + li { border-top: 1px solid var(--construction); }
+.options li[aria-selected="true"] { background: var(--swash); }
+.opt-name { font-size: 12px; color: var(--graphite); }
+.opt-code { color: var(--ink-deep); font-weight: 500; }
+.opt-mode { color: var(--pencil); text-transform: uppercase; font-size: 11px; letter-spacing: 0.06em; }
+.opt-meta { font-size: 11px; color: var(--pencil); }
+.resolved { font-size: 11px; color: var(--graphite); }
+.resolved b { color: var(--ink-deep); font-weight: 500; }
+details.tree, .tree details { font-size: 11px; color: var(--graphite); }
+.tree summary { cursor: pointer; list-style: none; display: inline-flex; gap: 6px; align-items: center; }
+details.tree > summary { color: var(--pencil); }
+.tree summary::-webkit-details-marker { display: none; }
+.tree summary .icon { width: 10px; height: 10px; transition: transform 0.2s ease; }
+.tree details[open] > summary .icon, details.tree[open] > summary .icon { transform: rotate(90deg); }
+.tree ul { list-style: none; margin: 8px 0 0 4px; padding-left: 12px; border-left: 1px dashed var(--construction); display: grid; gap: 3px; }
+.tree li { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px; }
+.tree li > details { flex: 1; min-width: 0; }
+.tree li span { color: var(--pencil); }
+.tree li.x > details > summary, .tree li.x { color: var(--pencil); text-decoration: line-through; }
+.tree .meta { margin: 4px 0 0 16px; }
+.tree-exclude { display: inline-grid; place-items: center; width: 18px; height: 18px; color: var(--pencil); }
+.tree-exclude:hover { color: var(--red); }
+.tree-exclude .icon { width: 10px; height: 10px; }
+.stepper { display: inline-flex; align-items: center; border-bottom: 1.5px solid var(--graphite); align-self: flex-start; }
+.stepper button { width: 26px; height: 30px; display: grid; place-items: center; }
+.stepper button:hover { color: var(--ink-deep); }
+.stepper button[disabled] { color: var(--construction); cursor: default; }
+.stepper .stepper-value { min-width: 24px; text-align: center; }
+input[type="range"] { width: 100%; accent-color: var(--ink); }
+.actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.actions .spacer { flex: 1; }
+.btn-marker.danger { border: 0; color: var(--red); padding: 8px 4px; }
+.btn-marker.danger:hover { background: none; transform: none; text-decoration: underline; color: var(--red); }
+tr.selectable[aria-selected="true"] td { background: var(--swash); }
+tr.selectable[aria-selected="true"] .row-title { color: var(--ink-deep); }
+.row-title button { font-weight: inherit; text-align: left; }
+.row-title button:hover { color: var(--ink-deep); }
+
 .sky-coordinate { position: fixed; font-size: 10px; letter-spacing: 0.02em; color: var(--pencil); pointer-events: none; z-index: 1; }
 
 @media (max-width: 1180px) {

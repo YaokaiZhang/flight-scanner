@@ -1,107 +1,290 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
-import { api, ApiError, type Channel, type WatchSpec } from "@/lib/api";
+import {
+  api,
+  ApiError,
+  placeKey,
+  type Channel,
+  type Delivery,
+  type Place,
+  type PlaceSet,
+  type TripPreset,
+  type Watch,
+  type WatchSpec,
+} from "@/lib/api";
+import { Icon, PlacePicker } from "./PlacePicker";
+import { TripPatternFields } from "./TripPatternFields";
 
-const iata = (s: string) => s.trim().toUpperCase();
+type Draft = {
+  name: string;
+  origins: PlaceSet;
+  destinations: PlaceSet;
+  trip_pattern: TripPreset | null;
+  adults: number;
+  threshold: string;
+  basis: "total" | "per_adult";
+  sensitivity_pct: number;
+  channels: Channel[];
+  delivery: Delivery;
+};
 
-export function WatchEditor({ onCreated }: { onCreated: () => void }) {
+const EMPTY: Draft = {
+  name: "",
+  origins: { include: [], exclude: [] },
+  destinations: { include: [], exclude: [] },
+  trip_pattern: null,
+  adults: 1,
+  threshold: "",
+  basis: "total",
+  sensitivity_pct: 30,
+  channels: ["email", "telegram"],
+  delivery: "immediate",
+};
+
+function draftOf(w: Watch): Draft {
+  return {
+    name: w.name,
+    origins: w.origins,
+    destinations: w.destinations,
+    trip_pattern: w.trip_pattern,
+    adults: w.adults,
+    threshold: w.price_threshold ? String(w.price_threshold.amount_eur) : "",
+    basis: w.price_threshold?.basis ?? "total",
+    sensitivity_pct: w.sensitivity_pct,
+    channels: w.channels,
+    delivery: w.delivery,
+  };
+}
+
+function problem(err: unknown): string {
+  if (!(err instanceof ApiError)) return "Could not save (network).";
+  if (err.status !== 422) return `Could not save (${err.status}).`;
+  const detail = (err.detail as { detail?: { msg?: string }[] } | null)?.detail;
+  const msgs = Array.isArray(detail) ? detail.map((d) => d.msg).filter(Boolean) : [];
+  return msgs.length ? `Check the fields: ${msgs.join("; ")}.` : "Check the fields: some values are not valid.";
+}
+
+/** Create a Watch (no `watch`) or edit one: Places, trip, adults, threshold, sensitivity, delivery. */
+export function WatchEditor({
+  watch,
+  onSaved,
+  onDeleted,
+  onClose,
+}: {
+  watch: Watch | null;
+  onSaved: (w: Watch) => void;
+  onDeleted: (id: number) => void;
+  onClose: () => void;
+}) {
+  const [draft, setDraft] = useState<Draft>(watch ? draftOf(watch) : EMPTY);
+  const [names, setNames] = useState(() => new Map((watch?.places ?? []).map((p) => [placeKey(p), p])));
   const [busy, setBusy] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
   const [message, setMessage] = useState<{ ok: boolean; text: string } | null>(null);
 
-  async function submit(e: FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    const form = e.currentTarget;
-    const f = new FormData(form);
-    const threshold = String(f.get("threshold") ?? "").trim();
-    const spec: WatchSpec = {
-      name: String(f.get("name") ?? "").trim(),
-      origins: { include: [{ kind: "airport", code: iata(String(f.get("origin"))) }] },
-      destinations: { include: [{ kind: "airport", code: iata(String(f.get("destination"))) }] },
-      trip_pattern: { preset: "one_way_fixed", departure: String(f.get("departure")) },
-      adults: Number(f.get("adults")),
-      price_threshold: threshold
-        ? { amount_eur: Number(threshold), basis: f.get("basis") === "per_adult" ? "per_adult" : "total" }
-        : null,
-      delivery: f.get("delivery") === "digest" ? "digest" : "immediate",
-      channels: f.getAll("channels").map(String) as Channel[],
-    };
-    if (spec.channels.length === 0) {
-      setMessage({ ok: false, text: "Choose at least one Alert channel." });
-      return;
-    }
+  const set = <K extends keyof Draft>(k: K, v: Draft[K]) => setDraft((d) => ({ ...d, [k]: v }));
+  const toggleChannel = (c: Channel, on: boolean) =>
+    set("channels", on ? [...new Set([...draft.channels, c])].sort() : draft.channels.filter((x) => x !== c));
+  const remember = (p?: Place) => p && setNames((m) => new Map(m).set(placeKey(p), p));
+
+  async function run(action: () => Promise<void>) {
     setBusy(true);
     setMessage(null);
     try {
-      const w = await api.createWatch(spec);
-      setMessage({ ok: true, text: `Saved “${w.name}”.` });
-      form.reset();
-      onCreated();
+      await action();
     } catch (err) {
-      const status = err instanceof ApiError ? err.status : "network";
-      setMessage({ ok: false, text: status === 422 ? "Check the fields: some values are not valid." : `Could not save (${status}).` });
+      setMessage({ ok: false, text: problem(err) });
     } finally {
       setBusy(false);
     }
   }
 
+  function submit(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    if (!draft.origins.include.length || !draft.destinations.include.length || !draft.trip_pattern) {
+      setMessage({ ok: false, text: "Add at least one origin and one destination Place, and a departure date." });
+      return;
+    }
+    if (draft.channels.length === 0) {
+      setMessage({ ok: false, text: "Choose at least one Alert channel." });
+      return;
+    }
+    const threshold = draft.threshold.trim();
+    const spec: WatchSpec = {
+      name: draft.name.trim(),
+      origins: draft.origins,
+      destinations: draft.destinations,
+      trip_pattern: draft.trip_pattern,
+      adults: draft.adults,
+      price_threshold: threshold ? { amount_eur: Number(threshold), basis: draft.basis } : null,
+      sensitivity_pct: draft.sensitivity_pct,
+      channels: draft.channels,
+      delivery: draft.delivery,
+    };
+    run(async () => {
+      const saved = watch ? await api.updateWatch(watch.id, spec) : await api.createWatch(spec);
+      setMessage({ ok: true, text: `Saved “${saved.name}”.` });
+      if (!watch) {
+        setDraft(EMPTY);
+      }
+      onSaved(saved);
+    });
+  }
+
+  const togglePause = () =>
+    watch &&
+    run(async () => {
+      const w = watch.status === "active" ? await api.pauseWatch(watch.id) : await api.resumeWatch(watch.id);
+      setMessage({ ok: true, text: w.status === "paused" ? "Paused." : "Resumed." });
+      onSaved(w);
+    });
+
+  const remove = () =>
+    watch &&
+    run(async () => {
+      await api.deleteWatch(watch.id);
+      onDeleted(watch.id);
+    });
+
   return (
     <section aria-labelledby="editor-title">
-      <h2 className="widget-label" id="editor-title">New Watch</h2>
+      <h2 className="widget-label" id="editor-title">{watch ? "Edit Watch" : "New Watch"}</h2>
       <form className="editor" onSubmit={submit}>
         <label className="field">
           <span>Name</span>
-          <input className="input" name="name" required maxLength={120} placeholder="Barcelona weekend" />
+          <input
+            className="input"
+            name="name"
+            required
+            maxLength={120}
+            placeholder="Barcelona weekend"
+            value={draft.name}
+            onChange={(e) => set("name", e.target.value)}
+          />
         </label>
+        <PlacePicker
+          label="From"
+          value={draft.origins}
+          names={names}
+          onChange={(v, p) => {
+            remember(p);
+            set("origins", v);
+          }}
+        />
+        <PlacePicker
+          label="To"
+          value={draft.destinations}
+          names={names}
+          onChange={(v, p) => {
+            remember(p);
+            set("destinations", v);
+          }}
+        />
+        <TripPatternFields value={draft.trip_pattern} onChange={(v) => set("trip_pattern", v)} />
         <div className="row2">
+          <div className="field">
+            <span className="field-label" id="adults-label">Adults</span>
+            <div className="stepper" role="group" aria-labelledby="adults-label">
+              <button type="button" aria-label="Fewer adults" disabled={draft.adults <= 1} onClick={() => set("adults", draft.adults - 1)}>
+                <Icon name="minus" />
+              </button>
+              <span className="stepper-value">{draft.adults}</span>
+              <button type="button" aria-label="More adults" disabled={draft.adults >= 9} onClick={() => set("adults", draft.adults + 1)}>
+                <Icon name="plus" />
+              </button>
+            </div>
+          </div>
           <label className="field">
-            <span>From (airport)</span>
-            <input className="input" name="origin" required pattern="[A-Za-z]{3}" maxLength={3} placeholder="HEL" />
-          </label>
-          <label className="field">
-            <span>To (airport)</span>
-            <input className="input" name="destination" required pattern="[A-Za-z]{3}" maxLength={3} placeholder="BCN" />
+            <span>Price threshold (EUR)</span>
+            <input
+              className="input"
+              name="threshold"
+              type="number"
+              min={1}
+              step="any"
+              placeholder="optional"
+              value={draft.threshold}
+              onChange={(e) => set("threshold", e.target.value)}
+            />
           </label>
         </div>
-        <div className="row2">
-          <label className="field">
-            <span>Departure (one way)</span>
-            <input className="input" name="departure" type="date" required />
-          </label>
-          <label className="field">
-            <span>Adults</span>
-            <input className="input" name="adults" type="number" min={1} max={9} defaultValue={1} required />
-          </label>
-        </div>
-        <label className="field">
-          <span>Price threshold (EUR)</span>
-          <input className="input" name="threshold" type="number" min={1} step="any" placeholder="optional" />
-        </label>
         <fieldset className="field" style={{ border: 0 }}>
           <legend className="field-label">Threshold applies to</legend>
           <div className="choice">
-            <label><input type="radio" name="basis" value="total" defaultChecked /> Total</label>
-            <label><input type="radio" name="basis" value="per_adult" /> Per adult</label>
+            <label>
+              <input type="radio" name="basis" value="total" checked={draft.basis === "total"} onChange={() => set("basis", "total")} /> Total
+            </label>
+            <label>
+              <input type="radio" name="basis" value="per_adult" checked={draft.basis === "per_adult"} onChange={() => set("basis", "per_adult")} /> Per adult
+            </label>
           </div>
         </fieldset>
+        <label className="field">
+          <span>Sensitivity · {draft.sensitivity_pct}% below Baseline</span>
+          <input
+            type="range"
+            name="sensitivity"
+            min={10}
+            max={60}
+            step={5}
+            value={draft.sensitivity_pct}
+            onChange={(e) => set("sensitivity_pct", Number(e.target.value))}
+          />
+        </label>
         <fieldset className="field" style={{ border: 0 }}>
           <legend className="field-label">Send Alerts by</legend>
           <div className="choice">
-            <label><input type="checkbox" name="channels" value="email" defaultChecked /> Email</label>
-            <label><input type="checkbox" name="channels" value="telegram" defaultChecked /> Telegram</label>
+            {(["email", "telegram"] as const).map((c) => (
+              <label key={c}>
+                <input
+                  type="checkbox"
+                  name="channels"
+                  value={c}
+                  checked={draft.channels.includes(c)}
+                  onChange={(e) => toggleChannel(c, e.target.checked)}
+                />{" "}
+                {c === "email" ? "Email" : "Telegram"}
+              </label>
+            ))}
           </div>
         </fieldset>
         <fieldset className="field" style={{ border: 0 }}>
           <legend className="field-label">Delivery</legend>
           <div className="choice">
-            <label><input type="radio" name="delivery" value="immediate" defaultChecked /> Immediate</label>
-            <label><input type="radio" name="delivery" value="digest" /> Daily Digest</label>
+            <label>
+              <input type="radio" name="delivery" value="immediate" checked={draft.delivery === "immediate"} onChange={() => set("delivery", "immediate")} /> Immediate
+            </label>
+            <label>
+              <input type="radio" name="delivery" value="digest" checked={draft.delivery === "digest"} onChange={() => set("delivery", "digest")} /> Daily Digest
+            </label>
           </div>
         </fieldset>
-        <div>
+        <div className="actions">
           <button className="btn-marker primary" type="submit" disabled={busy}>
-            {busy ? "Saving" : "Create Watch"}
+            {busy ? "Saving" : watch ? "Save Watch" : "Create Watch"}
           </button>
+          {watch && (
+            <button className="btn-marker" type="button" disabled={busy} onClick={togglePause}>
+              {watch.status === "active" ? "Pause" : "Resume"}
+            </button>
+          )}
+          {watch && (
+            <button className="btn-marker" type="button" onClick={onClose}>
+              New
+            </button>
+          )}
+          <span className="spacer" />
+          {watch &&
+            (confirmDelete ? (
+              <button className="btn-marker danger" type="button" disabled={busy} onClick={remove}>
+                Confirm delete
+              </button>
+            ) : (
+              <button className="btn-marker danger" type="button" onClick={() => setConfirmDelete(true)}>
+                Delete
+              </button>
+            ))}
         </div>
         <p className={message?.ok === false ? "error" : "saved"} role="status">{message?.text}</p>
       </form>

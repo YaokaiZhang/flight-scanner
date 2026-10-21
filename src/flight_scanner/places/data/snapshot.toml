@@ -1,0 +1,7 @@
+# Written by `python -m flight_scanner.places.refresh`; do not edit by hand.
+source = "OurAirports (public domain), https://ourairports.com/data/"
+version = "ourairports-2026-10-21"
+filter = "iata_code set, scheduled_service = yes, type in large/medium/small_airport"
+airports = 4008
+cities = 3868
+countries = 248

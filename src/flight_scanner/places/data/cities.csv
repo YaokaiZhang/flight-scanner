@@ -1,0 +1,3869 @@
+id,name,country
+AE-abu-dhabi,Abu Dhabi,AE
+AE-al-ain,Al Ain,AE
+AE-delma-island,Delma Island,AE
+AE-dubai,Dubai,AE
+AE-fujairah,Fujairah,AE
+AE-ras-al-khaimah,Ras Al Khaimah,AE
+AE-sharjah,Sharjah,AE
+AF-fayzabad,Fayzabad,AF
+AF-guzara,Guzara,AF
+AF-kabul,Kabul,AF
+AF-kandahar,Kandahar,AF
+AF-khost,Khost,AF
+AF-mazar-i-sharif,Mazar-i-Sharif,AF
+AG-codrington,Codrington,AG
+AG-osbourn,Osbourn,AG
+AI-the-valley,The Valley,AI
+AL-rinas,Rinas,AL
+AM-gyumri,Gyumri,AM
+AM-yerevan,Yerevan,AM
+AO-cabinda,Cabinda,AO
+AO-catumbela,Catumbela,AO
+AO-chitato,Chitato,AO
+AO-huambo,Huambo,AO
+AO-luanda,Luanda,AO
+AO-lubango,Lubango,AO
+AO-malanje,Malanje,AO
+AO-mbanza-congo,Mbanza Congo,AO
+AO-menongue,Menongue,AO
+AO-mocamedes,Moçâmedes,AO
+AO-negage,Negage,AO
+AO-ngiva,Ngiva,AO
+AO-soyo,Soyo,AO
+AR-B-buenos-aires,Buenos Aires,AR
+AR-C-buenos-aires,Buenos Aires,AR
+AR-bahia-blanca,Bahía Blanca,AR
+AR-catamarca,Catamarca,AR
+AR-chapelco-san-martin-de-los-andes,Chapelco/San Martin de los Andes,AR
+AR-comodoro-rivadavia,Comodoro Rivadavia,AR
+AR-cordoba,Cordoba,AR
+AR-corrientes,Corrientes,AR
+AR-el-calafate,El Calafate,AR
+AR-esquel,Esquel,AR
+AR-formosa,Formosa,AR
+AR-gobernador-gregores,Gobernador Gregores,AR
+AR-la-rioja,La Rioja,AR
+AR-las-heras,Las Heras,AR
+AR-mar-del-plata,Mar del Plata,AR
+AR-mendoza,Mendoza,AR
+AR-necochea,Necochea,AR
+AR-neuquen,Neuquén,AR
+AR-parana,Parana,AR
+AR-perito-moreno,Perito Moreno,AR
+AR-posadas,Posadas,AR
+AR-puerto-deseado,Puerto Deseado,AR
+AR-puerto-iguazu,Puerto Iguazu,AR
+AR-puerto-madryn,Puerto Madryn,AR
+AR-rawson,Rawson,AR
+AR-resistencia,Resistencia,AR
+AR-rio-gallegos,Rio Gallegos,AR
+AR-rio-grande,Rio Grande,AR
+AR-rio-turbio,Rio Turbio,AR
+AR-rosario,Rosario,AR
+AR-salta,Salta,AR
+AR-san-antonio-oeste,San Antonio Oeste,AR
+AR-san-carlos-de-bariloche,San Carlos de Bariloche,AR
+AR-san-juan,San Juan,AR
+AR-san-luis,San Luis,AR
+AR-san-miguel-de-tucuman,San Miguel de Tucumán,AR
+AR-san-rafael,San Rafael,AR
+AR-san-salvador-de-jujuy,San Salvador de Jujuy,AR
+AR-santa-fe,Santa Fe,AR
+AR-santa-rosa,Santa Rosa,AR
+AR-santa-teresita,Santa Teresita,AR
+AR-santiago-del-estero,Santiago del Estero,AR
+AR-termas-de-rio-hondo,Termas de Río Hondo,AR
+AR-ushuaia,Ushuaia,AR
+AR-viedma-carmen-de-patagones,Viedma / Carmen de Patagones,AR
+AS-fitiuta-village,Fitiuta Village,AS
+AS-ofu,Ofu,AS
+AS-pago-pago,Pago Pago,AS
+AT-feldkirchen-bei-graz,Feldkirchen bei Graz,AT
+AT-innsbruck,Innsbruck,AT
+AT-klagenfurt-am-worthersee,Klagenfurt am Wörthersee,AT
+AT-linz,Linz,AT
+AT-salzburg,Salzburg,AT
+AT-vienna,Vienna,AT
+AU-adelaide,Adelaide,AU
+AU-albany,Albany,AU
+AU-alice-springs,Alice Springs,AU
+AU-armidale,Armidale,AU
+AU-aurukun,Aurukun,AU
+AU-badu-island,Badu Island,AU
+AU-ballina,Ballina,AU
+AU-bamaga,Bamaga,AU
+AU-barcaldine,Barcaldine,AU
+AU-bathurst,Bathurst,AU
+AU-bedourie,Bedourie,AU
+AU-biloela,Biloela,AU
+AU-blackall,Blackall,AU
+AU-boigu-island,Boigu Island,AU
+AU-brisbane,Brisbane,AU
+AU-broadwood,Broadwood,AU
+AU-broken-hill,Broken Hill,AU
+AU-broome,Broome,AU
+AU-bundaberg,Bundaberg,AU
+AU-burnie,Burnie,AU
+AU-busselton,Busselton,AU
+AU-cairns,Cairns,AU
+AU-canberra,Canberra,AU
+AU-carnarvon,Carnarvon,AU
+AU-charleville,Charleville,AU
+AU-christmas-creek-mine,Christmas Creek Mine,AU
+AU-cloncurry,Cloncurry,AU
+AU-coen,Coen,AU
+AU-coffs-harbour,Coffs Harbour,AU
+AU-coober-pedy,Coober Pedy,AU
+AU-cooma,Cooma,AU
+AU-cosmo-newbery,Cosmo Newbery,AU
+AU-darnley-island,Darnley Island,AU
+AU-darwin,Darwin,AU
+AU-denham,Denham,AU
+AU-devonport,Devonport,AU
+AU-dubbo,Dubbo,AU
+AU-east-albury,East Albury,AU
+AU-elcho-island,Elcho Island,AU
+AU-emerald,Emerald,AU
+AU-esperance,Esperance,AU
+AU-essendon-fields,Essendon Fields,AU
+AU-exmouth,Exmouth,AU
+AU-forest-hill,Forest Hill,AU
+AU-geelong-melbourne,Geelong/Melbourne,AU
+AU-gladstone,Gladstone,AU
+AU-gold-coast,Gold Coast,AU
+AU-griffith,Griffith,AU
+AU-groote-eylandt,Groote Eylandt,AU
+AU-hamilton-island,Hamilton Island,AU
+AU-hervey-bay,Hervey Bay,AU
+AU-hobart,Hobart,AU
+AU-horn,Horn,AU
+AU-hughenden,Hughenden,AU
+AU-kalbarri,Kalbarri,AU
+AU-karara,Karara,AU
+AU-karratha,Karratha,AU
+AU-kowanyama,Kowanyama,AU
+AU-kubin-island,Kubin Island,AU
+AU-kununurra,Kununurra,AU
+AU-lajamanu,Lajamanu,AU
+AU-launceston,Launceston,AU
+AU-laverton,Laverton,AU
+AU-leonora,Leonora,AU
+AU-lismore,Lismore,AU
+AU-lockhart-river,Lockhart River,AU
+AU-longreach,Longreach,AU
+AU-lord-howe-island,Lord Howe Island,AU
+AU-mabuiag-island,Mabuiag Island,AU
+AU-mackay,Mackay,AU
+AU-maningrida,Maningrida,AU
+AU-maroochydore,Maroochydore,AU
+AU-mcarthur-river-mine,McArthur River Mine,AU
+AU-melbourne,Melbourne,AU
+AU-merimbula,Merimbula,AU
+AU-mildura,Mildura,AU
+AU-milikapiti,Milikapiti,AU
+AU-milingimbi-island,Milingimbi Island,AU
+AU-moonyoonooka,Moonyoonooka,AU
+AU-moranbah,Moranbah,AU
+AU-moree,Moree,AU
+AU-moruya,Moruya,AU
+AU-mount-eba,Mount Eba,AU
+AU-mount-gambier,Mount Gambier,AU
+AU-mount-hotham,Mount Hotham,AU
+AU-mount-isa,Mount Isa,AU
+AU-murray-island,Murray Island,AU
+AU-narrabri,Narrabri,AU
+AU-narrandera,Narrandera,AU
+AU-newman,Newman,AU
+AU-nhulunbuy,Nhulunbuy,AU
+AU-normanton,Normanton,AU
+AU-olympic-dam,Olympic Dam,AU
+AU-paraburdoo,Paraburdoo,AU
+AU-parkes,Parkes,AU
+AU-perth,Perth,AU
+AU-pormpuraaw,Pormpuraaw,AU
+AU-port-hedland,Port Hedland,AU
+AU-port-lincoln,Port Lincoln,AU
+AU-port-macquarie,Port Macquarie,AU
+AU-proserpine,Proserpine,AU
+AU-rockhampton,Rockhampton,AU
+AU-roma,Roma,AU
+AU-saibai-island,Saibai Island,AU
+AU-sue-islet,Sue Islet,AU
+AU-sydney,Sydney,AU
+AU-tamworth,Tamworth,AU
+AU-tennant-creek,Tennant Creek,AU
+AU-thargomindah,Thargomindah,AU
+AU-toowoomba,Toowoomba,AU
+AU-townsville,Townsville,AU
+AU-weipa,Weipa,AU
+AU-whitemark,Whitemark,AU
+AU-whyalla,Whyalla,AU
+AU-williamtown,Williamtown,AU
+AU-windorah,Windorah,AU
+AU-yam-island,Yam Island,AU
+AU-yorke-island,Yorke Island,AU
+AU-yulara,Yulara,AU
+AW-oranjestad,Oranjestad,AW
+AZ-baku,Baku,AZ
+AZ-gabala,Gabala,AZ
+AZ-ganja,Ganja,AZ
+AZ-lachin,Lachin,AZ
+AZ-lankaran,Lankaran,AZ
+AZ-nakhchivan,Nakhchivan,AZ
+BA-dubrave-gornje,Dubrave Gornje,BA
+BA-mahovljani,Mahovljani,BA
+BA-mostar,Mostar,BA
+BA-sarajevo,Sarajevo,BA
+BB-bridgetown,Bridgetown,BB
+BD-barisal,Barisal,BD
+BD-chattogram,Chattogram,BD
+BD-cox-s-bazar,Cox's Bazar,BD
+BD-dhaka,Dhaka,BD
+BD-jashore,Jashore,BD
+BD-rajshahi,Rajshahi,BD
+BD-saidpur,Saidpur,BD
+BD-sylhet,Sylhet,BD
+BE-antwerp,Antwerp,BE
+BE-charleroi,Charleroi,BE
+BE-grace-hollogne,Grâce-Hollogne,BE
+BE-oostende,Oostende,BE
+BE-zaventem,Zaventem,BE
+BF-bobo-dioulasso,Bobo Dioulasso,BF
+BF-ouagadougou,Ouagadougou,BF
+BG-burgas,Burgas,BG
+BG-plovdiv,Plovdiv,BG
+BG-sofia,Sofia,BG
+BG-varna,Varna,BG
+BH-manama,Manama,BH
+BI-bujumbura,Bujumbura,BI
+BI-gitega,Gitega,BI
+BI-kirundo,Kirundo,BI
+BJ-cotonou,Cotonou,BJ
+BL-gustavia,Gustavia,BL
+BM-hamilton,Hamilton,BM
+BN-bandar-seri-begawan,Bandar Seri Begawan,BN
+BO-chimore,Chimore,BO
+BO-cobija,Cobija,BO
+BO-cochabamba,Cochabamba,BO
+BO-guayaramerin,Guayaramerín,BO
+BO-la-paz-el-alto,La Paz / El Alto,BO
+BO-oruro,Oruro,BO
+BO-puerto-rico-manuripi,Puerto Rico/Manuripi,BO
+BO-puerto-suarez,Puerto Suárez,BO
+BO-quijarro,Quijarro,BO
+BO-riberalta,Riberalta,BO
+BO-rurrenabaque,Rurrenabaque,BO
+BO-santa-cruz,Santa Cruz,BO
+BO-sucre,Sucre,BO
+BO-tarija,Tarija,BO
+BO-trinidad,Trinidad,BO
+BQ-kralendijk,Kralendijk,BQ
+BQ-oranjestad,Oranjestad,BQ
+BQ-zion-s-hill,Zion's Hill,BQ
+BR-almeirim,Almeirim,BR
+BR-alta-floresta,Alta Floresta,BR
+BR-altamira,Altamira,BR
+BR-aracaju,Aracaju,BR
+BR-aracatuba,Araçatuba,BR
+BR-araguaina,Araguaína,BR
+BR-araraquara,Araraquara,BR
+BR-araxa,Araxá,BR
+BR-barcelos,Barcelos,BR
+BR-barreiras,Barreiras,BR
+BR-bauru,Bauru,BR
+BR-belem,Belém,BR
+BR-belo-horizonte,Belo Horizonte,BR
+BR-boa-vista,Boa Vista,BR
+BR-bonito,Bonito,BR
+BR-borba,Borba,BR
+BR-brasilia,Brasília,BR
+BR-breves,Breves,BR
+BR-cabo-frio,Cabo Frio,BR
+BR-cacoal,Cacoal,BR
+BR-cajazeiras,Cajazeiras,BR
+BR-caldas-novas,Caldas Novas,BR
+BR-campina-grande,Campina Grande,BR
+BR-campinas,Campinas,BR
+BR-campo-grande,Campo Grande,BR
+BR-campos-dos-goytacazes,Campos dos Goytacazes,BR
+BR-canela,Canela,BR
+BR-carauari,Carauari,BR
+BR-caruaru,Caruaru,BR
+BR-cascavel,Cascavel,BR
+BR-caxias-do-sul,Caxias Do Sul,BR
+BR-chapeco,Chapecó,BR
+BR-corumba,Corumbá,BR
+BR-cruz,Cruz,BR
+BR-cruzeiro-do-sul,Cruzeiro Do Sul,BR
+BR-cuiaba,Cuiabá,BR
+BR-curitiba,Curitiba,BR
+BR-fernando-de-noronha,Fernando de Noronha,BR
+BR-florianopolis,Florianópolis,BR
+BR-fortaleza,Fortaleza,BR
+BR-foz-do-iguacu,Foz do Iguaçu,BR
+BR-francisco-beltrao,Francisco Beltrão,BR
+BR-goiania,Goiânia,BR
+BR-governador-valadares,Governador Valadares,BR
+BR-guaira,Guaíra,BR
+BR-guarapari,Guarapari,BR
+BR-ilheus,Ilhéus,BR
+BR-imperatriz,Imperatriz,BR
+BR-ipatinga,Ipatinga,BR
+BR-itaituba,Itaituba,BR
+BR-jaguaruna,Jaguaruna,BR
+BR-ji-parana,Ji-Paraná,BR
+BR-joao-pessoa,João Pessoa,BR
+BR-joinville,Joinville,BR
+BR-juazeiro-do-norte,Juazeiro do Norte,BR
+BR-juiz-de-fora,Juiz de Fora,BR
+BR-labrea,Lábrea,BR
+BR-lages,Lages,BR
+BR-lencois,Lençóis,BR
+BR-londrina,Londrina,BR
+BR-macapa,Macapá,BR
+BR-maceio,Maceió,BR
+BR-manaus,Manaus,BR
+BR-manicore,Manicoré,BR
+BR-maraba,Marabá,BR
+BR-marilia,Marília,BR
+BR-maringa,Maringá,BR
+BR-montes-claros,Montes Claros,BR
+BR-mossoro,Mossoró,BR
+BR-natal,Natal,BR
+BR-navegantes,Navegantes,BR
+BR-oriximina,Oriximiná,BR
+BR-palmas,Palmas,BR
+BR-paracatu,Paracatu,BR
+BR-paragominas,Paragominas,BR
+BR-parauapebas,Parauapebas,BR
+BR-parnaiba,Parnaíba,BR
+BR-passo-fundo,Passo Fundo,BR
+BR-pato-branco,Pato Branco,BR
+BR-paulo-afonso,Paulo Afonso,BR
+BR-pelotas,Pelotas,BR
+BR-petrolina,Petrolina,BR
+BR-ponta-grossa,Ponta Grossa,BR
+BR-ponta-pora,Ponta Porã,BR
+BR-porto-alegre,Porto Alegre,BR
+BR-porto-seguro,Porto Seguro,BR
+BR-porto-velho,Porto Velho,BR
+BR-presidente-prudente,Presidente Prudente,BR
+BR-recife,Recife,BR
+BR-ribeirao-preto,Ribeirão Preto,BR
+BR-rio-branco,Rio Branco,BR
+BR-rio-de-janeiro,Rio De Janeiro,BR
+BR-rondonopolis,Rondonópolis,BR
+BR-salinopolis,Salinópolis,BR
+BR-salvador,Salvador,BR
+BR-santa-isabel-do-rio-negro,Santa Isabel do Rio Negro,BR
+BR-santa-maria,Santa Maria,BR
+BR-santa-rosa,Santa Rosa,BR
+BR-santarem,Santarém,BR
+BR-santo-angelo,Santo Ângelo,BR
+BR-sao-gabriel-da-cachoeira,São Gabriel da Cachoeira,BR
+BR-sao-jose-do-rio-preto,São José do Rio Preto,BR
+BR-sao-jose-dos-campos,São José Dos Campos,BR
+BR-sao-luis,São Luís,BR
+BR-sao-paulo,São Paulo,BR
+BR-serra-talhada,Serra Talhada,BR
+BR-sinop,Sinop,BR
+BR-sorocaba,Sorocaba,BR
+BR-sorriso,Sorriso,BR
+BR-tabatinga,Tabatinga,BR
+BR-tangara-da-serra,Tangará da Serra,BR
+BR-tefe,Tefé,BR
+BR-teresina,Teresina,BR
+BR-toledo,Toledo,BR
+BR-tres-lagoas,Três Lagoas,BR
+BR-tucurui,Tucuruí,BR
+BR-uberaba,Uberaba,BR
+BR-uberlandia,Uberlândia,BR
+BR-umuarama,Umuarama,BR
+BR-una,Una,BR
+BR-uniao-da-vitoria,União da Vitória,BR
+BR-uruguaiana,Uruguaiana,BR
+BR-valenca,Valença,BR
+BR-vilhena,Vilhena,BR
+BR-vitoria,Vitória,BR
+BR-vitoria-da-conquista,Vitória da Conquista,BR
+BS-abraham-bay-settlement,Abraham Bay Settlement,BS
+BS-andros,Andros,BS
+BS-andros-island,Andros Island,BS
+BS-andros-town,Andros Town,BS
+BS-arthur-s-town,Arthur's Town,BS
+BS-cat-island,Cat Island,BS
+BS-chub-cay,Chub Cay,BS
+BS-colonel-hill,Colonel Hill,BS
+BS-deadman-s-cay,Deadman's Cay,BS
+BS-freeport,Freeport,BS
+BS-governor-s-harbour,Governor's Harbour,BS
+BS-marsh-harbour,Marsh Harbour,BS
+BS-matthew-town,Matthew Town,BS
+BS-moss-town,Moss Town,BS
+BS-nassau,Nassau,BS
+BS-north-eleuthera,North Eleuthera,BS
+BS-rock-sound,Rock Sound,BS
+BS-san-salvador,San Salvador,BS
+BS-south-bimini,South Bimini,BS
+BS-spring-point,Spring Point,BS
+BS-stella-maris,Stella Maris,BS
+BS-treasure-cay,Treasure Cay,BS
+BT-jakar,Jakar,BT
+BT-paro,Paro,BT
+BT-yongphulla,Yongphulla,BT
+BW-francistown,Francistown,BW
+BW-gaborone,Gaborone,BW
+BW-kasane,Kasane,BW
+BW-maun,Maun,BW
+BW-shakawe,Shakawe,BW
+BY-brest,Brest,BY
+BY-gomel,Gomel,BY
+BY-minsk,Minsk,BY
+BY-mogilev,Mogilev,BY
+BZ-belize-city,Belize City,BZ
+BZ-big-creek,Big Creek,BZ
+BZ-caye-caulker,Caye Caulker,BZ
+BZ-caye-chapel,Caye Chapel,BZ
+BZ-corozal,Corozal,BZ
+BZ-dangriga,Dangriga,BZ
+BZ-independence,Independence,BZ
+BZ-orange-walk,Orange Walk,BZ
+BZ-placencia,Placencia,BZ
+BZ-punta-gorda,Punta Gorda,BZ
+BZ-san-pedro,San Pedro,BZ
+CA-NL-charlottetown,Charlottetown,CA
+CA-NL-deer-lake,Deer Lake,CA
+CA-ON-deer-lake,Deer Lake,CA
+CA-PE-charlottetown,Charlottetown,CA
+CA-abbotsford,Abbotsford,CA
+CA-aklavik,Aklavik,CA
+CA-akulivik,Akulivik,CA
+CA-alert-bay,Alert Bay,CA
+CA-anahim-lake,Anahim Lake,CA
+CA-angling-lake,Angling Lake,CA
+CA-arctic-bay,Arctic Bay,CA
+CA-arviat,Arviat,CA
+CA-attawapiskat,Attawapiskat,CA
+CA-aupaluk,Aupaluk,CA
+CA-baie-comeau,Baie-Comeau,CA
+CA-baker-lake,Baker Lake,CA
+CA-barrie,Barrie,CA
+CA-bearskin-lake,Bearskin Lake,CA
+CA-bella-bella,Bella Bella,CA
+CA-bella-coola,Bella Coola,CA
+CA-berens-river,Berens River,CA
+CA-big-trout-lake,Big Trout Lake,CA
+CA-black-tickle,Black Tickle,CA
+CA-blanc-sablon,Blanc-Sablon,CA
+CA-bloodvein-river,Bloodvein River,CA
+CA-bonaventure,Bonaventure,CA
+CA-bonnyville,Bonnyville,CA
+CA-brandon,Brandon,CA
+CA-breslau,Breslau,CA
+CA-brochet,Brochet,CA
+CA-burns-lake,Burns Lake,CA
+CA-calgary,Calgary,CA
+CA-cambridge-bay,Cambridge Bay,CA
+CA-campbell-river,Campbell River,CA
+CA-cartwright,Cartwright,CA
+CA-castlegar,Castlegar,CA
+CA-cat-lake,Cat Lake,CA
+CA-chesterfield-inlet,Chesterfield Inlet,CA
+CA-chevery,Chevery,CA
+CA-chibougamau,Chibougamau,CA
+CA-chisasibi,Chisasibi,CA
+CA-churchill,Churchill,CA
+CA-churchill-falls,Churchill Falls,CA
+CA-clyde-river,Clyde River,CA
+CA-colville-lake,Colville Lake,CA
+CA-comox,Comox,CA
+CA-coral-harbour,Coral Harbour,CA
+CA-cranbrook,Cranbrook,CA
+CA-cross-lake,Cross Lake,CA
+CA-dauphin,Dauphin,CA
+CA-dawson-city,Dawson City,CA
+CA-dease-lake,Dease Lake,CA
+CA-deline,Déline,CA
+CA-eastmain-river,Eastmain River,CA
+CA-edmonton,Edmonton,CA
+CA-flin-flon,Flin Flon,CA
+CA-fond-du-lac,Fond-du-Lac,CA
+CA-fort-albany,Fort Albany,CA
+CA-fort-chipewyan,Fort Chipewyan,CA
+CA-fort-frances,Fort Frances,CA
+CA-fort-good-hope,Fort Good Hope,CA
+CA-fort-hope,Fort Hope,CA
+CA-fort-mcmurray,Fort McMurray,CA
+CA-fort-mcpherson,Fort Mcpherson,CA
+CA-fort-nelson,Fort Nelson,CA
+CA-fort-saint-john,Fort Saint John,CA
+CA-fort-severn,Fort Severn,CA
+CA-fort-simpson,Fort Simpson,CA
+CA-fort-smith,Fort Smith,CA
+CA-fredericton,Fredericton,CA
+CA-gameti,Gamètì,CA
+CA-gander,Gander,CA
+CA-gaspe,Gaspé,CA
+CA-gatineau,Gatineau,CA
+CA-gillam,Gillam,CA
+CA-gjoa-haven,Gjoa Haven,CA
+CA-gods-lake-narrows,Gods Lake Narrows,CA
+CA-gods-river,Gods River,CA
+CA-goose-bay,Goose Bay,CA
+CA-grande-prairie,Grande Prairie,CA
+CA-gravenhurst,Gravenhurst,CA
+CA-grise-fiord,Grise Fiord,CA
+CA-halifax,Halifax,CA
+CA-hamilton,Hamilton,CA
+CA-havre-saint-pierre,Havre-Saint-Pierre,CA
+CA-hay-river,Hay River,CA
+CA-high-level,High Level,CA
+CA-hopedale,Hopedale,CA
+CA-igloolik,Igloolik,CA
+CA-ilford,Ilford,CA
+CA-inukjuak,Inukjuak,CA
+CA-inuvik,Inuvik,CA
+CA-iqaluit,Iqaluit,CA
+CA-island-lake,Island Lake,CA
+CA-ivujivik,Ivujivik,CA
+CA-kamloops,Kamloops,CA
+CA-kangiqsualujjuaq,Kangiqsualujjuaq,CA
+CA-kangiqsujuaq,Kangiqsujuaq,CA
+CA-kangirsuk,Kangirsuk,CA
+CA-kasabonika,Kasabonika,CA
+CA-kashechewan,Kashechewan,CA
+CA-keewaywin,Keewaywin,CA
+CA-kelowna,Kelowna,CA
+CA-kenora,Kenora,CA
+CA-kimmirut,Kimmirut,CA
+CA-kingfisher-lake,Kingfisher Lake,CA
+CA-kinngait,Kinngait,CA
+CA-kugaaruk,Kugaaruk,CA
+CA-kugluktuk,Kugluktuk,CA
+CA-kuujjuaq,Kuujjuaq,CA
+CA-kuujjuarapik,Kuujjuarapik,CA
+CA-la-grande-riviere,La Grande Rivière,CA
+CA-la-ronge,La Ronge,CA
+CA-la-tabatiere,La Tabatière,CA
+CA-lac-brochet,Lac Brochet,CA
+CA-lansdowne-house,Lansdowne House,CA
+CA-le-golfe-du-saint-laurent,Le Golfe-du-Saint-Laurent,CA
+CA-les-iles-de-la-madeleine,Les Îles-de-la-Madeleine,CA
+CA-lethbridge,Lethbridge,CA
+CA-lloydminster,Lloydminster,CA
+CA-london,London,CA
+CA-lutselk-e,Lutselk'e,CA
+CA-lynn-lake,Lynn Lake,CA
+CA-makkovik,Makkovik,CA
+CA-mary-s-harbour,Mary's Harbour,CA
+CA-masset,Masset,CA
+CA-medicine-hat,Medicine Hat,CA
+CA-moncton,Moncton,CA
+CA-mont-joli,Mont-Joli,CA
+CA-montreal,Montréal,CA
+CA-moosonee,Moosonee,CA
+CA-muskrat-dam,Muskrat Dam,CA
+CA-nain,Nain,CA
+CA-nakina,Nakina,CA
+CA-nanaimo,Nanaimo,CA
+CA-natashquan,Natashquan,CA
+CA-natuashish,Natuashish,CA
+CA-nemiscau,Nemiscau,CA
+CA-niagara-on-the-lake,Niagara-on-the-Lake,CA
+CA-norman-wells,Norman Wells,CA
+CA-north-bay,North Bay,CA
+CA-north-spirit-lake,North Spirit Lake,CA
+CA-norway-house,Norway House,CA
+CA-ogoki-post,Ogoki Post,CA
+CA-old-crow,Old Crow,CA
+CA-ottawa,Ottawa,CA
+CA-oxford-house,Oxford House,CA
+CA-pangnirtung,Pangnirtung,CA
+CA-paulatuk,Paulatuk,CA
+CA-peace-river,Peace River,CA
+CA-peawanuck,Peawanuck,CA
+CA-penticton,Penticton,CA
+CA-peterborough,Peterborough,CA
+CA-pickle-lake,Pickle Lake,CA
+CA-pikangikum,Pikangikum,CA
+CA-points-north-landing,Points North Landing,CA
+CA-pond-inlet,Pond Inlet,CA
+CA-poplar-hill,Poplar Hill,CA
+CA-port-hardy,Port Hardy,CA
+CA-port-hope-simpson,Port Hope Simpson,CA
+CA-port-mcneill,Port McNeill,CA
+CA-port-menier,Port-Menier,CA
+CA-postville,Postville,CA
+CA-powell-river,Powell River,CA
+CA-prince-albert,Prince Albert,CA
+CA-prince-george,Prince George,CA
+CA-prince-rupert,Prince Rupert,CA
+CA-pukatawagan,Pukatawagan,CA
+CA-puvirnituq,Puvirnituq,CA
+CA-qikiqtarjuaq,Qikiqtarjuaq,CA
+CA-qualicum-beach,Qualicum Beach,CA
+CA-quaqtaq,Quaqtaq,CA
+CA-quebec,Quebec,CA
+CA-quesnel,Quesnel,CA
+CA-rankin-inlet,Rankin Inlet,CA
+CA-red-lake,Red Lake,CA
+CA-red-sucker-lake,Red Sucker Lake,CA
+CA-regina,Regina,CA
+CA-repulse-bay,Repulse Bay,CA
+CA-resolute-bay,Resolute Bay,CA
+CA-rigolet,Rigolet,CA
+CA-roberval,Roberval,CA
+CA-round-lake,Round Lake,CA
+CA-rouyn-noranda,Rouyn-Noranda,CA
+CA-sachigo-lake,Sachigo Lake,CA
+CA-sachs-harbour,Sachs Harbour,CA
+CA-saguenay,Saguenay,CA
+CA-saint-john,Saint John,CA
+CA-salluit,Salluit,CA
+CA-sandspit,Sandspit,CA
+CA-sandy-lake,Sandy Lake,CA
+CA-sanikiluaq,Sanikiluaq,CA
+CA-sanirajak,Sanirajak,CA
+CA-saskatoon,Saskatoon,CA
+CA-sault-ste-marie,Sault Ste Marie,CA
+CA-schefferville,Schefferville,CA
+CA-sept-iles,Sept-Îles,CA
+CA-shamattawa,Shamattawa,CA
+CA-sioux-lookout,Sioux Lookout,CA
+CA-smithers,Smithers,CA
+CA-south-indian-lake,South Indian Lake,CA
+CA-south-tetagouche,South Tetagouche,CA
+CA-st-anthony,St. Anthony,CA
+CA-st-augustin,St-Augustin,CA
+CA-st-john-s,St. John's,CA
+CA-st-lewis,St. Lewis,CA
+CA-st-theresa-point,St. Theresa Point,CA
+CA-stony-rapids,Stony Rapids,CA
+CA-sudbury,Sudbury,CA
+CA-summer-beaver,Summer Beaver,CA
+CA-sydney,Sydney,CA
+CA-tadoule-lake,Tadoule Lake,CA
+CA-taloyoak,Taloyoak,CA
+CA-tasiujaq,Tasiujaq,CA
+CA-terrace,Terrace,CA
+CA-tete-a-la-baleine,Tête-à-la-Baleine,CA
+CA-the-pas,The Pas,CA
+CA-thompson,Thompson,CA
+CA-thunder-bay,Thunder Bay,CA
+CA-timmins,Timmins,CA
+CA-tofino,Tofino,CA
+CA-toronto,Toronto,CA
+CA-trail,Trail,CA
+CA-tulita,Tulita,CA
+CA-ulukhaktok,Ulukhaktok,CA
+CA-umiujaq,Umiujaq,CA
+CA-uranium-city,Uranium City,CA
+CA-val-d-or,Val-d'Or,CA
+CA-vancouver,Vancouver,CA
+CA-victoria,Victoria,CA
+CA-wabush,Wabush,CA
+CA-waskaganish,Waskaganish,CA
+CA-watson-lake,Watson Lake,CA
+CA-webequie,Webequie,CA
+CA-wekweeti,Wekweètì,CA
+CA-wemindji,Wemindji,CA
+CA-whale-cove,Whale Cove,CA
+CA-whati,Whatì,CA
+CA-whitecourt,Whitecourt,CA
+CA-whitehorse,Whitehorse,CA
+CA-wiarton,Wiarton,CA
+CA-williams-harbour,Williams Harbour,CA
+CA-williams-lake,Williams Lake,CA
+CA-windsor,Windsor,CA
+CA-winnipeg,Winnipeg,CA
+CA-wollaston-lake,Wollaston Lake,CA
+CA-wunnumin-lake,Wunnumin Lake,CA
+CA-yellowknife,Yellowknife,CA
+CC-west-island,West Island,CC
+CD-bandundu,Bandundu,CD
+CD-boende,Boende,CD
+CD-bunia,Bunia,CD
+CD-gbadolite,Gbadolite,CD
+CD-gemena,Gemena,CD
+CD-goma,Goma,CD
+CD-ilebo,Ilebo,CD
+CD-inongo,Inongo,CD
+CD-isiro,Isiro,CD
+CD-kalemie,Kalemie,CD
+CD-kamina,Kamina,CD
+CD-kananga,Kananga,CD
+CD-kikwit,Kikwit,CD
+CD-kindu,Kindu,CD
+CD-kinshasa,Kinshasa,CD
+CD-kisangani,Kisangani,CD
+CD-kolwezi,Kolwezi,CD
+CD-lubumbashi,Lubumbashi,CD
+CD-mbandaka,Mbandaka,CD
+CD-mbuji-mayi,Mbuji Mayi,CD
+CF-bangui,Bangui,CF
+CG-brazzaville,Brazzaville,CG
+CG-pointe-noire,Pointe Noire,CG
+CH-agno,Agno,CH
+CH-bern,Bern,CH
+CH-geneva,Geneva,CH
+CH-st-gallen,St. Gallen,CH
+CH-zurich,Zurich,CH
+CI-abidjan,Abidjan,CI
+CI-bouake,Bouaké,CI
+CI-korhogo,Korhogo,CI
+CK-aitutaki,Aitutaki,CK
+CK-atiu-island,Atiu Island,CK
+CK-avarua,Avarua,CK
+CK-manihiki-island,Manihiki Island,CK
+CK-mauke-island,Mauke Island,CK
+CK-mitiaro-island,Mitiaro Island,CK
+CL-antofagasta,Antofagasta,CL
+CL-arica,Arica,CL
+CL-balmaceda,Balmaceda,CL
+CL-calama,Calama,CL
+CL-concepcion,Concepcion,CL
+CL-copiapo,Copiapo,CL
+CL-dalcahue,Dalcahue,CL
+CL-el-salvador,El Salvador,CL
+CL-iquique,Iquique,CL
+CL-isla-de-pascua,Isla De Pascua,CL
+CL-la-serena-coquimbo,La Serena-Coquimbo,CL
+CL-osorno,Osorno,CL
+CL-pucon,Pucon,CL
+CL-puerto-montt,Puerto Montt,CL
+CL-puerto-natales,Puerto Natales,CL
+CL-punta-arenas,Punta Arenas,CL
+CL-santiago,Santiago,CL
+CL-temuco,Temuco,CL
+CL-valdivia,Valdivia,CL
+CM-douala,Douala,CM
+CM-garoua,Garoua,CM
+CM-maroua,Maroua,CM
+CM-n-gaoundere,N'Gaoundéré,CM
+CM-yaounde,Yaoundé,CM
+CN-23-yichun,Yichun,CN
+CN-36-yichun,Yichun,CN
+CN-45-yulin,Yulin,CN
+CN-61-yulin,Yulin,CN
+CN-aksu,Aksu,CN
+CN-altay,Altay,CN
+CN-ankang,Ankang,CN
+CN-anqing,Anqing,CN
+CN-anshan,Anshan,CN
+CN-anshun,Anshun,CN
+CN-anyang,Anyang,CN
+CN-aral,Aral,CN
+CN-arxan,Arxan,CN
+CN-badanjilin,Badanjilin,CN
+CN-baicheng,Baicheng,CN
+CN-baise,Baise,CN
+CN-baishan,Baishan,CN
+CN-bangda,Bangda,CN
+CN-baoshan,Baoshan,CN
+CN-baotou,Baotou,CN
+CN-bayanhot,Bayanhot,CN
+CN-bayannur,Bayannur,CN
+CN-bazhong,Bazhong,CN
+CN-beihai,Beihai,CN
+CN-beijing,Beijing,CN
+CN-bengbu,Bengbu,CN
+CN-bijie,Bijie,CN
+CN-bole,Bole,CN
+CN-burqin,Burqin,CN
+CN-changchun,Changchun,CN
+CN-changde,Changde,CN
+CN-changsha,Changsha,CN
+CN-changzhi,Changzhi,CN
+CN-changzhou,Changzhou,CN
+CN-chengde,Chengde,CN
+CN-chengdu,Chengdu,CN
+CN-chenzhou,Chenzhou,CN
+CN-chifeng,Chifeng,CN
+CN-chizhou,Chizhou,CN
+CN-chongqing,Chongqing,CN
+CN-dali,Dali,CN
+CN-dalian,Dalian,CN
+CN-dandong,Dandong,CN
+CN-daqing,Daqing,CN
+CN-datong,Datong,CN
+CN-dazhou,Dazhou,CN
+CN-dehong,Dehong,CN
+CN-delingha,Delingha,CN
+CN-diqing,Diqing,CN
+CN-dongying,Dongying,CN
+CN-dunhuang,Dunhuang,CN
+CN-enshi,Enshi,CN
+CN-erenhot,Erenhot,CN
+CN-ezhou,Ezhou,CN
+CN-foshan,Foshan,CN
+CN-fuyuan,Fuyuan,CN
+CN-fuyun,Fuyun,CN
+CN-fuzhou,Fuzhou,CN
+CN-gannan,Gannan,CN
+CN-ganzhou,Ganzhou,CN
+CN-garze,Garzê,CN
+CN-golmud,Golmud,CN
+CN-golog,Golog,CN
+CN-guangyuan,Guangyuan,CN
+CN-guangzhou,Guangzhou,CN
+CN-guilin,Guilin,CN
+CN-guiyang,Guiyang,CN
+CN-guyuan,Guyuan,CN
+CN-haibei,Haibei,CN
+CN-haidong,Haidong,CN
+CN-haikou,Haikou,CN
+CN-hailar,Hailar,CN
+CN-hami,Hami,CN
+CN-handan,Handan,CN
+CN-hangzhou,Hangzhou,CN
+CN-hanzhong,Hanzhong,CN
+CN-harbin,Harbin,CN
+CN-hechi,Hechi,CN
+CN-hefei,Hefei,CN
+CN-heihe,Heihe,CN
+CN-hejing,Hejing,CN
+CN-hengyang,Hengyang,CN
+CN-heze,Heze,CN
+CN-hohhot,Hohhot,CN
+CN-holingol,Holingol,CN
+CN-hotan,Hotan,CN
+CN-huai-an,Huai'an,CN
+CN-huaihua,Huaihua,CN
+CN-huangshan,Huangshan,CN
+CN-huizhou,Huizhou,CN
+CN-ili,Ili,CN
+CN-ji-an,Ji'an,CN
+CN-jiagedaqi,Jiagedaqi,CN
+CN-jiamusi,Jiamusi,CN
+CN-jiansanjiang,Jiansanjiang,CN
+CN-jiayuguan,Jiayuguan,CN
+CN-jieyang,Jieyang,CN
+CN-jinan,Jinan,CN
+CN-jinchang,Jinchang,CN
+CN-jingdezhen,Jingdezhen,CN
+CN-jinghong,Jinghong,CN
+CN-jingzhou,Jingzhou,CN
+CN-jining,Jining,CN
+CN-jinzhou,Jinzhou,CN
+CN-jiujiang,Jiujiang,CN
+CN-jixi,Jixi,CN
+CN-kaili,Kaili,CN
+CN-karamay,Karamay,CN
+CN-kashgar,Kashgar,CN
+CN-korla,Korla,CN
+CN-kunming,Kunming,CN
+CN-kuqa,Kuqa,CN
+CN-lanzhou,Lanzhou,CN
+CN-leshan,Leshan,CN
+CN-liangshan,Liangshan,CN
+CN-lianyungang,Lianyungang,CN
+CN-lijiang,Lijiang,CN
+CN-lincang,Lincang,CN
+CN-linfen,Linfen,CN
+CN-linyi,Linyi,CN
+CN-liping,Liping,CN
+CN-liupanshui,Liupanshui,CN
+CN-liuzhou,Liuzhou,CN
+CN-longnan,Longnan,CN
+CN-longyan,Longyan,CN
+CN-luliang,Lüliang,CN
+CN-luoyang,Luoyang,CN
+CN-luzhou,Luzhou,CN
+CN-manzhouli,Manzhouli,CN
+CN-meizhou,Meizhou,CN
+CN-mengnai,Mengnai,CN
+CN-mianyang,Mianyang,CN
+CN-mohe,Mohe,CN
+CN-mudanjiang,Mudanjiang,CN
+CN-nanchang,Nanchang,CN
+CN-nanchong,Nanchong,CN
+CN-nanjing,Nanjing,CN
+CN-nanning,Nanning,CN
+CN-nantong,Nantong,CN
+CN-nanyang,Nanyang,CN
+CN-ngawa,Ngawa,CN
+CN-ningbo,Ningbo,CN
+CN-ninglang,Ninglang,CN
+CN-nyingchi,Nyingchi,CN
+CN-ordos,Ordos,CN
+CN-panzhihua,Panzhihua,CN
+CN-pu-er,Pu'er,CN
+CN-qian-gorlos-mongol-autonomous-county,Qian Gorlos Mongol Autonomous County,CN
+CN-qianjiang,Qianjiang,CN
+CN-qiannan,Qiannan,CN
+CN-qiemo,Qiemo,CN
+CN-qingdao,Qingdao,CN
+CN-qingyang,Qingyang,CN
+CN-qinhuangdao,Qinhuangdao,CN
+CN-qionghai,Qionghai,CN
+CN-qiqihar,Qiqihar,CN
+CN-qitai,Qitai,CN
+CN-quanzhou,Quanzhou,CN
+CN-quzhou,Quzhou,CN
+CN-rizhao,Rizhao,CN
+CN-ruoqiang-town,Ruoqiang Town,CN
+CN-sanming,Sanming,CN
+CN-sanya,Sanya,CN
+CN-shache,Shache,CN
+CN-shanghai,Shanghai,CN
+CN-shangrao,Shangrao,CN
+CN-shannan,Shannan,CN
+CN-shaoguan,Shaoguan,CN
+CN-shaoyang,Shaoyang,CN
+CN-shennongjia,Shennongjia,CN
+CN-shenyang,Shenyang,CN
+CN-shenzhen,Shenzhen,CN
+CN-shihezi,Shihezi,CN
+CN-shijiazhuang,Shijiazhuang,CN
+CN-shiquanhe,Shiquanhe,CN
+CN-shiyan,Shiyan,CN
+CN-shuangta,Shuangta,CN
+CN-shuozhou,Shuozhou,CN
+CN-tacheng,Tacheng,CN
+CN-taiyuan,Taiyuan,CN
+CN-taizhou,Taizhou,CN
+CN-tangbu,Tangbu,CN
+CN-tangshan,Tangshan,CN
+CN-tashikuergan,Tashikuergan,CN
+CN-tianjin,Tianjin,CN
+CN-tianshui,Tianshui,CN
+CN-tonghua,Tonghua,CN
+CN-tongliao,Tongliao,CN
+CN-tongren,Tongren,CN
+CN-tumxuk,Tumxuk,CN
+CN-turpan,Turpan,CN
+CN-ulanhot,Ulanhot,CN
+CN-ulanqab,Ulanqab,CN
+CN-urumqi,Ürümqi,CN
+CN-wanzhou,Wanzhou,CN
+CN-weifang,Weifang,CN
+CN-weihai,Weihai,CN
+CN-wenshan,Wenshan,CN
+CN-wenzhou,Wenzhou,CN
+CN-wuhai,Wuhai,CN
+CN-wuhan,Wuhan,CN
+CN-wuhu,Wuhu,CN
+CN-wulong,Wulong,CN
+CN-wushan,Wushan,CN
+CN-wuxi,Wuxi,CN
+CN-wuyishan,Wuyishan,CN
+CN-xi-an,Xi'an,CN
+CN-xiamen,Xiamen,CN
+CN-xiangxi,Xiangxi,CN
+CN-xiangyang,Xiangyang,CN
+CN-xigaze,Xigazê,CN
+CN-xilinhot,Xilinhot,CN
+CN-xingyi,Xingyi,CN
+CN-xinyang,Xinyang,CN
+CN-xinyuan,Xinyuan,CN
+CN-xinzhou,Xinzhou,CN
+CN-xiuzhou,Xiuzhou,CN
+CN-xuzhou,Xuzhou,CN
+CN-yan-an,Yan'an,CN
+CN-yancheng,Yancheng,CN
+CN-yangzhou,Yangzhou,CN
+CN-yanji,Yanji,CN
+CN-yantai,Yantai,CN
+CN-yibin,Yibin,CN
+CN-yichang,Yichang,CN
+CN-yinchuan,Yinchuan,CN
+CN-yingkou,Yingkou,CN
+CN-yingzhou,Yingzhou,CN
+CN-yiwu-jinhua,Yiwu/Jinhua,CN
+CN-yongzhou,Yongzhou,CN
+CN-yueyang,Yueyang,CN
+CN-yuncheng,Yuncheng,CN
+CN-yushu,Yushu,CN
+CN-zhalantun,Zhalantun,CN
+CN-zhangjiajie,Zhangjiajie,CN
+CN-zhangjiakou,Zhangjiakou,CN
+CN-zhangye,Zhangye,CN
+CN-zhanjiang,Zhanjiang,CN
+CN-zhaosu,Zhaosu,CN
+CN-zhaotong,Zhaotong,CN
+CN-zhengzhou,Zhengzhou,CN
+CN-zhongwei,Zhongwei,CN
+CN-zhoushan,Zhoushan,CN
+CN-zhuhai,Zhuhai,CN
+CN-zunyi,Zunyi,CN
+CO-arauca,Arauca,CO
+CO-armenia,Armenia,CO
+CO-bahia-solano,Bahía Solano,CO
+CO-barrancabermeja,Barrancabermeja,CO
+CO-barranquilla,Barranquilla,CO
+CO-bogota,Bogota,CO
+CO-bucaramanga,Bucaramanga,CO
+CO-buenaventura,Buenaventura,CO
+CO-cali,Cali,CO
+CO-carepa,Carepa,CO
+CO-cartagena,Cartagena,CO
+CO-chachagui,Chachagüí,CO
+CO-corozal,Corozal,CO
+CO-cucuta,Cúcuta,CO
+CO-florencia,Florencia,CO
+CO-guapi,Guapi,CO
+CO-ibague,Ibagué,CO
+CO-ipiales,Ipiales,CO
+CO-la-chorrera,La Chorrera,CO
+CO-la-macarena,La Macarena,CO
+CO-la-pedrera,La Pedrera,CO
+CO-leticia,Leticia,CO
+CO-manizales,Manizales,CO
+CO-medellin,Medellín,CO
+CO-mitu,Mitú,CO
+CO-monteria,Montería,CO
+CO-neiva,Neiva,CO
+CO-nuqui,Nuquí,CO
+CO-pereira,Pereira,CO
+CO-popayan,Popayán,CO
+CO-providencia,Providencia,CO
+CO-puerto-asis,Puerto Asís,CO
+CO-puerto-carreno,Puerto Carreño,CO
+CO-puerto-inirida,Puerto Inírida,CO
+CO-puerto-leguizamo,Puerto Leguízamo,CO
+CO-quibdo,Quibdó,CO
+CO-riohacha,Riohacha,CO
+CO-san-andres,San Andrés,CO
+CO-san-jose-del-guaviare,San José Del Guaviare,CO
+CO-san-vicente-del-caguan,San Vicente Del Caguán,CO
+CO-santa-marta,Santa Marta,CO
+CO-santiago-de-tolu,Santiago de Tolú,CO
+CO-saravena,Saravena,CO
+CO-tame,Tame,CO
+CO-tarapaca,Tarapacá,CO
+CO-tumaco,Tumaco,CO
+CO-valledupar,Valledupar,CO
+CO-villavicencio,Villavicencio,CO
+CO-yopal,Yopal,CO
+CR-golfito,Golfito,CR
+CR-la-fortuna,La Fortuna,CR
+CR-liberia,Liberia,CR
+CR-limon,Limón,CR
+CR-nicoya,Nicoya,CR
+CR-puerto-jimenez,Puerto Jimenez,CR
+CR-quepos,Quepos,CR
+CR-san-jose,San José,CR
+CU-baracoa,Baracoa,CU
+CU-bayamo,Bayamo,CU
+CU-camaguey,Camaguey,CU
+CU-cayo-coco,Cayo Coco,CU
+CU-cayo-largo-del-sur,Cayo Largo del Sur,CU
+CU-cienfuegos,Cienfuegos,CU
+CU-havana,Havana,CU
+CU-holguin,Holguin,CU
+CU-las-tunas,Las Tunas,CU
+CU-manzanillo,Manzanillo,CU
+CU-matanzas,Matanzas,CU
+CU-nueva-gerona,Nueva Gerona,CU
+CU-santa-clara,Santa Clara,CU
+CU-santiago,Santiago,CU
+CU-trinidad,Trinidad,CU
+CV-espargos,Espargos,CV
+CV-praia,Praia,CV
+CV-preguica,Preguiça,CV
+CV-rabil,Rabil,CV
+CV-sao-filipe,São Filipe,CV
+CV-sao-pedro,São Pedro,CV
+CV-vila-do-maio,Vila do Maio,CV
+CW-willemstad,Willemstad,CW
+CX-flying-fish-cove,Flying Fish Cove,CX
+CY-larnaca,Larnaca,CY
+CY-paphos,Paphos,CY
+CY-tymbou,Tymbou,CY
+CZ-brno,Brno,CZ
+CZ-ceske-budejovice,České Budějovice,CZ
+CZ-karlovy-vary,Karlovy Vary,CZ
+CZ-mosnov,Mošnov,CZ
+CZ-pardubice,Pardubice,CZ
+CZ-prague,Prague,CZ
+DE-HE-frankfurt-am-main,Frankfurt am Main,DE
+DE-RP-frankfurt-am-main,Frankfurt am Main,DE
+DE-baltrum,Baltrum,DE
+DE-berlin,Berlin,DE
+DE-borkum,Borkum,DE
+DE-bremen,Bremen,DE
+DE-buren,Büren,DE
+DE-calden,Calden,DE
+DE-dortmund,Dortmund,DE
+DE-dresden,Dresden,DE
+DE-dusseldorf,Düsseldorf,DE
+DE-emden,Emden,DE
+DE-erfurt,Erfurt,DE
+DE-friedrichshafen,Friedrichshafen,DE
+DE-greven,Greven,DE
+DE-hamburg,Hamburg,DE
+DE-hannover,Hannover,DE
+DE-helgoland,Helgoland,DE
+DE-juist,Juist,DE
+DE-koln,Köln,DE
+DE-laage,Laage,DE
+DE-lubeck,Lübeck,DE
+DE-mannheim,Mannheim,DE
+DE-memmingen,Memmingen,DE
+DE-munich,Munich,DE
+DE-norddeich,Norddeich,DE
+DE-norderney,Norderney,DE
+DE-nuremberg,Nuremberg,DE
+DE-oesterdeichstrich,Oesterdeichstrich,DE
+DE-rheinmunster,Rheinmünster,DE
+DE-saarbrucken,Saarbrücken,DE
+DE-schkeuditz,Schkeuditz,DE
+DE-stuttgart,Stuttgart,DE
+DE-sylt,Sylt,DE
+DE-wangerooge,Wangerooge,DE
+DE-weeze,Weeze,DE
+DE-wurster-nordseekuste,Wurster Nordseeküste,DE
+DE-zirchow,Zirchow,DE
+DJ-djibouti-city,Djibouti City,DJ
+DK-aalborg,Aalborg,DK
+DK-aarhus,Aarhus,DK
+DK-billund,Billund,DK
+DK-copenhagen,Copenhagen,DK
+DK-esbjerg,Esbjerg,DK
+DK-karup,Karup,DK
+DK-ls,Læsø,DK
+DK-odense,Odense,DK
+DK-rnne,Rønne,DK
+DK-roskilde,Roskilde,DK
+DK-snderborg,Sønderborg,DK
+DM-canefield,Canefield,DM
+DM-marigot,Marigot,DM
+DO-barahona,Barahona,DO
+DO-la-isabela,La Isabela,DO
+DO-la-romana,La Romana,DO
+DO-puerto-plata,Puerto Plata,DO
+DO-punta-cana,Punta Cana,DO
+DO-samana,Samana,DO
+DO-santiago,Santiago,DO
+DO-santo-domingo,Santo Domingo,DO
+DZ-adrar,Adrar,DZ
+DZ-algiers,Algiers,DZ
+DZ-annaba,Annaba,DZ
+DZ-batna,Batna,DZ
+DZ-bechar,Béchar,DZ
+DZ-bejaia,Béjaïa,DZ
+DZ-biskra,Biskra,DZ
+DZ-bordj-badji-mokhtar,Bordj Badji Mokhtar,DZ
+DZ-chlef,Chlef,DZ
+DZ-constantine,Constantine,DZ
+DZ-djanet,Djanet,DZ
+DZ-el-atteuf,El Atteuf,DZ
+DZ-el-bayadh,El Bayadh,DZ
+DZ-el-menia,El Menia,DZ
+DZ-es-senia,Es-Sénia,DZ
+DZ-guemar,Guemar,DZ
+DZ-hassi-messaoud,Hassi Messaoud,DZ
+DZ-illizi,Illizi,DZ
+DZ-in-amenas,In Aménas,DZ
+DZ-in-salah,In Salah,DZ
+DZ-laghouat,Laghouat,DZ
+DZ-mecheria,Mecheria,DZ
+DZ-ouargla,Ouargla,DZ
+DZ-setif,Sétif,DZ
+DZ-tahir,Tahir,DZ
+DZ-tamanrasset,Tamanrasset,DZ
+DZ-tebessi,Tébessi,DZ
+DZ-timimoun,Timimoun,DZ
+DZ-tindouf,Tindouf,DZ
+DZ-touggourt,Touggourt,DZ
+DZ-zenata,Zenata,DZ
+EC-coca,Coca,EC
+EC-cuenca,Cuenca,EC
+EC-guayaquil,Guayaquil,EC
+EC-isla-baltra,Isla Baltra,EC
+EC-la-toma,La Toma,EC
+EC-latacunga,Latacunga,EC
+EC-macas,Macas,EC
+EC-manta,Manta,EC
+EC-puerto-baquerizo-moreno,Puerto Baquerizo Moreno,EC
+EC-puerto-villamil,Puerto Villamil,EC
+EC-quito,Quito,EC
+EC-salinas-la-libertad,Salinas/La Libertad,EC
+EC-santa-rosa,Santa Rosa,EC
+EC-tachina,Tachina,EC
+EC-tulcan,Tulcán,EC
+EE-kardla,Kärdla,EE
+EE-kuressaare,Kuressaare,EE
+EE-parnu,Pärnu,EE
+EE-tallinn,Tallinn,EE
+EE-tartu,Tartu,EE
+EG-abu-simbel,Abu Simbel,EG
+EG-al-jiza,Al Jiza,EG
+EG-alexandria,Alexandria,EG
+EG-aswan,Aswan,EG
+EG-asyut,Asyut,EG
+EG-cairo,Cairo,EG
+EG-el-alamein,El Alamein,EG
+EG-el-arish,El Arish,EG
+EG-hurghada,Hurghada,EG
+EG-luxor,Luxor,EG
+EG-marsa-alam,Marsa Alam,EG
+EG-marsa-matruh,Marsa Matruh,EG
+EG-new-cairo,New Cairo,EG
+EG-port-said,Port Said,EG
+EG-sharm-el-sheikh,Sharm El Sheikh,EG
+EG-suhaj,Suhaj,EG
+EG-taba,Taba,EG
+EH-dakhla,Dakhla,EH
+EH-el-aaiun,El Aaiún,EH
+EH-smara,Smara,EH
+ER-asmara,Asmara,ER
+ES-alajero,Alajero,ES
+ES-alava,Alava,ES
+ES-alicante,Alicante,ES
+ES-almeria,Almería,ES
+ES-badajoz,Badajoz,ES
+ES-barcelona,Barcelona,ES
+ES-bilbao,Bilbao,ES
+ES-castellon-de-la-plana,Castellón de la Plana,ES
+ES-cordoba,Córdoba,ES
+ES-corvera,Corvera,ES
+ES-culleredo,Culleredo,ES
+ES-el-hierro-island,El Hierro Island,ES
+ES-el-matorral,El Matorral,ES
+ES-girona,Girona,ES
+ES-gran-canaria-island,Gran Canaria Island,ES
+ES-granada,Granada,ES
+ES-hondarribia,Hondarribia,ES
+ES-ibiza,Ibiza,ES
+ES-jerez-de-la-frontera,Jerez de la Frontera,ES
+ES-la-seu-d-urgell-pyrenees-and-andorra,La Seu d'Urgell Pyrenees and Andorra,ES
+ES-la-virgen-del-camino,La Virgen del Camino,ES
+ES-lleida,Lleida,ES
+ES-logrono,Logroño,ES
+ES-madrid,Madrid,ES
+ES-mahon,Mahón,ES
+ES-malaga,Málaga,ES
+ES-melilla,Melilla,ES
+ES-palma-de-mallorca,Palma de Mallorca,ES
+ES-pamplona,Pamplona,ES
+ES-ranon,Ranón,ES
+ES-reus,Reus,ES
+ES-salamanca,Salamanca,ES
+ES-san-bartolome,San Bartolomé,ES
+ES-santander,Santander,ES
+ES-santiago-de-compostela,Santiago de Compostela,ES
+ES-seville,Seville,ES
+ES-sta-cruz-de-la-palma,Sta Cruz de la Palma,ES
+ES-tenerife,Tenerife,ES
+ES-valencia,Valencia,ES
+ES-valladolid,Valladolid,ES
+ES-vigo,Vigo,ES
+ES-zaragoza,Zaragoza,ES
+ET-addis-ababa,Addis Ababa,ET
+ET-akwi,Akwi,ET
+ET-arba-minch,Arba Minch,ET
+ET-asosa,Asosa,ET
+ET-axum,Axum,ET
+ET-azezo,Azezo,ET
+ET-bahir-dar,Bahir Dar,ET
+ET-debre-markos,Debre Markos,ET
+ET-dembidollo,Dembidollo,ET
+ET-dessie,Dessie,ET
+ET-dire-dawa,Dire Dawa,ET
+ET-gambela,Gambela,ET
+ET-gode,Gode,ET
+ET-hawassa,Hawassa,ET
+ET-jijiga,Jijiga,ET
+ET-jimma,Jimma,ET
+ET-jinka,Jinka,ET
+ET-kebri-dahar,Kebri Dahar,ET
+ET-mekele,Mekele,ET
+ET-mizan-teferi,Mizan Teferi,ET
+ET-semera,Semera,ET
+ET-shilavo,Shilavo,ET
+ET-shire-inda-selassie,Shire Inda Selassie,ET
+ET-tippi,Tippi,ET
+FI-enontekio,Enontekio,FI
+FI-helsinki,Helsinki,FI
+FI-ivalo,Ivalo,FI
+FI-joensuu,Joensuu,FI
+FI-jyvaskylan-maalaiskunta,Jyväskylän Maalaiskunta,FI
+FI-kajaani,Kajaani,FI
+FI-kemi-tornio,Kemi / Tornio,FI
+FI-kittila,Kittilä,FI
+FI-kokkola-kruunupyy,Kokkola / Kruunupyy,FI
+FI-kuopio-siilinjarvi,Kuopio / Siilinjärvi,FI
+FI-kuusamo,Kuusamo,FI
+FI-lappeenranta,Lappeenranta,FI
+FI-mariehamn,Mariehamn,FI
+FI-oulu-oulunsalo,Oulu / Oulunsalo,FI
+FI-pori,Pori,FI
+FI-rovaniemi,Rovaniemi,FI
+FI-savonlinna,Savonlinna,FI
+FI-tampere-pirkkala,Tampere / Pirkkala,FI
+FI-turku,Turku,FI
+FI-vaasa,Vaasa,FI
+FJ-bureta,Bureta,FJ
+FJ-cicia,Cicia,FJ
+FJ-koro-island,Koro Island,FJ
+FJ-labasa,Labasa,FJ
+FJ-lakeba-island,Lakeba Island,FJ
+FJ-malolo-lailai-island,Malolo Lailai Island,FJ
+FJ-mana-island,Mana Island,FJ
+FJ-matei,Matei,FJ
+FJ-moala,Moala,FJ
+FJ-nadi,Nadi,FJ
+FJ-nausori,Nausori,FJ
+FJ-ngau,Ngau,FJ
+FJ-rotuma,Rotuma,FJ
+FJ-savusavu,Savusavu,FJ
+FJ-vanua-balavu,Vanua Balavu,FJ
+FJ-vunisea,Vunisea,FJ
+FJ-yasawa-island,Yasawa Island,FJ
+FK-mount-pleasant,Mount Pleasant,FK
+FK-stanley,Stanley,FK
+FM-okat,Okat,FM
+FM-pohnpei-island,Pohnpei Island,FM
+FM-weno-island,Weno Island,FM
+FM-yap-island,Yap Island,FM
+FO-vagar,Vágar,FO
+FR-ajaccio,Ajaccio,FR
+FR-annecy,Annecy,FR
+FR-aurillac,Aurillac,FR
+FR-avignon,Avignon,FR
+FR-bale-mulhouse,Bâle / Mulhouse,FR
+FR-bastia,Bastia,FR
+FR-beauvais,Beauvais,FR
+FR-bergerac,Bergerac,FR
+FR-beziers,Béziers,FR
+FR-biarritz,Biarritz,FR
+FR-bordeaux,Bordeaux,FR
+FR-brest,Brest,FR
+FR-brive,Brive,FR
+FR-caen,Caen,FR
+FR-calvi,Calvi,FR
+FR-carcassonne,Carcassonne,FR
+FR-castres,Castres,FR
+FR-chalons-en-champagne,Chalons en Champagne,FR
+FR-chambery,Chambéry,FR
+FR-chaspuzac,Chaspuzac,FR
+FR-clermont-ferrand,Clermont-Ferrand,FR
+FR-colombier-saugnieu,Colombier-Saugnieu,FR
+FR-deauville,Deauville,FR
+FR-dole,Dole,FR
+FR-figari,Figari,FR
+FR-goin,Goin,FR
+FR-grenoble,Grenoble,FR
+FR-hyeres,Hyères,FR
+FR-la-rochelle,La Rochelle,FR
+FR-lesquin,Lesquin,FR
+FR-limoges-bellegarde,Limoges/Bellegarde,FR
+FR-marignane,Marignane,FR
+FR-montpellier-mediterranee,Montpellier/Méditerranée,FR
+FR-nantes,Nantes,FR
+FR-nice,Nice,FR
+FR-nimes-garons,Nîmes/Garons,FR
+FR-paris,Paris,FR
+FR-pau-pyrenees,Pau/Pyrénées,FR
+FR-perpignan-rivesaltes,Perpignan/Rivesaltes,FR
+FR-poitiers-biard,Poitiers/Biard,FR
+FR-rodez-marcillac,Rodez/Marcillac,FR
+FR-saint-jacques-de-la-lande,Saint-Jacques-de-la-Lande,FR
+FR-saint-tropez,Saint-Tropez,FR
+FR-strasbourg,Strasbourg,FR
+FR-tarbes-lourdes-pyrenees,Tarbes/Lourdes/Pyrénées,FR
+FR-toulouse-blagnac,Toulouse/Blagnac,FR
+FR-tours,Tours,FR
+FR-ushant,Ushant,FR
+GA-franceville,Franceville,GA
+GA-gamba,Gamba,GA
+GA-libreville,Libreville,GA
+GA-makokou,Makokou,GA
+GA-oyem,Oyem,GA
+GA-port-gentil,Port Gentil,GA
+GB-aberdeen,Aberdeen,GB
+GB-balemartine,Balemartine,GB
+GB-balivanich,Balivanich,GB
+GB-belfast,Belfast,GB
+GB-birmingham,Birmingham,GB
+GB-bournemouth,Bournemouth,GB
+GB-bristol,Bristol,GB
+GB-campbeltown,Campbeltown,GB
+GB-cardiff,Cardiff,GB
+GB-coll-island,Coll Island,GB
+GB-colonsay,Colonsay,GB
+GB-darlington,Darlington,GB
+GB-derry,Derry,GB
+GB-dundee,Dundee,GB
+GB-eday,Eday,GB
+GB-eoligarry,Eoligarry,GB
+GB-exeter,Exeter,GB
+GB-fair-isle,Fair Isle,GB
+GB-foula,Foula,GB
+GB-glasgow,Glasgow,GB
+GB-grimsby,Grimsby,GB
+GB-ingliston,Ingliston,GB
+GB-inverness,Inverness,GB
+GB-isle-of-islay,Isle of Islay,GB
+GB-kirkwall,Kirkwall,GB
+GB-land-s-end,Land's End,GB
+GB-leeds,Leeds,GB
+GB-lerwick,Lerwick,GB
+GB-liverpool,Liverpool,GB
+GB-london,London,GB
+GB-luton,Luton,GB
+GB-manchester,Manchester,GB
+GB-newcastle-upon-tyne,Newcastle upon Tyne,GB
+GB-newquay,Newquay,GB
+GB-north-connel,North Connel,GB
+GB-north-ronaldsay,North Ronaldsay,GB
+GB-norwich,Norwich,GB
+GB-nottingham,Nottingham,GB
+GB-papa-westray,Papa Westray,GB
+GB-prestwick,Prestwick,GB
+GB-sanday,Sanday,GB
+GB-southampton,Southampton,GB
+GB-southend-on-sea,Southend-on-Sea,GB
+GB-st-mary-s,St. Mary's,GB
+GB-stornoway,Stornoway,GB
+GB-stronsay,Stronsay,GB
+GB-westray,Westray,GB
+GB-wick,Wick,GB
+GD-carriacou-island,Carriacou Island,GD
+GD-saint-george-s,Saint George's,GD
+GE-batumi,Batumi,GE
+GE-kopitnari,Kopitnari,GE
+GE-sukhumi,Sukhumi,GE
+GE-tbilisi,Tbilisi,GE
+GF-maripasoula,Maripasoula,GF
+GF-matoury,Matoury,GF
+GF-saint-laurent-du-maroni,Saint-Laurent-du-Maroni,GF
+GG-saint-anne,Saint Anne,GG
+GG-saint-peter-port,Saint Peter Port,GG
+GH-accra,Accra,GH
+GH-kumasi,Kumasi,GH
+GH-sekondi-takoradi,Sekondi-Takoradi,GH
+GH-sunyani,Sunyani,GH
+GH-tamale,Tamale,GH
+GI-gibraltar,Gibraltar,GI
+GL-aasiaat,Aasiaat,GL
+GL-ilulissat,Ilulissat,GL
+GL-kangerlussuaq,Kangerlussuaq,GL
+GL-kulusuk,Kulusuk,GL
+GL-maniitsoq,Maniitsoq,GL
+GL-neerlerit-inaat,Neerlerit Inaat,GL
+GL-nuuk,Nuuk,GL
+GL-paamiut,Paamiut,GL
+GL-qaanaaq,Qaanaaq,GL
+GL-qaqortoq,Qaqortoq,GL
+GL-sisimiut,Sisimiut,GL
+GL-upernavik,Upernavik,GL
+GL-uummannaq,Uummannaq,GL
+GM-banjul,Banjul,GM
+GN-conakry,Conakry,GN
+GP-basse-terre,Basse-Terre,GP
+GP-grand-bourg,Grand-Bourg,GP
+GP-grande-anse,Grande Anse,GP
+GP-pointe-a-pitre,Pointe-à-Pitre,GP
+GP-st-francois,St-François,GP
+GQ-bata,Bata,GQ
+GQ-corisco-island,Corisco Island,GQ
+GQ-malabo,Malabo,GQ
+GQ-mengomeyen,Mengomeyén,GQ
+GQ-san-antonio-de-pale,San Antonio de Palé,GQ
+GR-alexandroupolis,Alexandroupolis,GR
+GR-argos-orestiko,Argos Orestiko,GR
+GR-astypalaia-island,Astypalaia Island,GR
+GR-chios-island,Chios Island,GR
+GR-crete-island,Crete Island,GR
+GR-heraklion,Heraklion,GR
+GR-ikaria-island,Ikaria Island,GR
+GR-ioannina,Ioannina,GR
+GR-kalamata,Kalamata,GR
+GR-kalymnos-island,Kalymnos Island,GR
+GR-karpathos-island,Karpathos Island,GR
+GR-kasos-island,Kasos Island,GR
+GR-kastelorizo-island,Kastelorizo Island,GR
+GR-kavala,Kavala,GR
+GR-kefallinia-island,Kefallinia Island,GR
+GR-kerkyra,Kerkyra,GR
+GR-kithira-island,Kithira Island,GR
+GR-kos-island,Kos Island,GR
+GR-kozani,Kozani,GR
+GR-leros-island,Leros Island,GR
+GR-limnos-island,Limnos Island,GR
+GR-milos-island,Milos Island,GR
+GR-mykonos,Mykonos,GR
+GR-mytilene,Mytilene,GR
+GR-naxos,Naxos,GR
+GR-nea-anchialos,Nea Anchialos,GR
+GR-paros,Paros,GR
+GR-patras,Patras,GR
+GR-preveza,Preveza,GR
+GR-rhodes,Rhodes,GR
+GR-samos-island,Samos Island,GR
+GR-santorini-island,Santorini Island,GR
+GR-skiathos,Skiathos,GR
+GR-skiros-island,Skiros Island,GR
+GR-souda,Souda,GR
+GR-spata-artemida,Spata-Artemida,GR
+GR-syros-island,Syros Island,GR
+GR-thessaloniki,Thessaloniki,GR
+GR-zakynthos,Zakynthos,GR
+GT-guatemala-city,Guatemala City,GT
+GT-huehuetenango,Huehuetenango,GT
+GT-puerto-barrios,Puerto Barrios,GT
+GT-quezaltenango,Quezaltenango,GT
+GT-retalhuleu,Retalhuleu,GT
+GT-san-benito,San Benito,GT
+GU-hagatna,Hagåtña,GU
+GW-bissau,Bissau,GW
+GY-georgetown,Georgetown,GY
+GY-kaieteur-falls,Kaieteur Falls,GY
+GY-lethem,Lethem,GY
+GY-ogle,Ogle,GY
+HK-hong-kong,Hong Kong,HK
+HN-coxen-hole,Coxen Hole,HN
+HN-guanaja,Guanaja,HN
+HN-la-ceiba,La Ceiba,HN
+HN-palmerola,Palmerola,HN
+HN-puerto-lempira,Puerto Lempira,HN
+HN-san-pedro-sula,San Pedro Sula,HN
+HN-tegucigalpa,Tegucigalpa,HN
+HN-utila-island,Utila Island,HN
+HR-dubrovnik,Dubrovnik,HR
+HR-gornji-humac,Gornji Humac,HR
+HR-osijek,Osijek,HR
+HR-pula,Pula,HR
+HR-rijeka,Rijeka,HR
+HR-split,Split,HR
+HR-velika-gorica,Velika Gorica,HR
+HR-zadar,Zadar,HR
+HT-cap-haitien,Cap Haitien,HT
+HT-carrefour-sanon,Carrefour Sanon,HT
+HT-les-cayes,Les Cayes,HT
+HT-port-au-prince,Port-au-Prince,HT
+HU-budapest,Budapest,HU
+HU-debrecen,Debrecen,HU
+HU-pecs,Pécs,HU
+HU-sarmellek,Sármellék,HU
+ID-BT-jakarta,Jakarta,ID
+ID-JK-jakarta,Jakarta,ID
+ID-ambon,Ambon,ID
+ID-atambua,Atambua,ID
+ID-ba-a-rote-island,Ba'a - Rote Island,ID
+ID-balikpapan,Balikpapan,ID
+ID-banda-aceh,Banda Aceh,ID
+ID-bandar-lampung,Bandar Lampung,ID
+ID-bandung,Bandung,ID
+ID-banjarbaru,Banjarbaru,ID
+ID-batam,Batam,ID
+ID-batu-licin,Batu Licin,ID
+ID-bengkulu,Bengkulu,ID
+ID-benteng,Benteng,ID
+ID-beringin,Beringin,ID
+ID-biak,Biak,ID
+ID-bilogai,Bilogai,ID
+ID-bima,Bima,ID
+ID-bokondini,Bokondini,ID
+ID-bontang-borneo-island,Bontang-Borneo Island,ID
+ID-buol,Buol,ID
+ID-cijulang,Cijulang,ID
+ID-cilacap,Cilacap,ID
+ID-datadawai-borneo-island,Datadawai-Borneo Island,ID
+ID-dekai,Dekai,ID
+ID-dumai,Dumai,ID
+ID-ende,Ende,ID
+ID-fakfak,Fakfak,ID
+ID-gorontalo,Gorontalo,ID
+ID-gunungsitoli,Gunungsitoli,ID
+ID-jambi,Jambi,ID
+ID-jember,Jember,ID
+ID-kabola,Kabola,ID
+ID-kaimana,Kaimana,ID
+ID-karimunjawa,Karimunjawa,ID
+ID-kediri,Kediri,ID
+ID-kendari,Kendari,ID
+ID-kertajati,Kertajati,ID
+ID-ketapang,Ketapang,ID
+ID-kolaka,Kolaka,ID
+ID-kuala-pesisir,Kuala Pesisir,ID
+ID-kupang,Kupang,ID
+ID-kuta,Kuta,ID
+ID-kutacane,Kutacane,ID
+ID-labuan-bajo,Labuan Bajo,ID
+ID-langgur,Langgur,ID
+ID-lhok-seumawe-sumatra-island,Lhok Seumawe-Sumatra Island,ID
+ID-lolak,Lolak,ID
+ID-long-apung-borneo-island,Long Apung-Borneo Island,ID
+ID-long-bawan,Long Bawan,ID
+ID-lubang,Lubang,ID
+ID-makassar,Makassar,ID
+ID-malang,Malang,ID
+ID-malinau,Malinau,ID
+ID-manado,Manado,ID
+ID-manokwari,Manokwari,ID
+ID-mataram,Mataram,ID
+ID-merauke,Merauke,ID
+ID-morowali,Morowali,ID
+ID-muara-bungo,Muara Bungo,ID
+ID-muara-teweh,Muara Teweh,ID
+ID-muko-muko,Muko Muko,ID
+ID-namniwel,Namniwel,ID
+ID-nanga-pinoh-borneo-island,Nanga Pinoh-Borneo Island,ID
+ID-oksibil,Oksibil,ID
+ID-padang,Padang,ID
+ID-palangkaraya,Palangkaraya,ID
+ID-palembang,Palembang,ID
+ID-palopo,Palopo,ID
+ID-palu,Palu,ID
+ID-pangkal-pinang,Pangkal Pinang,ID
+ID-pangkalanbun,Pangkalanbun,ID
+ID-pekanbaru,Pekanbaru,ID
+ID-pontianak,Pontianak,ID
+ID-putussibau-borneo-island,Putussibau-Borneo Island,ID
+ID-radamata,Radamata,ID
+ID-ranai-natuna-besar-island,Ranai-Natuna Besar Island,ID
+ID-rogojampi,Rogojampi,ID
+ID-samarinda,Samarinda,ID
+ID-sampit,Sampit,ID
+ID-satar-tacik,Satar Tacik,ID
+ID-saumlaki-yamdena-island,Saumlaki-Yamdena Island,ID
+ID-semarang,Semarang,ID
+ID-sentani,Sentani,ID
+ID-seruyan,Seruyan,ID
+ID-sibolga,Sibolga,ID
+ID-siborong-borong,Siborong-Borong,ID
+ID-singkil,Singkil,ID
+ID-sintang,Sintang,ID
+ID-sipura-island,Sipura Island,ID
+ID-sorong,Sorong,ID
+ID-stagen,Stagen,ID
+ID-sumbawa-besar,Sumbawa Besar,ID
+ID-sungai-penuh,Sungai Penuh,ID
+ID-surabaya,Surabaya,ID
+ID-surakarta,Surakarta,ID
+ID-tabukan-utara,Tabukan Utara,ID
+ID-takengon,Takengon,ID
+ID-talang-gudang-sumatra-island,Talang Gudang-Sumatra Island,ID
+ID-tanah-merah,Tanah Merah,ID
+ID-tanjung-pandan,Tanjung Pandan,ID
+ID-tanjung-pinang-bintan-island,Tanjung Pinang-Bintan Island,ID
+ID-tanjung-redeb-borneo-island,Tanjung Redeb - Borneo Island,ID
+ID-tanjung-selor-borneo-island,Tanjung Selor-Borneo Island,ID
+ID-tanta-tabalong,Tanta-Tabalong,ID
+ID-tarakan,Tarakan,ID
+ID-ternate,Ternate,ID
+ID-tiakur,Tiakur,ID
+ID-timika,Timika,ID
+ID-tiwatobi,Tiwatobi,ID
+ID-tojo-una-una,Tojo Una-Una,ID
+ID-toli-toli-celebes-island,Toli Toli-Celebes Island,ID
+ID-toraja,Toraja,ID
+ID-tumbang-samba-borneo-island,Tumbang Samba-Borneo Island,ID
+ID-waingapu-sumba-island,Waingapu-Sumba Island,ID
+ID-waioti,Waioti,ID
+ID-waisai,Waisai,ID
+ID-wamena,Wamena,ID
+ID-wangi-wangi-island,Wangi-wangi Island,ID
+ID-yogyakarta,Yogyakarta,ID
+IE-charlestown,Charlestown,IE
+IE-cork,Cork,IE
+IE-donegal,Donegal,IE
+IE-dublin,Dublin,IE
+IE-farranfore,Farranfore,IE
+IE-inis-meain,Inis Meáin,IE
+IE-inis-mor,Inis Mór,IE
+IE-inis-oirr,Inis Oírr,IE
+IE-inverin,Inverin,IE
+IE-shannon,Shannon,IE
+IL-eilat,Eilat,IL
+IL-haifa,Haifa,IL
+IL-tel-aviv,Tel Aviv,IL
+IM-castletown,Castletown,IM
+IN-adampur,Adampur,IN
+IN-agartala,Agartala,IN
+IN-agatti,Agatti,IN
+IN-agra,Agra,IN
+IN-ahmedabad,Ahmedabad,IN
+IN-aizawl,Aizawl,IN
+IN-ajmer,Ajmer,IN
+IN-allahabad,Allahabad,IN
+IN-ambikapur,Ambikapur,IN
+IN-amravati,Amravati,IN
+IN-amritsar,Amritsar,IN
+IN-aurangabad,Aurangabad,IN
+IN-bareilly,Bareilly,IN
+IN-belgaum,Belgaum,IN
+IN-bengaluru,Bengaluru,IN
+IN-bhavnagar,Bhavnagar,IN
+IN-bhawanipatna,Bhawanipatna,IN
+IN-bhopal,Bhopal,IN
+IN-bhubaneswar,Bhubaneswar,IN
+IN-bhuj,Bhuj,IN
+IN-bhuntar,Bhuntar,IN
+IN-bilaspur,Bilaspur,IN
+IN-calicut,Calicut,IN
+IN-chandigarh,Chandigarh,IN
+IN-chennai,Chennai,IN
+IN-chipi,Chipi,IN
+IN-coimbatore,Coimbatore,IN
+IN-darbhanga,Darbhanga,IN
+IN-dehradun,Dehradun,IN
+IN-deoghar,Deoghar,IN
+IN-dibrugarh,Dibrugarh,IN
+IN-dimapur,Dimapur,IN
+IN-diu,Diu,IN
+IN-durgapur,Durgapur,IN
+IN-faizabad,Faizabad,IN
+IN-gautam-buddha-nagar,Gautam Buddha Nagar,IN
+IN-gaya,Gaya,IN
+IN-ghaziabad,Ghaziabad,IN
+IN-gondia,Gondia,IN
+IN-gorakhpur,Gorakhpur,IN
+IN-guwahati,Guwahati,IN
+IN-gwalior,Gwalior,IN
+IN-halwara,Halwara,IN
+IN-hisar,Hisar,IN
+IN-hollongi,Hollongi,IN
+IN-hubballi,Hubballi,IN
+IN-hyderabad,Hyderabad,IN
+IN-imphal,Imphal,IN
+IN-indore,Indore,IN
+IN-jabalpur,Jabalpur,IN
+IN-jagdalpur,Jagdalpur,IN
+IN-jaipur,Jaipur,IN
+IN-jalgaon,Jalgaon,IN
+IN-jammu,Jammu,IN
+IN-jamnagar,Jamnagar,IN
+IN-jodhpur,Jodhpur,IN
+IN-jorhat,Jorhat,IN
+IN-kadapa,Kadapa,IN
+IN-kakadi,Kakadi,IN
+IN-kalaburagi,Kalaburagi,IN
+IN-kandla,Kandla,IN
+IN-kangra,Kangra,IN
+IN-kannur,Kannur,IN
+IN-kanpur,Kanpur,IN
+IN-keshod,Keshod,IN
+IN-khajuraho,Khajuraho,IN
+IN-kochi,Kochi,IN
+IN-kolhapur,Kolhapur,IN
+IN-kolkata,Kolkata,IN
+IN-latur,Latur,IN
+IN-leh,Leh,IN
+IN-lilabari,Lilabari,IN
+IN-lucknow,Lucknow,IN
+IN-madhurapudi,Madhurapudi,IN
+IN-madurai,Madurai,IN
+IN-mangaluru,Mangaluru,IN
+IN-mopa,Mopa,IN
+IN-moradabad,Moradabad,IN
+IN-mumbai,Mumbai,IN
+IN-mysore,Mysore,IN
+IN-nagpur,Nagpur,IN
+IN-nanded,Nanded,IN
+IN-nashik,Nashik,IN
+IN-navi-mumbai,Navi Mumbai,IN
+IN-new-delhi,New Delhi,IN
+IN-orvakal,Orvakal,IN
+IN-pantnagar,Pantnagar,IN
+IN-pathankot,Pathankot,IN
+IN-patna,Patna,IN
+IN-porbandar,Porbandar,IN
+IN-port-blair,Port Blair,IN
+IN-puducherry,Puducherry,IN
+IN-pune,Pune,IN
+IN-raipur,Raipur,IN
+IN-rajkot,Rajkot,IN
+IN-ranchi,Ranchi,IN
+IN-rewa,Rewa,IN
+IN-shillong,Shillong,IN
+IN-shravasti,Shravasti,IN
+IN-silchar,Silchar,IN
+IN-siliguri,Siliguri,IN
+IN-srinagar,Srinagar,IN
+IN-surat,Surat,IN
+IN-thiruvananthapuram,Thiruvananthapuram,IN
+IN-tiruchirappalli,Tiruchirappalli,IN
+IN-tirupati,Tirupati,IN
+IN-udaipur,Udaipur,IN
+IN-vadodara,Vadodara,IN
+IN-vagaikulam,Vagaikulam,IN
+IN-varanasi,Varanasi,IN
+IN-vasco-da-gama,Vasco da Gama,IN
+IN-vijayawada,Vijayawada,IN
+IN-visakhapatnam,Visakhapatnam,IN
+IQ-arbil,Arbil,IQ
+IQ-baghdad,Baghdad,IQ
+IQ-basra,Basra,IQ
+IQ-kirkuk,Kirkuk,IQ
+IQ-najaf,Najaf,IQ
+IQ-sulaymaniyah,Sulaymaniyah,IQ
+IR-abadan,Abadan,IR
+IR-abu-musa,Abu Musa,IR
+IR-ahvaz,Ahvaz,IR
+IR-ardabil,Ardabil,IR
+IR-bam,Bam,IR
+IR-bandar-abbas,Bandar Abbas,IR
+IR-bandar-e-jask,Bandar-e-Jask,IR
+IR-bandar-lengeh,Bandar Lengeh,IR
+IR-birjand,Birjand,IR
+IR-bojnord,Bojnord,IR
+IR-bushehr,Bushehr,IR
+IR-dezful,Dezful,IR
+IR-gachsaran,Gachsaran,IR
+IR-hamadan,Hamadan,IR
+IR-isfahan,Isfahan,IR
+IR-karaj,Karaj,IR
+IR-kashan,Kashan,IR
+IR-kerman,Kerman,IR
+IR-kermanshah,Kermanshah,IR
+IR-khark,Khark,IR
+IR-khiyaroo,Khiyaroo,IR
+IR-kish-island,Kish Island,IR
+IR-konarak,Konarak,IR
+IR-lamerd,Lamerd,IR
+IR-lar,Lar,IR
+IR-mahshahr,Mahshahr,IR
+IR-mashhad,Mashhad,IR
+IR-nowshahr,Nowshahr,IR
+IR-parsabad,Parsabad,IR
+IR-qeshm,Qeshm,IR
+IR-rafsanjan,Rafsanjan,IR
+IR-ramsar,Ramsar,IR
+IR-rasht,Rasht,IR
+IR-sabzevar,Sabzevar,IR
+IR-sari,Sari,IR
+IR-semnan,Semnan,IR
+IR-shiraz,Shiraz,IR
+IR-tabriz,Tabriz,IR
+IR-tehran,Tehran,IR
+IR-urmia,Urmia,IR
+IR-yazd,Yazd,IR
+IR-zahedan,Zahedan,IR
+IS-1-reykjavik,Reykjavík,IS
+IS-2-reykjavik,Reykjavík,IS
+IS-akureyri,Akureyri,IS
+IS-egilsstair,Egilsstaðir,IS
+IS-grimsey-sandvik,Grímsey/Sandvík,IS
+IS-hofn,Höfn,IS
+IS-isafjorur,Ísafjörður,IS
+IS-orshofn,Þórshöfn,IS
+IS-vopnafjorur,Vopnafjörður,IS
+IT-alghero,Alghero,IT
+IT-bari,Bari,IT
+IT-bologna,Bologna,IT
+IT-bolzano,Bolzano,IT
+IT-brindisi,Brindisi,IT
+IT-cagliari,Cagliari,IT
+IT-campo-nell-elba,Campo nell'Elba,IT
+IT-caselle,Caselle,IT
+IT-caselle-torinese,Caselle Torinese,IT
+IT-catania,Catania,IT
+IT-comiso,Comiso,IT
+IT-falconara-marittima,Falconara Marittima,IT
+IT-ferno,Ferno,IT
+IT-firenze,Firenze,IT
+IT-foggia,Foggia,IT
+IT-forli,Forlì,IT
+IT-genova,Genova,IT
+IT-isola-di-capo-rizzuto,Isola di Capo Rizzuto,IT
+IT-lamezia-terme,Lamezia Terme,IT
+IT-lampedusa,Lampedusa,IT
+IT-levaldigi,Levaldigi,IT
+IT-montichiari,Montichiari,IT
+IT-napoli,Napoli,IT
+IT-olbia,Olbia,IT
+IT-orio-al-serio,Orio al Serio,IT
+IT-palermo,Palermo,IT
+IT-pantelleria,Pantelleria,IT
+IT-parma,Parma,IT
+IT-perugia,Perugia,IT
+IT-pescara,Pescara,IT
+IT-pisa,Pisa,IT
+IT-reggio-calabria,Reggio Calabria,IT
+IT-rimini,Rimini,IT
+IT-rome,Rome,IT
+IT-ronchi-dei-legionari-trieste,Ronchi dei Legionari/Trieste,IT
+IT-salerno,Salerno,IT
+IT-segrate,Segrate,IT
+IT-trapani,Trapani,IT
+IT-treviso,Treviso,IT
+IT-venezia,Venezia,IT
+JE-st-peter,St. Peter,JE
+JM-boscobel,Boscobel,JM
+JM-kingston,Kingston,JM
+JM-montego-bay,Montego Bay,JM
+JM-tinson-pen,Tinson Pen,JM
+JO-amman,Amman,JO
+JO-aqaba,Aqaba,JO
+JP-aguni,Aguni,JP
+JP-akita,Akita,JP
+JP-amagi,Amagi,JP
+JP-amakusa,Amakusa,JP
+JP-amami,Amami,JP
+JP-aomori,Aomori,JP
+JP-fukuoka,Fukuoka,JP
+JP-goto,Goto,JP
+JP-hachijojima,Hachijojima,JP
+JP-hakodate,Hakodate,JP
+JP-hanamaki,Hanamaki,JP
+JP-higashikagura,Higashikagura,JP
+JP-higashine,Higashine,JP
+JP-hiroshima,Hiroshima,JP
+JP-iki,Iki,JP
+JP-ishigaki,Ishigaki,JP
+JP-iwakuni,Iwakuni,JP
+JP-izu-oshima,Izu Oshima,JP
+JP-izumo,Izumo,JP
+JP-kagoshima,Kagoshima,JP
+JP-kanazawa,Kanazawa,JP
+JP-kikai,Kikai,JP
+JP-kitaakita,Kitaakita,JP
+JP-kitadaitojima,Kitadaitōjima,JP
+JP-kitakyushu,Kitakyushu,JP
+JP-kobe,Kobe,JP
+JP-kumamoto,Kumamoto,JP
+JP-kumejima,Kumejima,JP
+JP-kushiro,Kushiro,JP
+JP-makinohara-shimada,Makinohara / Shimada,JP
+JP-masuda,Masuda,JP
+JP-matsumoto,Matsumoto,JP
+JP-matsuyama,Matsuyama,JP
+JP-minamidaito,Minamidaito,JP
+JP-misawa,Misawa,JP
+JP-miyakejima,Miyakejima,JP
+JP-miyakojima,Miyakojima,JP
+JP-miyazaki,Miyazaki,JP
+JP-monbetsu,Monbetsu,JP
+JP-nagasaki,Nagasaki,JP
+JP-nagoya,Nagoya,JP
+JP-naha,Naha,JP
+JP-nakashibetsu,Nakashibetsu,JP
+JP-nankoku,Nankoku,JP
+JP-narita,Narita,JP
+JP-natori,Natori,JP
+JP-niigata,Niigata,JP
+JP-obihiro,Obihiro,JP
+JP-oita,Oita,JP
+JP-okayama,Okayama,JP
+JP-okinoshima,Okinoshima,JP
+JP-okushiri-island,Okushiri Island,JP
+JP-omitama,Omitama,JP
+JP-osaka,Osaka,JP
+JP-ozora,Ōzora,JP
+JP-rishiri,Rishiri,JP
+JP-sado,Sado,JP
+JP-saga,Saga,JP
+JP-sapporo,Sapporo,JP
+JP-shirahama,Shirahama,JP
+JP-shonai,Shonai,JP
+JP-sukagawa,Sukagawa,JP
+JP-takamatsu,Takamatsu,JP
+JP-tanegashima,Tanegashima,JP
+JP-tarama,Tarama,JP
+JP-tokoname,Tokoname,JP
+JP-tokushima,Tokushima,JP
+JP-tokyo,Tokyo,JP
+JP-tottori,Tottori,JP
+JP-toyama,Toyama,JP
+JP-toyooka,Toyooka,JP
+JP-tsushima,Tsushima,JP
+JP-ube,Ube,JP
+JP-wadomari,Wadomari,JP
+JP-wajima,Wajima,JP
+JP-wakkanai,Wakkanai,JP
+JP-yakushima,Yakushima,JP
+JP-yonago,Yonago,JP
+JP-yonaguni,Yonaguni,JP
+JP-yoron,Yoron,JP
+KE-eldoret,Eldoret,KE
+KE-gathiuru,Gathiuru,KE
+KE-kisumu,Kisumu,KE
+KE-lamu,Lamu,KE
+KE-malindi,Malindi,KE
+KE-meru-kinna,Meru-Kinna,KE
+KE-mombasa,Mombasa,KE
+KE-nairobi,Nairobi,KE
+KE-ol-tukai,Ol Tukai,KE
+KE-serena,Serena,KE
+KE-wajir,Wajir,KE
+KG-bishkek,Bishkek,KG
+KG-karakol,Karakol,KG
+KG-osh,Osh,KG
+KG-tamchy,Tamchy,KG
+KH-battambang,Battambang,KH
+KH-phnom-penh,Phnom Penh,KH
+KH-preah-sihanouk,Preah Sihanouk,KH
+KH-siem-reap,Siem Reap,KH
+KH-ta-noun,Ta Noun,KH
+KI-buariki,Buariki,KI
+KI-butaritari,Butaritari,KI
+KI-kiritimati,Kiritimati,KI
+KI-south-tarawa,South Tarawa,KI
+KM-moroni,Moroni,KM
+KM-ouani,Ouani,KM
+KN-basseterre,Basseterre,KN
+KN-charlestown,Charlestown,KN
+KP-hoemun-ri,Hoemun-ri,KP
+KP-pyongyang,Pyongyang,KP
+KP-sondong-ni,Sŏndŏng-ni,KP
+KP-wonsan,Wonsan,KP
+KR-11-seoul,Seoul,KR
+KR-28-seoul,Seoul,KR
+KR-busan,Busan,KR
+KR-cheongju,Cheongju,KR
+KR-daegu,Daegu,KR
+KR-gonghang-ro,Gonghang-ro,KR
+KR-gunsan,Gunsan,KR
+KR-gwangju,Gwangju,KR
+KR-jeju-city,Jeju City,KR
+KR-muan,Muan,KR
+KR-pohang,Pohang,KR
+KR-sacheon,Sacheon,KR
+KR-ulsan,Ulsan,KR
+KR-wonju,Wonju,KR
+KR-yeosu,Yeosu,KR
+KW-kuwait-city,Kuwait City,KW
+KY-george-town,George Town,KY
+KY-west-end,West End,KY
+KZ-aktau,Aktau,KZ
+KZ-aktobe,Aktobe,KZ
+KZ-almaty,Almaty,KZ
+KZ-astana,Astana,KZ
+KZ-atyrau,Atyrau,KZ
+KZ-baikonur,Baikonur,KZ
+KZ-balkhash,Balkhash,KZ
+KZ-karaganda,Karaganda,KZ
+KZ-kokshetau,Kokshetau,KZ
+KZ-kostanay,Kostanay,KZ
+KZ-kyzylorda,Kyzylorda,KZ
+KZ-pavlodar,Pavlodar,KZ
+KZ-petropavl,Petropavl,KZ
+KZ-semey,Semey,KZ
+KZ-shymkent,Shymkent,KZ
+KZ-taldykorgan,Taldykorgan,KZ
+KZ-taraz,Taraz,KZ
+KZ-turkstan,Turkıstan,KZ
+KZ-uralsk,Uralsk,KZ
+KZ-urzhar,Urzhar,KZ
+KZ-usharal,Usharal,KZ
+KZ-ust-kamenogorsk,Ust-Kamenogorsk,KZ
+KZ-zaysan,Zaysan,KZ
+KZ-zhezkazgan,Zhezkazgan,KZ
+LA-luang-namtha,Luang Namtha,LA
+LA-luang-phabang,Luang Phabang,LA
+LA-oudomsay,Oudomsay,LA
+LA-pakse,Pakse,LA
+LA-ton-phueng,Ton Phueng,LA
+LA-vientiane,Vientiane,LA
+LA-xieng-khouang,Xieng Khouang,LA
+LB-beirut,Beirut,LB
+LC-castries,Castries,LC
+LC-vieux-fort,Vieux Fort,LC
+LK-batticaloa,Batticaloa,LK
+LK-colombo,Colombo,LK
+LK-galle,Galle,LK
+LK-jaffna,Jaffna,LK
+LK-mattala,Mattala,LK
+LK-trincomalee,Trincomalee,LK
+LR-MG-monrovia,Monrovia,LR
+LR-MO-monrovia,Monrovia,LR
+LS-maseru,Maseru,LS
+LT-kaunas,Kaunas,LT
+LT-palanga,Palanga,LT
+LT-vilnius,Vilnius,LT
+LU-luxembourg,Luxembourg,LU
+LV-riga,Riga,LV
+LY-al-albraq,Al Albraq,LY
+LY-benina,Benina,LY
+LY-ghadames,Ghadames,LY
+LY-kufra,Kufra,LY
+LY-misrata,Misrata,LY
+LY-sabha,Sabha,LY
+LY-tripoli,Tripoli,LY
+MA-agadir,Agadir,MA
+MA-ahl-angad,Ahl Angad,MA
+MA-al-aaroui,Al Aaroui,MA
+MA-al-hoceima,Al Hoceima,MA
+MA-bouarfa,Bouarfa,MA
+MA-casablanca,Casablanca,MA
+MA-errachidia,Errachidia,MA
+MA-essaouira,Essaouira,MA
+MA-marrakesh,Marrakesh,MA
+MA-ouarzazate,Ouarzazate,MA
+MA-oulad-yaich,Oulad Yaich,MA
+MA-rabat,Rabat,MA
+MA-saiss,Saïss,MA
+MA-tan-tan,Tan Tan,MA
+MA-tangier,Tangier,MA
+MA-tetouan,Tétouan,MA
+MA-zagora,Zagora,MA
+MD-chisinau,Chişinău,MD
+ME-podgorica,Podgorica,ME
+ME-tivat,Tivat,ME
+MF-grand-case,Grand Case,MF
+MG-antananarivo,Antananarivo,MG
+MG-antisiranana,Antisiranana,MG
+MG-besalampy,Besalampy,MG
+MG-mahajanga,Mahajanga,MG
+MG-mananjary,Mananjary,MG
+MG-maroantsetra,Maroantsetra,MG
+MG-morondava,Morondava,MG
+MG-nosy-be,Nosy Be,MG
+MG-sambava,Sambava,MG
+MG-soalala,Soalala,MG
+MG-tambohorano,Tambohorano,MG
+MG-toamasina,Toamasina,MG
+MG-tolanaro,Tôlanaro,MG
+MG-toliara,Toliara,MG
+MG-tsaratanana,Tsaratanana,MG
+MG-vohilava,Vohilava,MG
+MH-ailinglapalap-atoll,Ailinglapalap Atoll,MH
+MH-aur-atoll,Aur Atoll,MH
+MH-enejit-island,Enejit Island,MH
+MH-eniwetok-atoll,Eniwetok Atoll,MH
+MH-jabor-jaluit-atoll,Jabor Jaluit Atoll,MH
+MH-kili-island,Kili Island,MH
+MH-kwajalein,Kwajalein,MH
+MH-likiep-island,Likiep Island,MH
+MH-majkin,Majkin,MH
+MH-majuro-atoll,Majuro Atoll,MH
+MH-mili-island,Mili Island,MH
+MH-rongelap-island,Rongelap Island,MH
+MH-ujae-atoll,Ujae Atoll,MH
+MH-utirik-island,Utirik Island,MH
+MH-wotho-island,Wotho Island,MH
+MH-wotje,Wotje,MH
+MK-ilinden,Ilinden,MK
+MK-ohrid,Ohrid,MK
+ML-bamako,Bamako,ML
+ML-gao,Gao,ML
+ML-kayes,Kayes,ML
+ML-sevare,Sévaré,ML
+ML-timbuktu,Timbuktu,ML
+MM-banmaw,Banmaw,MM
+MM-dawei,Dawei,MM
+MM-heho,Heho,MM
+MM-kanti,Kanti,MM
+MM-kawthoung,Kawthoung,MM
+MM-kengtung,Kengtung,MM
+MM-kyaukpyu,Kyaukpyu,MM
+MM-lashio,Lashio,MM
+MM-loikaw,Loikaw,MM
+MM-magway,Magway,MM
+MM-mandalay,Mandalay,MM
+MM-mawlamyine,Mawlamyine,MM
+MM-mkeik,Mkeik,MM
+MM-mong-hsat,Mong Hsat,MM
+MM-myitkyina,Myitkyina,MM
+MM-naypyitaw,Naypyitaw,MM
+MM-nyaung-u,Nyaung U,MM
+MM-pathein,Pathein,MM
+MM-putao,Putao,MM
+MM-sittwe,Sittwe,MM
+MM-tachileik,Tachileik,MM
+MM-thandwe,Thandwe,MM
+MM-yangon,Yangon,MM
+MN-altai,Altai,MN
+MN-arvaikheer,Arvaikheer,MN
+MN-bayankhongor,Bayankhongor,MN
+MN-bulgan,Bulgan,MN
+MN-dalanzadgad,Dalanzadgad,MN
+MN-khovd,Khovd,MN
+MN-mandalgobi,Mandalgobi,MN
+MN-moron,Mörön,MN
+MN-olgii,Ölgii,MN
+MN-ulaanbaatar,Ulaanbaatar,MN
+MN-ulaangom,Ulaangom,MN
+MN-uliastai,Uliastai,MN
+MO-nossa-senhora-do-carmo,Nossa Senhora do Carmo,MO
+MP-i-fadang,I Fadang,MP
+MP-rota-island,Rota Island,MP
+MP-tinian-island,Tinian Island,MP
+MQ-fort-de-france,Fort-de-France,MQ
+MR-nouadhibou,Nouadhibou,MR
+MR-nouakchott,Nouakchott,MR
+MR-zouerate,Zouérate,MR
+MS-gerald-s-park,Gerald's Park,MS
+MT-valletta,Valletta,MT
+MU-plaine-magnien,Plaine Magnien,MU
+MU-port-mathurin,Port Mathurin,MU
+MV-27-huvadhu-atoll,Huvadhu Atoll,MV
+MV-28-huvadhu-atoll,Huvadhu Atoll,MV
+MV-baa-atoll,Baa Atoll,MV
+MV-faresmaathodaa,Faresmaathodaa,MV
+MV-funadhoo,Funadhoo,MV
+MV-gan,Gan,MV
+MV-haa-dhaalu-atoll,Haa Dhaalu Atoll,MV
+MV-kadhdhoo,Kadhdhoo,MV
+MV-kulhudhuffushi,Kulhudhuffushi,MV
+MV-maamigili,Maamigili,MV
+MV-maavaarulu,Maavaarulu,MV
+MV-male,Malé,MV
+MV-noonu-atoll,Noonu Atoll,MV
+MV-thimarafushi,Thimarafushi,MV
+MW-blantyre,Blantyre,MW
+MW-lumbadzi,Lumbadzi,MW
+MX-DIF-mexico-city,Mexico City,MX
+MX-MEX-mexico-city,Mexico City,MX
+MX-acapulco,Acapulco,MX
+MX-aguascalientes,Aguascalientes,MX
+MX-cabo-san-lucas,Cabo San Lucas,MX
+MX-campeche,Campeche,MX
+MX-cancun,Cancún,MX
+MX-chetumal,Chetumal,MX
+MX-chihuahua,Chihuahua,MX
+MX-ciudad-del-carmen,Ciudad del Carmen,MX
+MX-ciudad-juarez,Ciudad Juárez,MX
+MX-ciudad-madero,Ciudad Madero,MX
+MX-ciudad-obregon,Ciudad Obregón,MX
+MX-ciudad-victoria,Ciudad Victoria,MX
+MX-colima,Colima,MX
+MX-comondu,Comondú,MX
+MX-cosoleacaque,Cosoleacaque,MX
+MX-cozumel,Cozumel,MX
+MX-culiacan,Culiacán,MX
+MX-durango,Durango,MX
+MX-guadalajara,Guadalajara,MX
+MX-guaymas,Guaymas,MX
+MX-hermosillo,Hermosillo,MX
+MX-huatulco,Huatulco,MX
+MX-ixtapa,Ixtapa,MX
+MX-ixtepec,Ixtepec,MX
+MX-la-paz,La Paz,MX
+MX-loreto,Loreto,MX
+MX-los-mochis,Los Mochis,MX
+MX-manzanillo,Manzanillo,MX
+MX-matamoros,Matamoros,MX
+MX-mazatlan,Mazatlàn,MX
+MX-merida,Mérida,MX
+MX-mexicali,Mexicali,MX
+MX-monterrey,Monterrey,MX
+MX-morelia,Morelia,MX
+MX-mulege,Mulegé,MX
+MX-nuevo-laredo,Nuevo Laredo,MX
+MX-oaxaca,Oaxaca,MX
+MX-piedras-negras,Piedras Negras,MX
+MX-poza-rica,Poza Rica,MX
+MX-puebla,Puebla,MX
+MX-puerto-escondido,Puerto Escondido,MX
+MX-puerto-penasco,Puerto Peñasco,MX
+MX-puerto-vallarta,Puerto Vallarta,MX
+MX-queretaro,Querétaro,MX
+MX-reynosa,Reynosa,MX
+MX-saltillo,Saltillo,MX
+MX-san-jose-del-cabo,San José del Cabo,MX
+MX-san-luis-potosi,San Luis Potosí,MX
+MX-san-quintin,San Quintín,MX
+MX-silao,Silao,MX
+MX-tapachula,Tapachula,MX
+MX-tepic,Tepic,MX
+MX-tijuana,Tijuana,MX
+MX-toluca,Toluca,MX
+MX-torreon,Torreón,MX
+MX-tulum,Tulum,MX
+MX-tuxtla-gutierrez,Tuxtla Gutiérrez,MX
+MX-uruapan,Uruapan,MX
+MX-veracruz,Veracruz,MX
+MX-villahermosa,Villahermosa,MX
+MX-zacatecas,Zacatecas,MX
+MY-alor-satar,Alor Satar,MY
+MY-bakalalan,Bakalalan,MY
+MY-bario,Bario,MY
+MY-bintulu,Bintulu,MY
+MY-ipoh,Ipoh,MY
+MY-johor-bahru,Johor Bahru,MY
+MY-kota-baharu,Kota Baharu,MY
+MY-kota-kinabalu,Kota Kinabalu,MY
+MY-kuala-terengganu,Kuala Terengganu,MY
+MY-kuantan,Kuantan,MY
+MY-kuching,Kuching,MY
+MY-kudat,Kudat,MY
+MY-labuan,Labuan,MY
+MY-lahad-datu,Lahad Datu,MY
+MY-langkawi,Langkawi,MY
+MY-lawas,Lawas,MY
+MY-limbang,Limbang,MY
+MY-long-banga,Long Banga,MY
+MY-long-datih,Long Datih,MY
+MY-long-seridan,Long Seridan,MY
+MY-malacca,Malacca,MY
+MY-marudi,Marudi,MY
+MY-miri,Miri,MY
+MY-mukah,Mukah,MY
+MY-mulu,Mulu,MY
+MY-pangkor-island,Pangkor Island,MY
+MY-penang,Penang,MY
+MY-sandakan,Sandakan,MY
+MY-sepang,Sepang,MY
+MY-sibu,Sibu,MY
+MY-subang,Subang,MY
+MY-tawau,Tawau,MY
+MY-tioman-island,Tioman Island,MY
+MY-tomanggong,Tomanggong,MY
+MZ-beira,Beira,MZ
+MZ-chimoio,Chimoio,MZ
+MZ-inhambane,Inhambane,MZ
+MZ-lichinga,Lichinga,MZ
+MZ-maputo,Maputo,MZ
+MZ-nacala,Nacala,MZ
+MZ-nampula,Nampula,MZ
+MZ-pemba,Pemba,MZ
+MZ-quelimane,Quelimane,MZ
+MZ-tete,Tete,MZ
+MZ-vilanculo,Vilanculo,MZ
+MZ-xai-xai,Xai-Xai,MZ
+NA-halali,Halali,NA
+NA-luderitz,Luderitz,NA
+NA-mpacha,Mpacha,NA
+NA-ondangwa,Ondangwa,NA
+NA-oranjemund,Oranjemund,NA
+NA-rundu,Rundu,NA
+NA-walvis-bay,Walvis Bay,NA
+NA-windhoek,Windhoek,NA
+NC-ile-des-pins,Île des Pins,NC
+NC-kone,Koné,NC
+NC-koumac,Koumac,NC
+NC-lifou,Lifou,NC
+NC-mare,Maré,NC
+NC-noumea,Nouméa,NC
+NC-ouvea,Ouvéa,NC
+NC-tiga,Tiga,NC
+NC-touho,Touho,NC
+NC-waala,Waala,NC
+NE-niamey,Niamey,NE
+NE-zinder,Zinder,NE
+NF-burnt-pine,Burnt Pine,NF
+NG-abuja,Abuja,NG
+NG-akure,Akure,NG
+NG-asaba,Asaba,NG
+NG-bauchi,Bauchi,NG
+NG-benin,Benin,NG
+NG-calabar,Calabar,NG
+NG-enegu,Enegu,NG
+NG-gombe,Gombe,NG
+NG-ibadan,Ibadan,NG
+NG-ilorin-ogbomosho,Ilorin/Ogbomosho,NG
+NG-jos,Jos,NG
+NG-kaduna,Kaduna,NG
+NG-kano,Kano,NG
+NG-katsina,Katsina,NG
+NG-lagos,Lagos,NG
+NG-maiduguri,Maiduguri,NG
+NG-makurdi,Makurdi,NG
+NG-okpe,Okpe,NG
+NG-owerri,Owerri,NG
+NG-port-harcourt,Port Harcourt,NG
+NG-sokoto,Sokoto,NG
+NG-uyo,Uyo,NG
+NG-yola,Yola,NG
+NI-bluefields,Bluefields,NI
+NI-corn-island,Corn Island,NI
+NI-managua,Managua,NI
+NI-puerto-cabezas,Puerto Cabezas,NI
+NL-amsterdam,Amsterdam,NL
+NL-eindhoven,Eindhoven,NL
+NL-groningen,Groningen,NL
+NL-maastricht,Maastricht,NL
+NL-rotterdam,Rotterdam,NL
+NO-alesund,Ålesund,NO
+NO-alstahaug,Alstahaug,NO
+NO-alta,Alta,NO
+NO-andenes,Andenes,NO
+NO-ar,Årø,NO
+NO-batsfjord,Båtsfjord,NO
+NO-bergen,Bergen,NO
+NO-berlevag,Berlevåg,NO
+NO-bod,Bodø,NO
+NO-brnny,Brønnøy,NO
+NO-evenes,Evenes,NO
+NO-flor,Florø,NO
+NO-frde,Førde,NO
+NO-hadsel,Hadsel,NO
+NO-hammerfest,Hammerfest,NO
+NO-hasvik,Hasvik,NO
+NO-honningsvag,Honningsvåg,NO
+NO-karmy,Karmøy,NO
+NO-kirkenes,Kirkenes,NO
+NO-kristiansand,Kristiansand,NO
+NO-kvernberget,Kvernberget,NO
+NO-lakselv,Lakselv,NO
+NO-leirvik,Leirvik,NO
+NO-leknes,Leknes,NO
+NO-longyearbyen,Longyearbyen,NO
+NO-malselv,Målselv,NO
+NO-mehamn,Mehamn,NO
+NO-mo-i-rana,Mo i Rana,NO
+NO-mosjen,Mosjøen,NO
+NO-namsos,Namsos,NO
+NO-oslo,Oslo,NO
+NO-rland,Ørland,NO
+NO-rros,Røros,NO
+NO-rrvik,Rørvik,NO
+NO-rst,Røst,NO
+NO-rsta,Ørsta,NO
+NO-sandane,Sandane,NO
+NO-sandefjord,Sandefjord,NO
+NO-sogndal,Sogndal,NO
+NO-srkjosen,Sørkjosen,NO
+NO-stavanger,Stavanger,NO
+NO-svolvr,Svolvær,NO
+NO-troms,Tromsø,NO
+NO-trondheim,Trondheim,NO
+NO-vads,Vadsø,NO
+NO-vard,Vardø,NO
+NP-bhadrapur,Bhadrapur,NP
+NP-bharatpur,Bharatpur,NP
+NP-biratnagar,Biratnagar,NP
+NP-dolpa,Dolpa,NP
+NP-janakpur,Janakpur,NP
+NP-jomsom,Jomsom,NP
+NP-jumla,Jumla,NP
+NP-kathmandu,Kathmandu,NP
+NP-lukla,Lukla,NP
+NP-nepalgunj,Nepalgunj,NP
+NP-pokhara,Pokhara,NP
+NP-siddharthanagar,Siddharthanagar,NP
+NP-silgadi-doti,Silgadi Doti,NP
+NP-simara,Simara,NP
+NP-simikot,Simikot,NP
+NP-surkhet,Surkhet,NP
+NP-taplejung,Taplejung,NP
+NP-tumling-tar,Tumling Tar,NP
+NR-yaren,Yaren,NR
+NU-alofi,Alofi,NU
+NZ-auckland,Auckland,NZ
+NZ-awanui,Awanui,NZ
+NZ-blenheim,Blenheim,NZ
+NZ-christchurch,Christchurch,NZ
+NZ-claris,Claris,NZ
+NZ-dunedin,Dunedin,NZ
+NZ-gisborne,Gisborne,NZ
+NZ-hamilton,Hamilton,NZ
+NZ-invercargill,Invercargill,NZ
+NZ-kerikeri,Kerikeri,NZ
+NZ-koromiko,Koromiko,NZ
+NZ-napier,Napier,NZ
+NZ-nelson,Nelson,NZ
+NZ-new-plymouth,New Plymouth,NZ
+NZ-palmerston-north,Palmerston North,NZ
+NZ-queenstown,Queenstown,NZ
+NZ-rotorua,Rotorua,NZ
+NZ-taupo,Taupo,NZ
+NZ-tauranga,Tauranga,NZ
+NZ-te-one,Te One,NZ
+NZ-wanaka,Wanaka,NZ
+NZ-wanganui,Wanganui,NZ
+NZ-wellington,Wellington,NZ
+NZ-westport,Westport,NZ
+NZ-whakatane,Whakatāne,NZ
+NZ-whangarei,Whangarei,NZ
+OM-duqm,Duqm,OM
+OM-khasab,Khasab,OM
+OM-muscat-seeb,Muscat/Seeb,OM
+OM-salalah,Salalah,OM
+OM-suhar,Suhar,OM
+PA-albrook,Albrook,PA
+PA-changuinola,Changuinola,PA
+PA-chitre,Chitré,PA
+PA-colon,Colón,PA
+PA-contadora-island,Contadora Island,PA
+PA-david,David,PA
+PA-isla-colon,Isla Colón,PA
+PA-panama-city,Panamá City,PA
+PA-pedasi,Pedasí,PA
+PA-puerto-pina,Puerto Piña,PA
+PA-rio-hato,Río Hato,PA
+PA-tocumen,Tocumen,PA
+PE-andahuaylas,Andahuaylas,PE
+PE-arequipa,Arequipa,PE
+PE-ayacucho,Ayacucho,PE
+PE-cajamarca,Cajamarca,PE
+PE-chachapoyas,Chachapoyas,PE
+PE-chiclayo,Chiclayo,PE
+PE-chimbote,Chimbote,PE
+PE-cusco,Cusco,PE
+PE-huanuco,Huánuco,PE
+PE-ilo,Ilo,PE
+PE-iquitos,Iquitos,PE
+PE-jaen,Jaén,PE
+PE-jauja,Jauja,PE
+PE-juliaca,Juliaca,PE
+PE-lima,Lima,PE
+PE-nazca,Nazca,PE
+PE-piura,Piura,PE
+PE-pucallpa,Pucallpa,PE
+PE-puerto-maldonado,Puerto Maldonado,PE
+PE-tacna,Tacna,PE
+PE-talara,Talara,PE
+PE-tarapoto,Tarapoto,PE
+PE-trujillo,Trujillo,PE
+PE-tumbes,Tumbes,PE
+PE-yurimaguas,Yurimaguas,PE
+PF-ahe-atoll,Ahe Atoll,PF
+PF-anaa,Anaa,PF
+PF-apataki,Apataki,PF
+PF-fakahina,Fakahina,PF
+PF-fangatau,Fangatau,PF
+PF-fare,Fare,PF
+PF-hikueru,Hikueru,PF
+PF-hiva-oa-island,Hiva Oa Island,PF
+PF-kauehi,Kauehi,PF
+PF-makemo,Makemo,PF
+PF-moorea-maiao,Moorea-Maiao,PF
+PF-motu-mute,Motu Mute,PF
+PF-naiu-atoll,Naiu Atoll,PF
+PF-napuka-island,Napuka Island,PF
+PF-nuku-hiva,Nuku Hiva,PF
+PF-otepa,Otepa,PF
+PF-papeete,Papeete,PF
+PF-raitahiti,Raitahiti,PF
+PF-raroia,Raroia,PF
+PF-rimatara-island,Rimatara Island,PF
+PF-tatakoto,Tatakoto,PF
+PF-tuherahera,Tuherahera,PF
+PF-ua-huka,Ua Huka,PF
+PF-ua-pou,Ua Pou,PF
+PF-uturoa,Uturoa,PF
+PG-baimuru,Baimuru,PG
+PG-balimo,Balimo,PG
+PG-bosset,Bosset,PG
+PG-buka-island,Buka Island,PG
+PG-daru,Daru,PG
+PG-gasmata-island,Gasmata Island,PG
+PG-goronka,Goronka,PG
+PG-gurney,Gurney,PG
+PG-kavieng,Kavieng,PG
+PG-kerema,Kerema,PG
+PG-kieta,Kieta,PG
+PG-kikori,Kikori,PG
+PG-kimbe,Kimbe,PG
+PG-kiunga,Kiunga,PG
+PG-kokopo,Kokopo,PG
+PG-kundiawa,Kundiawa,PG
+PG-lae,Lae,PG
+PG-lake-murray,Lake Murray,PG
+PG-londolovit,Londolovit,PG
+PG-losuia,Losuia,PG
+PG-madang,Madang,PG
+PG-manus-island,Manus Island,PG
+PG-mendi,Mendi,PG
+PG-misima-island,Misima Island,PG
+PG-moro,Moro,PG
+PG-mount-hagen,Mount Hagen,PG
+PG-obo,Obo,PG
+PG-popondetta,Popondetta,PG
+PG-port-moresby,Port Moresby,PG
+PG-sasereme,Sasereme,PG
+PG-tabubil,Tabubil,PG
+PG-tapini,Tapini,PG
+PG-tari,Tari,PG
+PG-tufi,Tufi,PG
+PG-vanimo,Vanimo,PG
+PG-wapenamanda,Wapenamanda,PG
+PG-wewak,Wewak,PG
+PH-bacolod-city,Bacolod City,PH
+PH-basco,Basco,PH
+PH-bongao,Bongao,PH
+PH-butuan,Butuan,PH
+PH-cabatuan,Cabatuan,PH
+PH-calbayog-city,Calbayog City,PH
+PH-catarman,Catarman,PH
+PH-caticlan,Caticlan,PH
+PH-cauayan-city,Cauayan City,PH
+PH-cebu-city-lapu-lapu-city,Cebu City/Lapu-Lapu City,PH
+PH-coron,Coron,PH
+PH-cuyo,Cuyo,PH
+PH-datu-odin-sinsuat,Datu Odin Sinsuat,PH
+PH-davao,Davao,PH
+PH-del-carmen,Del Carmen,PH
+PH-dipolog,Dipolog,PH
+PH-dumaguete-city,Dumaguete City,PH
+PH-el-nido,El Nido,PH
+PH-general-santos,General Santos,PH
+PH-jolo,Jolo,PH
+PH-kalibo,Kalibo,PH
+PH-laguindingan,Laguindingan,PH
+PH-laoag-city,Laoag City,PH
+PH-legazpi,Legazpi,PH
+PH-mabalacat,Mabalacat,PH
+PH-mambajao,Mambajao,PH
+PH-manila,Manila,PH
+PH-masbate,Masbate,PH
+PH-naga,Naga,PH
+PH-olongapo,Olongapo,PH
+PH-ozamiz,Ozamiz,PH
+PH-pagadian,Pagadian,PH
+PH-panglao,Panglao,PH
+PH-puerto-princesa,Puerto Princesa,PH
+PH-roxas-city,Roxas City,PH
+PH-san-jose,San Jose,PH
+PH-san-vicente,San Vicente,PH
+PH-surigao-city,Surigao City,PH
+PH-tablas-island,Tablas Island,PH
+PH-tacloban-city,Tacloban City,PH
+PH-tuguegarao-city,Tuguegarao City,PH
+PH-virac,Virac,PH
+PH-zamboanga,Zamboanga,PH
+PK-attock,Attock,PK
+PK-bahawalpur,Bahawalpur,PK
+PK-chitral,Chitral,PK
+PK-dalbandin,Dalbandin,PK
+PK-dera-ghazi-khan,Dera Ghazi Khan,PK
+PK-faisalabad,Faisalabad,PK
+PK-fort-sandeman,Fort Sandeman,PK
+PK-gilgit,Gilgit,PK
+PK-gurandani,Gurandani,PK
+PK-hyderabad,Hyderabad,PK
+PK-karachi,Karachi,PK
+PK-khuzdar,Khuzdar,PK
+PK-lahore,Lahore,PK
+PK-multan,Multan,PK
+PK-muzaffarabad,Muzaffarabad,PK
+PK-nawabashah,Nawabashah,PK
+PK-peshawar,Peshawar,PK
+PK-quetta,Quetta,PK
+PK-rahim-yar-khan,Rahim Yar Khan,PK
+PK-sialkot,Sialkot,PK
+PK-skardu,Skardu,PK
+PK-sukkur,Sukkur,PK
+PK-turbat,Turbat,PK
+PL-balice,Balice,PL
+PL-bydgoszcz,Bydgoszcz,PL
+PL-gdansk,Gdańsk,PL
+PL-jasionka,Jasionka,PL
+PL-katowice,Katowice,PL
+PL-lublin,Lublin,PL
+PL-nowe-kramsko,Nowe Kramsko,PL
+PL-nowy-dwor-mazowiecki,Nowy Dwór Mazowiecki,PL
+PL-odz,Łódź,PL
+PL-poznan,Poznań,PL
+PL-radom,Radom,PL
+PL-szczecin,Szczecin,PL
+PL-szymany,Szymany,PL
+PL-warsaw,Warsaw,PL
+PL-wrocaw,Wrocław,PL
+PM-miquelon,Miquelon,PM
+PM-saint-pierre,Saint-Pierre,PM
+PR-aguadilla,Aguadilla,PR
+PR-ceiba,Ceiba,PR
+PR-culebra,Culebra,PR
+PR-mayaguez,Mayaguez,PR
+PR-ponce,Ponce,PR
+PR-san-juan,San Juan,PR
+PR-vieques,Vieques,PR
+PT-braganca,Bragança,PT
+PT-cascais,Cascais,PT
+PT-corvo,Corvo,PT
+PT-faro,Faro,PT
+PT-funchal,Funchal,PT
+PT-horta,Horta,PT
+PT-lisbon,Lisbon,PT
+PT-pico-island,Pico Island,PT
+PT-ponta-delgada,Ponta Delgada,PT
+PT-portimao,Portimão,PT
+PT-porto,Porto,PT
+PT-praia-da-vitoria,Praia da Vitória,PT
+PT-santa-cruz-da-graciosa,Santa Cruz da Graciosa,PT
+PT-santa-cruz-das-flores,Santa Cruz das Flores,PT
+PT-velas,Velas,PT
+PT-vila-baleira,Vila Baleira,PT
+PT-vila-do-porto,Vila do Porto,PT
+PT-vila-real,Vila Real,PT
+PT-viseu,Viseu,PT
+PW-babelthuap-island,Babelthuap Island,PW
+PY-asuncion,Asunción,PY
+PY-ciudad-del-este,Ciudad del Este,PY
+PY-encarnacion,Encarnación,PY
+QA-doha,Doha,QA
+RE-saint-pierre,Saint-Pierre,RE
+RE-sainte-marie,Sainte-Marie,RE
+RO-arad,Arad,RO
+RO-bacau,Bacău,RO
+RO-brasov,Brașov,RO
+RO-bucharest,Bucharest,RO
+RO-cluj-napoca,Cluj-Napoca,RO
+RO-constanta,Constanța,RO
+RO-craiova,Craiova,RO
+RO-iasi,Iaşi,RO
+RO-oradea,Oradea,RO
+RO-otopeni,Otopeni,RO
+RO-recea,Recea,RO
+RO-satu-mare,Satu Mare,RO
+RO-sibiu,Sibiu,RO
+RO-suceava,Suceava,RO
+RO-tautii-magheraus,Tăuții-Măgherăuș,RO
+RO-timisoara,Timişoara,RO
+RS-belgrade,Belgrade,RS
+RS-kraljevo,Kraljevo,RS
+RS-nis,Niš,RS
+RU-MOS-moscow,Moscow,RU
+RU-MOW-moscow,Moscow,RU
+RU-abakan,Abakan,RU
+RU-amderma,Amderma,RU
+RU-anadyr,Anadyr,RU
+RU-apapelgino,Apapelgino,RU
+RU-apatity,Apatity,RU
+RU-archangelsk,Archangelsk,RU
+RU-artyom,Artyom,RU
+RU-astrakhan,Astrakhan,RU
+RU-balakovo,Balakovo,RU
+RU-barnaul,Barnaul,RU
+RU-batagay,Batagay,RU
+RU-batagay-alyta,Batagay-Alyta,RU
+RU-beslan,Beslan,RU
+RU-blagoveschensk,Blagoveschensk,RU
+RU-bodaybo,Bodaybo,RU
+RU-bogorodskoye,Bogorodskoye,RU
+RU-bovanenkovo,Bovanenkovo,RU
+RU-bratsk,Bratsk,RU
+RU-bugulma,Bugulma,RU
+RU-cheboksary,Cheboksary,RU
+RU-chelyabinsk,Chelyabinsk,RU
+RU-cherdakly,Cherdakly,RU
+RU-cherepovets,Cherepovets,RU
+RU-cherskiy,Cherskiy,RU
+RU-chita,Chita,RU
+RU-chokurdah,Chokurdah,RU
+RU-dalnerechensk,Dalnerechensk,RU
+RU-deputatskiy,Deputatskiy,RU
+RU-elista,Elista,RU
+RU-gelendzhik,Gelendzhik,RU
+RU-grozny,Grozny,RU
+RU-igarka,Igarka,RU
+RU-irkutsk,Irkutsk,RU
+RU-ivanovo,Ivanovo,RU
+RU-izhevsk,Izhevsk,RU
+RU-kaliningrad,Kaliningrad,RU
+RU-kazan,Kazan,RU
+RU-kemerovo,Kemerovo,RU
+RU-keperveem,Keperveem,RU
+RU-khabarovsk,Khabarovsk,RU
+RU-khanty-mansiysk,Khanty-Mansiysk,RU
+RU-khatanga,Khatanga,RU
+RU-khonuu,Khonuu,RU
+RU-kirov,Kirov,RU
+RU-kogalym,Kogalym,RU
+RU-komsomolsk-on-amur,Komsomolsk-on-Amur,RU
+RU-kostroma,Kostroma,RU
+RU-kotlas,Kotlas,RU
+RU-krasnodar,Krasnodar,RU
+RU-krasnoyarsk,Krasnoyarsk,RU
+RU-kurgan,Kurgan,RU
+RU-kurilsk,Kurilsk,RU
+RU-kyzyl,Kyzyl,RU
+RU-lensk,Lensk,RU
+RU-leshukonskoye,Leshukonskoye,RU
+RU-magadan,Magadan,RU
+RU-magnitogorsk,Magnitogorsk,RU
+RU-makhachkala,Makhachkala,RU
+RU-markovo,Markovo,RU
+RU-mineralnyye-vody,Mineralnyye Vody,RU
+RU-mirny,Mirny,RU
+RU-motygino,Motygino,RU
+RU-murmansk,Murmansk,RU
+RU-nadym,Nadym,RU
+RU-nalchik,Nalchik,RU
+RU-naryan-mar,Naryan Mar,RU
+RU-neryungri,Neryungri,RU
+RU-nikolayevsk-na-amure-airport,Nikolayevsk-na-Amure Airport,RU
+RU-nizhneangarsk,Nizhneangarsk,RU
+RU-nizhnekamsk,Nizhnekamsk,RU
+RU-nizhnevartovsk,Nizhnevartovsk,RU
+RU-nizhny-novgorod,Nizhny Novgorod,RU
+RU-nogliki,Nogliki,RU
+RU-norilsk,Norilsk,RU
+RU-novokuznetsk,Novokuznetsk,RU
+RU-novosibirsk,Novosibirsk,RU
+RU-novy-urengoy,Novy Urengoy,RU
+RU-noyabrsk,Noyabrsk,RU
+RU-nyagan,Nyagan,RU
+RU-okhotsk,Okhotsk,RU
+RU-olyokminsk,Olyokminsk,RU
+RU-omsk,Omsk,RU
+RU-orenburg,Orenburg,RU
+RU-orsk,Orsk,RU
+RU-pechora,Pechora,RU
+RU-penza,Penza,RU
+RU-perm,Perm,RU
+RU-petropavlovsk-kamchatsky,Petropavlovsk-Kamchatsky,RU
+RU-petrozavodsk,Petrozavodsk,RU
+RU-plastun,Plastun,RU
+RU-pskov,Pskov,RU
+RU-sabetta,Sabetta,RU
+RU-salekhard,Salekhard,RU
+RU-samara,Samara,RU
+RU-saransk,Saransk,RU
+RU-saratov,Saratov,RU
+RU-saskylakh,Saskylakh,RU
+RU-severo-yeniseysk,Severo-Yeniseysk,RU
+RU-shakhtyorsk,Shakhtyorsk,RU
+RU-sochi,Sochi,RU
+RU-solovetsky-islands,Solovetsky Islands,RU
+RU-sovetskiy,Sovetskiy,RU
+RU-srednekolymsk,Srednekolymsk,RU
+RU-st-petersburg,St. Petersburg,RU
+RU-stavropol,Stavropol,RU
+RU-suntar,Suntar,RU
+RU-sunzha,Sunzha,RU
+RU-surgut,Surgut,RU
+RU-syktyvkar,Syktyvkar,RU
+RU-taksimo,Taksimo,RU
+RU-tiksi,Tiksi,RU
+RU-tobolsk,Tobolsk,RU
+RU-tomsk,Tomsk,RU
+RU-tunoshna,Tunoshna,RU
+RU-tura,Tura,RU
+RU-turukhansk,Turukhansk,RU
+RU-tyumen,Tyumen,RU
+RU-ufa,Ufa,RU
+RU-ukhta,Ukhta,RU
+RU-ulan-ude,Ulan Ude,RU
+RU-ulyanovsk,Ulyanovsk,RU
+RU-uray,Uray,RU
+RU-usinsk,Usinsk,RU
+RU-ust-kut,Ust-Kut,RU
+RU-ust-kuyga,Ust-Kuyga,RU
+RU-ust-maya,Ust-Maya,RU
+RU-ust-nera,Ust-Nera,RU
+RU-vanavara,Vanavara,RU
+RU-velikiy-ustyug,Velikiy Ustyug,RU
+RU-verkhnevilyuisk,Verkhnevilyuisk,RU
+RU-vilyuisk,Vilyuisk,RU
+RU-volgograd,Volgograd,RU
+RU-vorkuta,Vorkuta,RU
+RU-voronezh,Voronezh,RU
+RU-yakutia,Yakutia,RU
+RU-yakutsk,Yakutsk,RU
+RU-yekaterinburg,Yekaterinburg,RU
+RU-yeniseysk,Yeniseysk,RU
+RU-yuzhno-kurilsk,Yuzhno-Kurilsk,RU
+RU-yuzhno-sakhalinsk,Yuzhno-Sakhalinsk,RU
+RU-zhigansk,Zhigansk,RU
+RU-zyryanka,Zyryanka,RU
+RW-kamembe,Kamembe,RW
+RW-kigali,Kigali,RW
+SA-abha,Abha,SA
+SA-ad-dammam,Ad Dammam,SA
+SA-al-baha,Al-Baha,SA
+SA-al-jawf,Al-Jawf,SA
+SA-al-ula,Al-Ula,SA
+SA-al-wajh,Al Wajh,SA
+SA-arar,Arar,SA
+SA-bisha,Bisha,SA
+SA-dawadmi,Dawadmi,SA
+SA-gurayat,Gurayat,SA
+SA-hail,Hail,SA
+SA-hanak,Hanak,SA
+SA-hofuf,Hofuf,SA
+SA-jeddah,Jeddah,SA
+SA-jizan,Jizan,SA
+SA-king-khaled-military-city,King Khaled Military City,SA
+SA-medina,Medina,SA
+SA-najran,Najran,SA
+SA-qaisumah,Qaisumah,SA
+SA-qassim,Qassim,SA
+SA-rafha,Rafha,SA
+SA-riyadh,Riyadh,SA
+SA-sharma,Sharma,SA
+SA-sharurah,Sharurah,SA
+SA-tabuk,Tabuk,SA
+SA-taif,Taif,SA
+SA-turaif,Turaif,SA
+SA-wadi-al-dawasir,Wadi Al Dawasir,SA
+SA-yanbu,Yanbu,SA
+SB-anua,Anua,SB
+SB-auki,Auki,SB
+SB-ballalae,Ballalae,SB
+SB-choiseul-bay,Choiseul Bay,SB
+SB-fera-island,Fera Island,SB
+SB-gatokae,Gatokae,SB
+SB-gizo,Gizo,SB
+SB-honiara,Honiara,SB
+SB-kagau-island,Kagau Island,SB
+SB-kirakira,Kirakira,SB
+SB-manaoba,Manaoba,SB
+SB-marau,Marau,SB
+SB-munda,Munda,SB
+SB-ramata,Ramata,SB
+SB-rennell-island,Rennell Island,SB
+SB-santa-ana-island,Santa Ana Island,SB
+SB-santa-cruz-graciosa-bay-luova,Santa Cruz/Graciosa Bay/Luova,SB
+SB-stirling-island,Stirling Island,SB
+SB-suavanao,Suavanao,SB
+SB-yandina,Yandina,SB
+SC-praslin-island,Praslin Island,SC
+SC-victoria,Victoria,SC
+SD-dongola,Dongola,SD
+SD-el-fasher,El Fasher,SD
+SD-el-obeid,El-Obeid,SD
+SD-kassala,Kassala,SD
+SD-khartoum,Khartoum,SD
+SD-nyala,Nyala,SD
+SD-port-sudan,Port Sudan,SD
+SE-angelholm,Ängelholm,SE
+SE-arvidsjaur,Arvidsjaur,SE
+SE-borlange,Borlange,SE
+SE-gallivare,Gällivare,SE
+SE-goteborg,Göteborg,SE
+SE-halmstad,Halmstad,SE
+SE-hemavan,Hemavan,SE
+SE-jonkoping,Jönköping,SE
+SE-kalmar,Kalmar,SE
+SE-karlstad,Karlstad,SE
+SE-kiruna,Kiruna,SE
+SE-linkoping,Linköping,SE
+SE-lulea,Luleå,SE
+SE-lycksele,Lycksele,SE
+SE-malmo,Malmö,SE
+SE-malung-salen,Malung-Sälen,SE
+SE-mora,Mora,SE
+SE-norrkoping,Norrköping,SE
+SE-nykoping,Nyköping,SE
+SE-nyland,Nyland,SE
+SE-orebro,Örebro,SE
+SE-ornskoldsvik,Örnsköldsvik,SE
+SE-ostersund,Östersund,SE
+SE-pajala,Pajala,SE
+SE-rada,Råda,SE
+SE-ronneby,Ronneby,SE
+SE-skelleftea,Skellefteå,SE
+SE-stockholm,Stockholm,SE
+SE-stockholm-vasteras,Stockholm / Västerås,SE
+SE-sundsvall-harnosand,Sundsvall/ Härnösand,SE
+SE-sveg,Sveg,SE
+SE-torsby,Torsby,SE
+SE-trollhattan,Trollhättan,SE
+SE-umea,Umeå,SE
+SE-vaxjo,Växjö,SE
+SE-vilhelmina,Vilhelmina,SE
+SE-visby,Visby,SE
+SG-seletar,Seletar,SG
+SG-singapore,Singapore,SG
+SH-cat-hill,Cat Hill,SH
+SH-jamestown,Jamestown,SH
+SI-maribor,Maribor,SI
+SI-zgornji-brnik,Zgornji Brnik,SI
+SK-bratislava,Bratislava,SK
+SK-kosice,Košice,SK
+SK-poprad,Poprad,SK
+SK-sliac,Sliač,SK
+SL-freetown,Freetown,SL
+SN-cap-skirring,Cap Skirring,SN
+SN-dakar,Dakar,SN
+SN-ziguinchor,Ziguinchor,SN
+SO-beledweyne,Beledweyne,SO
+SO-berbera,Berbera,SO
+SO-bosaso,Bosaso,SO
+SO-galcaio,Galcaio,SO
+SO-garowe,Garowe,SO
+SO-hargeisa,Hargeisa,SO
+SO-mogadishu,Mogadishu,SO
+SR-PM-paramaribo,Paramaribo,SR
+SR-PR-paramaribo,Paramaribo,SR
+SR-drietabbetje,Drietabbetje,SR
+SR-kwatta,Kwatta,SR
+SR-moengo,Moengo,SR
+SR-wageningen,Wageningen,SR
+SS-juba,Juba,SS
+SS-malakal,Malakal,SS
+SS-wau,Wau,SS
+ST-sao-tome,São Tomé,ST
+ST-sao-tome-principe,São Tomé & Príncipe,ST
+SV-PA-san-salvador,San Salvador,SV
+SV-SS-san-salvador,San Salvador,SV
+SX-sint-maarten,Sint Maarten,SX
+SY-aleppo,Aleppo,SY
+SY-damascus,Damascus,SY
+SY-latakia,Latakia,SY
+SY-qamishli,Qamishli,SY
+SZ-mpaka,Mpaka,SZ
+TC-cockburn-town,Cockburn Town,TC
+TC-north-caicos,North Caicos,TC
+TC-providenciales,Providenciales,TC
+TC-salt-cay,Salt Cay,TC
+TC-south-caicos,South Caicos,TC
+TD-n-djamena,N'Djamena,TD
+TG-lome,Lomé,TG
+TH-bangkok,Bangkok,TH
+TH-buriram,Buriram,TH
+TH-chiang-mai,Chiang Mai,TH
+TH-chiang-rai,Chiang Rai,TH
+TH-chumphon,Chumphon,TH
+TH-hat-yai,Hat Yai,TH
+TH-hua-hin,Hua Hin,TH
+TH-khon-kaen,Khon Kaen,TH
+TH-krabi,Krabi,TH
+TH-laem-ngop,Laem Ngop,TH
+TH-mae-hong-son,Mae Hong Son,TH
+TH-na-thon,Na Thon,TH
+TH-nakhon-phanom,Nakhon Phanom,TH
+TH-nakhon-si-thammarat,Nakhon Si Thammarat,TH
+TH-phitsanulok,Phitsanulok,TH
+TH-phuket,Phuket,TH
+TH-ranong,Ranong,TH
+TH-rayong,Rayong,TH
+TH-roi-et,Roi Et,TH
+TH-surat-thani,Surat Thani,TH
+TH-surin,Surin,TH
+TH-trang,Trang,TH
+TH-ubon-ratchathani,Ubon Ratchathani,TH
+TH-udon-thani,Udon Thani,TH
+TJ-bokhtar,Bokhtar,TJ
+TJ-dushanbe,Dushanbe,TJ
+TJ-khujand,Khujand,TJ
+TJ-kulob,Kulob,TJ
+TL-baucau,Baucau,TL
+TL-dili,Dili,TL
+TL-oecussi-ambeno,Oecussi-Ambeno,TL
+TL-suai,Suai,TL
+TM-ashgabat,Ashgabat,TM
+TM-balkanabat,Balkanabat,TM
+TM-dasoguz,Daşoguz,TM
+TM-mary,Mary,TM
+TM-turkmenabat,Türkmenabat,TM
+TM-turkmenbasy,Turkmenbaşy,TM
+TN-enfidha,Enfidha,TN
+TN-mellita,Mellita,TN
+TN-monastir,Monastir,TN
+TN-sfax,Sfax,TN
+TN-tabarka,Tabarka,TN
+TN-tozeur,Tozeur,TN
+TN-tunis,Tunis,TN
+TO-eua-island,Eua Island,TO
+TO-lifuka,Lifuka,TO
+TO-niuatoputapu,Niuatoputapu,TO
+TO-nuku-alofa,Nuku'alofa,TO
+TO-vava-u-island,Vava'u Island,TO
+TR-adyaman,Adıyaman,TR
+TR-agr,Ağrı,TR
+TR-altntas,Altıntaş,TR
+TR-amasya,Amasya,TR
+TR-ankara,Ankara,TR
+TR-antakya,Antakya,TR
+TR-antalya,Antalya,TR
+TR-balkesir,Balıkesir,TR
+TR-batman,Batman,TR
+TR-bingol,Bingöl,TR
+TR-bodrum,Bodrum,TR
+TR-canakkale,Çanakkale,TR
+TR-corlu,Çorlu,TR
+TR-dalaman,Dalaman,TR
+TR-denizli,Denizli,TR
+TR-diyarbakr,Diyarbakır,TR
+TR-edremit,Edremit,TR
+TR-elazg,Elazığ,TR
+TR-erzincan,Erzincan,TR
+TR-erzurum,Erzurum,TR
+TR-eskisehir,Eskişehir,TR
+TR-gaziantep,Gaziantep,TR
+TR-gaziemir,Gaziemir,TR
+TR-gazipasa,Gazipaşa,TR
+TR-hakkari,Hakkari,TR
+TR-igdr,Iğdır,TR
+TR-isparta,Isparta,TR
+TR-istanbul,Istanbul,TR
+TR-kahramanmaras,Kahramanmaraş,TR
+TR-kars,Kars,TR
+TR-kastamonu,Kastamonu,TR
+TR-kayseri,Kayseri,TR
+TR-konya,Konya,TR
+TR-malatya,Malatya,TR
+TR-mardin,Mardin,TR
+TR-mus,Muş,TR
+TR-nevsehir,Nevşehir,TR
+TR-ordu,Ordu,TR
+TR-pendik,Pendik,TR
+TR-rize,Rize,TR
+TR-samsun,Samsun,TR
+TR-sanlurfa,Şanlıurfa,TR
+TR-sinop,Sinop,TR
+TR-sivas,Sivas,TR
+TR-srnak,Şırnak,TR
+TR-tarsus,Tarsus,TR
+TR-tokat,Tokat,TR
+TR-trabzon,Trabzon,TR
+TR-van,Van,TR
+TR-yenisehir,Yenişehir,TR
+TR-zonguldak,Zonguldak,TR
+TT-port-of-spain,Port of Spain,TT
+TT-scarborough,Scarborough,TT
+TV-funafuti,Funafuti,TV
+TW-hualien-city,Hualien City,TW
+TW-huxi,Huxi,TW
+TW-kaohsiung,Kaohsiung,TW
+TW-matsu,Matsu,TW
+TW-orchid-island,Orchid Island,TW
+TW-shang-i,Shang-I,TW
+TW-shuishang,Shuishang,TW
+TW-taichung,Taichung,TW
+TW-tainan,Tainan,TW
+TW-taipei,Taipei,TW
+TW-taitung-city,Taitung City,TW
+TW-taoyuan,Taoyuan,TW
+TZ-arusha,Arusha,TZ
+TZ-bukoba,Bukoba,TZ
+TZ-dar-es-salaam,Dar es Salaam,TZ
+TZ-dodoma,Dodoma,TZ
+TZ-kigoma,Kigoma,TZ
+TZ-kilindoni,Kilindoni,TZ
+TZ-mbeya,Mbeya,TZ
+TZ-mtwara,Mtwara,TZ
+TZ-musoma,Musoma,TZ
+TZ-mwanza,Mwanza,TZ
+TZ-seronera,Seronera,TZ
+TZ-shinyanga,Shinyanga,TZ
+TZ-tabora,Tabora,TZ
+TZ-tanga,Tanga,TZ
+TZ-zanzibar,Zanzibar,TZ
+UG-arua,Arua,UG
+UG-entebbe,Entebbe,UG
+UG-gulu,Gulu,UG
+UG-kihihi,Kihihi,UG
+UG-kisoro,Kisoro,UG
+UG-soroti,Soroti,UG
+UM-wake-island,Wake Island,UM
+US-AK-beaver,Beaver,US
+US-AK-eagle,Eagle,US
+US-AK-st-george,St George,US
+US-CA-carlsbad,Carlsbad,US
+US-CA-concord,Concord,US
+US-CO-eagle,Eagle,US
+US-DE-wilmington,Wilmington,US
+US-GA-albany,Albany,US
+US-GA-augusta,Augusta,US
+US-GA-columbus,Columbus,US
+US-IA-burlington,Burlington,US
+US-IL-decatur,Decatur,US
+US-IL-springfield,Springfield,US
+US-ME-augusta,Augusta,US
+US-ME-portland,Portland,US
+US-MN-rochester,Rochester,US
+US-MO-columbia,Columbia,US
+US-MO-springfield,Springfield,US
+US-MS-greenville,Greenville,US
+US-MS-jackson,Jackson,US
+US-NC-concord,Concord,US
+US-NC-greenville,Greenville,US
+US-NC-wilmington,Wilmington,US
+US-NM-carlsbad,Carlsbad,US
+US-NY-albany,Albany,US
+US-NY-rochester,Rochester,US
+US-NY-watertown,Watertown,US
+US-OH-columbus,Columbus,US
+US-OR-portland,Portland,US
+US-SC-charleston,Charleston,US
+US-SC-columbia,Columbia,US
+US-SD-watertown,Watertown,US
+US-TN-jackson,Jackson,US
+US-UT-st-george,St George,US
+US-VT-burlington,Burlington,US
+US-WA-decatur,Decatur,US
+US-WV-beaver,Beaver,US
+US-WV-charleston,Charleston,US
+US-WY-jackson,Jackson,US
+US-aberdeen,Aberdeen,US
+US-abilene,Abilene,US
+US-adak,Adak,US
+US-akhiok,Akhiok,US
+US-akiachak,Akiachak,US
+US-akiak,Akiak,US
+US-akron,Akron,US
+US-akutan,Akutan,US
+US-alakanuk,Alakanuk,US
+US-alamosa,Alamosa,US
+US-albuquerque,Albuquerque,US
+US-aleknagik,Aleknagik,US
+US-alexandria,Alexandria,US
+US-allakaket,Allakaket,US
+US-allentown-bethlehem,Allentown/Bethlehem,US
+US-alliance,Alliance,US
+US-alpena,Alpena,US
+US-altoona,Altoona,US
+US-amarillo,Amarillo,US
+US-ambler,Ambler,US
+US-anacortes,Anacortes,US
+US-anaktuvuk-pass,Anaktuvuk Pass,US
+US-anchorage,Anchorage,US
+US-aniak,Aniak,US
+US-anvik,Anvik,US
+US-appleton,Appleton,US
+US-arcata-eureka,Arcata/Eureka,US
+US-arctic-village,Arctic Village,US
+US-asheville,Asheville,US
+US-aspen,Aspen,US
+US-atka,Atka,US
+US-atlanta,Atlanta,US
+US-atlantic-city,Atlantic City,US
+US-atmautluak,Atmautluak,US
+US-atqasuk,Atqasuk,US
+US-austin,Austin,US
+US-bakersfield,Bakersfield,US
+US-baltimore,Baltimore,US
+US-bangor,Bangor,US
+US-bar-harbor,Bar Harbor,US
+US-barter-island,Barter Island,US
+US-baton-rouge,Baton Rouge,US
+US-beaumont-port-arthur,Beaumont/Port Arthur,US
+US-bedford,Bedford,US
+US-belleville,Belleville,US
+US-bellingham,Bellingham,US
+US-bethel,Bethel,US
+US-bettles,Bettles,US
+US-billings,Billings,US
+US-binghamton,Binghamton,US
+US-birch-creek,Birch Creek,US
+US-birmingham,Birmingham,US
+US-bishop,Bishop,US
+US-bismarck,Bismarck,US
+US-blakely-island,Blakely Island,US
+US-block-island,Block Island,US
+US-bloomington-normal,Bloomington/Normal,US
+US-blountville,Blountville,US
+US-boise,Boise,US
+US-boston,Boston,US
+US-boulder-city,Boulder City,US
+US-bozeman,Bozeman,US
+US-bradford,Bradford,US
+US-brainerd,Brainerd,US
+US-branson,Branson,US
+US-brevig-mission,Brevig Mission,US
+US-bridgeport,Bridgeport,US
+US-brownsville,Brownsville,US
+US-brunswick,Brunswick,US
+US-buckland,Buckland,US
+US-buffalo,Buffalo,US
+US-burbank,Burbank,US
+US-butte,Butte,US
+US-cape-girardeau,Cape Girardeau,US
+US-cape-lisburne,Cape Lisburne,US
+US-casper,Casper,US
+US-cedar-city,Cedar City,US
+US-cedar-rapids,Cedar Rapids,US
+US-center-island,Center Island,US
+US-central,Central,US
+US-chadron,Chadron,US
+US-chalkyitsik,Chalkyitsik,US
+US-charlotte,Charlotte,US
+US-charlottesville,Charlottesville,US
+US-chattanooga,Chattanooga,US
+US-chefornak,Chefornak,US
+US-chenega,Chenega,US
+US-chevak,Chevak,US
+US-cheyenne,Cheyenne,US
+US-chicago,Chicago,US
+US-chicago-rockford,Chicago/Rockford,US
+US-chicken,Chicken,US
+US-chignik,Chignik,US
+US-chignik-lake,Chignik Lake,US
+US-chuathbaluk,Chuathbaluk,US
+US-cincinnati,Cincinnati,US
+US-cincinnati-covington,Cincinnati / Covington,US
+US-circle,Circle,US
+US-clarks-point,Clarks Point,US
+US-cleveland,Cleveland,US
+US-clovis,Clovis,US
+US-cody,Cody,US
+US-cold-bay,Cold Bay,US
+US-college-station,College Station,US
+US-colorado-springs,Colorado Springs,US
+US-columbus-w-point-starkville,Columbus/W Point/Starkville,US
+US-cordova,Cordova,US
+US-corpus-christi,Corpus Christi,US
+US-cortez,Cortez,US
+US-crescent-city,Crescent City,US
+US-crooked-creek,Crooked Creek,US
+US-dallas,Dallas,US
+US-dallas-fort-worth,Dallas-Fort Worth,US
+US-dayton,Dayton,US
+US-daytona-beach,Daytona Beach,US
+US-deadhorse,Deadhorse,US
+US-deering,Deering,US
+US-denver,Denver,US
+US-des-moines,Des Moines,US
+US-destin,Destin,US
+US-detroit,Detroit,US
+US-devils-lake,Devils Lake,US
+US-dickinson,Dickinson,US
+US-dillingham,Dillingham,US
+US-dodge-city,Dodge City,US
+US-dothan,Dothan,US
+US-dover,Dover,US
+US-dubois,Dubois,US
+US-dubuque,Dubuque,US
+US-dulles,Dulles,US
+US-duluth,Duluth,US
+US-durango,Durango,US
+US-eastsound,Eastsound,US
+US-eau-claire,Eau Claire,US
+US-eek,Eek,US
+US-egegik,Egegik,US
+US-el-dorado,El Dorado,US
+US-el-paso,El Paso,US
+US-elim,Elim,US
+US-elko,Elko,US
+US-elmira-corning,Elmira/Corning,US
+US-emmonak,Emmonak,US
+US-erie,Erie,US
+US-escanaba,Escanaba,US
+US-eugene,Eugene,US
+US-evansville,Evansville,US
+US-everett,Everett,US
+US-ewing-township,Ewing Township,US
+US-fairbanks,Fairbanks,US
+US-false-pass,False Pass,US
+US-fargo,Fargo,US
+US-fayetteville,Fayetteville,US
+US-fayetteville-springdale-rogers,Fayetteville/Springdale/Rogers,US
+US-flagstaff,Flagstaff,US
+US-flint,Flint,US
+US-florence,Florence,US
+US-fort-cavazos,Fort Cavazos,US
+US-fort-dodge,Fort Dodge,US
+US-fort-lauderdale,Fort Lauderdale,US
+US-fort-leonard-wood,Fort Leonard Wood,US
+US-fort-myers,Fort Myers,US
+US-fort-smith,Fort Smith,US
+US-fort-wayne,Fort Wayne,US
+US-fort-worth,Fort Worth,US
+US-fort-yukon,Fort Yukon,US
+US-freeland,Freeland,US
+US-fresno,Fresno,US
+US-friday-harbor,Friday Harbor,US
+US-gainesville,Gainesville,US
+US-galena,Galena,US
+US-gallup,Gallup,US
+US-gambell,Gambell,US
+US-garden-city,Garden City,US
+US-gary,Gary,US
+US-gillette,Gillette,US
+US-glasgow,Glasgow,US
+US-glendive,Glendive,US
+US-golovin,Golovin,US
+US-goodnews,Goodnews,US
+US-grand-canyon-tusayan,Grand Canyon - Tusayan,US
+US-grand-forks,Grand Forks,US
+US-grand-island,Grand Island,US
+US-grand-junction,Grand Junction,US
+US-grand-rapids,Grand Rapids,US
+US-grayling,Grayling,US
+US-great-falls,Great Falls,US
+US-green-bay,Green Bay,US
+US-greensboro,Greensboro,US
+US-greenville-greer-spartanburg,Greenville/Greer/Spartanburg,US
+US-gulfport,Gulfport,US
+US-gulkana,Gulkana,US
+US-gunnison,Gunnison,US
+US-gustavus,Gustavus,US
+US-gwinn,Gwinn,US
+US-hagerstown,Hagerstown,US
+US-hailey,Hailey,US
+US-haines,Haines,US
+US-hana,Hana,US
+US-hancock,Hancock,US
+US-harlingen,Harlingen,US
+US-harrisburg,Harrisburg,US
+US-harrison,Harrison,US
+US-hartford,Hartford,US
+US-havre,Havre,US
+US-hawthorne,Hawthorne,US
+US-hayden,Hayden,US
+US-hays,Hays,US
+US-helena,Helena,US
+US-hibbing,Hibbing,US
+US-hilo,Hilo,US
+US-hilton-head-island,Hilton Head Island,US
+US-hobbs,Hobbs,US
+US-holy-cross,Holy Cross,US
+US-homer,Homer,US
+US-honolulu,Honolulu,US
+US-hoonah,Hoonah,US
+US-hooper-bay,Hooper Bay,US
+US-hot-springs,Hot Springs,US
+US-houston,Houston,US
+US-hughes,Hughes,US
+US-huntington,Huntington,US
+US-huntsville,Huntsville,US
+US-huslia,Huslia,US
+US-hyannis,Hyannis,US
+US-idaho-falls,Idaho Falls,US
+US-igiugig,Igiugig,US
+US-iliamna,Iliamna,US
+US-imperial,Imperial,US
+US-indianapolis,Indianapolis,US
+US-international-falls,International Falls,US
+US-ironwood,Ironwood,US
+US-islip,Islip,US
+US-ithaca,Ithaca,US
+US-jacksonville,Jacksonville,US
+US-jamestown,Jamestown,US
+US-johnstown,Johnstown,US
+US-jonesboro,Jonesboro,US
+US-joplin,Joplin,US
+US-juneau,Juneau,US
+US-kahului,Kahului,US
+US-kailua-kona,Kailua-Kona,US
+US-kalamazoo,Kalamazoo,US
+US-kalaupapa,Kalaupapa,US
+US-kalispell,Kalispell,US
+US-kalskag,Kalskag,US
+US-kaltag,Kaltag,US
+US-kansas-city,Kansas City,US
+US-karluk,Karluk,US
+US-kasigluk,Kasigluk,US
+US-kaunakakai,Kaunakakai,US
+US-kearney,Kearney,US
+US-kenai,Kenai,US
+US-ketchikan,Ketchikan,US
+US-key-west,Key West,US
+US-kiana,Kiana,US
+US-kincheloe,Kincheloe,US
+US-king-cove,King Cove,US
+US-king-salmon,King Salmon,US
+US-kingsford,Kingsford,US
+US-kipnuk,Kipnuk,US
+US-kirksville,Kirksville,US
+US-kivalina,Kivalina,US
+US-klawock,Klawock,US
+US-knoxville-maryville,Knoxville/Maryville,US
+US-kobuk,Kobuk,US
+US-kodiak,Kodiak,US
+US-kokhanok,Kokhanok,US
+US-koliganek,Koliganek,US
+US-kongiganak,Kongiganak,US
+US-kotlik,Kotlik,US
+US-kotzebue,Kotzebue,US
+US-koyuk,Koyuk,US
+US-koyukuk,Koyukuk,US
+US-kwethluk,Kwethluk,US
+US-kwigillingok,Kwigillingok,US
+US-la-crosse,La Crosse,US
+US-lafayette,Lafayette,US
+US-lahaina,Lahaina,US
+US-lake-charles,Lake Charles,US
+US-lake-havasu-city,Lake Havasu City,US
+US-lakeland,Lakeland,US
+US-lanai-city,Lanai City,US
+US-lancaster,Lancaster,US
+US-lansing,Lansing,US
+US-laramie,Laramie,US
+US-laredo,Laredo,US
+US-larsen-bay,Larsen Bay,US
+US-las-cruces,Las Cruces,US
+US-las-vegas,Las Vegas,US
+US-latrobe,Latrobe,US
+US-lawton,Lawton,US
+US-lebanon,Lebanon,US
+US-lewisburg,Lewisburg,US
+US-lewiston,Lewiston,US
+US-lexington,Lexington,US
+US-liberal,Liberal,US
+US-lihue,Lihue,US
+US-lincoln,Lincoln,US
+US-little-rock,Little Rock,US
+US-long-beach,Long Beach,US
+US-longview,Longview,US
+US-lopez,Lopez,US
+US-los-angeles,Los Angeles,US
+US-louisville,Louisville,US
+US-lubbock,Lubbock,US
+US-lynchburg,Lynchburg,US
+US-macon,Macon,US
+US-madison,Madison,US
+US-mammoth-lakes,Mammoth Lakes,US
+US-manchester,Manchester,US
+US-manhattan,Manhattan,US
+US-manistee,Manistee,US
+US-manley-hot-springs,Manley Hot Springs,US
+US-manokotak,Manokotak,US
+US-marion,Marion,US
+US-marshall,Marshall,US
+US-martha-s-vineyard,Martha's Vineyard,US
+US-mason-city,Mason City,US
+US-massena,Massena,US
+US-may-creek,May Creek,US
+US-mcallen,McAllen,US
+US-mccall,McCall,US
+US-mccook,McCook,US
+US-mcgrath,McGrath,US
+US-medford,Medford,US
+US-mekoryuk,Mekoryuk,US
+US-melbourne,Melbourne,US
+US-memphis,Memphis,US
+US-merced,Merced,US
+US-meridian,Meridian,US
+US-mertarvik,Mertarvik,US
+US-mesa,Mesa,US
+US-miami,Miami,US
+US-michigan-city,Michigan City,US
+US-midland,Midland,US
+US-milwaukee,Milwaukee,US
+US-minchumina,Minchumina,US
+US-mineral-wells,Mineral Wells,US
+US-minneapolis,Minneapolis,US
+US-minot,Minot,US
+US-minto,Minto,US
+US-missoula,Missoula,US
+US-moab,Moab,US
+US-mobile,Mobile,US
+US-moline,Moline,US
+US-monroe,Monroe,US
+US-montauk,Montauk,US
+US-monterey,Monterey,US
+US-montgomery,Montgomery,US
+US-montrose,Montrose,US
+US-morgantown,Morgantown,US
+US-moselle,Moselle,US
+US-mosinee,Mosinee,US
+US-mountain-village,Mountain Village,US
+US-muscle-shoals,Muscle Shoals,US
+US-muskegon,Muskegon,US
+US-myrtle-beach,Myrtle Beach,US
+US-nantucket,Nantucket,US
+US-nanwalek,Nanwalek,US
+US-napakiak,Napakiak,US
+US-napaskiak,Napaskiak,US
+US-nashville,Nashville,US
+US-nelson-lagoon,Nelson Lagoon,US
+US-new-bedford,New Bedford,US
+US-new-bern,New Bern,US
+US-new-haven,New Haven,US
+US-new-orleans,New Orleans,US
+US-new-stuyahok,New Stuyahok,US
+US-new-york,New York,US
+US-newark,Newark,US
+US-newburgh,Newburgh,US
+US-newport,Newport,US
+US-newport-news,Newport News,US
+US-niagara-falls,Niagara Falls,US
+US-nightmute,Nightmute,US
+US-nikolai,Nikolai,US
+US-nikolski,Nikolski,US
+US-noatak,Noatak,US
+US-nome,Nome,US
+US-noorvik,Noorvik,US
+US-norfolk,Norfolk,US
+US-north-bend,North Bend,US
+US-north-platte,North Platte,US
+US-northway,Northway,US
+US-nuiqsut,Nuiqsut,US
+US-nulato,Nulato,US
+US-nunam-iqua,Nunam Iqua,US
+US-nunapitchuk,Nunapitchuk,US
+US-oakland,Oakland,US
+US-ocean-city,Ocean City,US
+US-ogden,Ogden,US
+US-ogdensburg,Ogdensburg,US
+US-oklahoma-city,Oklahoma City,US
+US-old-harbor,Old Harbor,US
+US-olympia,Olympia,US
+US-omaha,Omaha,US
+US-ontario,Ontario,US
+US-orlando,Orlando,US
+US-ouzinkie,Ouzinkie,US
+US-owensboro,Owensboro,US
+US-paducah,Paducah,US
+US-page,Page,US
+US-palm-springs,Palm Springs,US
+US-panama-city-beach,Panama City Beach,US
+US-parkersburg,Parkersburg,US
+US-pasco,Pasco,US
+US-pedro-bay,Pedro Bay,US
+US-pellston,Pellston,US
+US-pendleton,Pendleton,US
+US-pensacola,Pensacola,US
+US-peoria,Peoria,US
+US-perryville,Perryville,US
+US-petersburg,Petersburg,US
+US-philadelphia,Philadelphia,US
+US-phoenix,Phoenix,US
+US-pierre,Pierre,US
+US-pilot-point,Pilot Point,US
+US-pilot-station,Pilot Station,US
+US-pinellas-park,Pinellas Park,US
+US-pittsburgh,Pittsburgh,US
+US-platinum,Platinum,US
+US-plattsburgh,Plattsburgh,US
+US-pocatello,Pocatello,US
+US-point-hope,Point Hope,US
+US-point-lay,Point Lay,US
+US-port-alsworth,Port Alsworth,US
+US-port-graham,Port Graham,US
+US-port-heiden,Port Heiden,US
+US-port-lions,Port Lions,US
+US-portsmouth,Portsmouth,US
+US-prescott,Prescott,US
+US-presque-isle,Presque Isle,US
+US-providence-warwick,Providence/Warwick,US
+US-provo,Provo,US
+US-pueblo,Pueblo,US
+US-pullman,Pullman,US
+US-punta-gorda,Punta Gorda,US
+US-quincy,Quincy,US
+US-quinhagak,Quinhagak,US
+US-raleigh-durham,Raleigh/Durham,US
+US-rampart,Rampart,US
+US-rapid-city,Rapid City,US
+US-red-devil,Red Devil,US
+US-redding,Redding,US
+US-redmond,Redmond,US
+US-reno,Reno,US
+US-rhinelander,Rhinelander,US
+US-richlands,Richlands,US
+US-richmond,Richmond,US
+US-riverton,Riverton,US
+US-roanoke,Roanoke,US
+US-roche-harbor,Roche Harbor,US
+US-rock-springs,Rock Springs,US
+US-rockland,Rockland,US
+US-roswell,Roswell,US
+US-ruby,Ruby,US
+US-russian-mission,Russian Mission,US
+US-rutland,Rutland,US
+US-sacramento,Sacramento,US
+US-saint-cloud,Saint Cloud,US
+US-salem,Salem,US
+US-salina,Salina,US
+US-salisbury,Salisbury,US
+US-salmon,Salmon,US
+US-salt-lake-city,Salt Lake City,US
+US-san-angelo,San Angelo,US
+US-san-antonio,San Antonio,US
+US-san-bernardino,San Bernardino,US
+US-san-carlos,San Carlos,US
+US-san-diego,San Diego,US
+US-san-francisco,San Francisco,US
+US-san-jose,San Jose,US
+US-san-luis-obispo,San Luis Obispo,US
+US-sand-point,Sand Point,US
+US-santa-ana,Santa Ana,US
+US-santa-barbara,Santa Barbara,US
+US-santa-fe,Santa Fe,US
+US-santa-maria,Santa Maria,US
+US-santa-rosa,Santa Rosa,US
+US-saranac-lake,Saranac Lake,US
+US-sarasota-bradenton,Sarasota/Bradenton,US
+US-savannah,Savannah,US
+US-savoonga,Savoonga,US
+US-savoy,Savoy,US
+US-scammon-bay,Scammon Bay,US
+US-scottsbluff,Scottsbluff,US
+US-seattle,Seattle,US
+US-selawik,Selawik,US
+US-seldovia,Seldovia,US
+US-shaktoolik,Shaktoolik,US
+US-sheridan,Sheridan,US
+US-shishmaref,Shishmaref,US
+US-show-low,Show Low,US
+US-shreveport,Shreveport,US
+US-shungnak,Shungnak,US
+US-sidney,Sidney,US
+US-silver-city,Silver City,US
+US-sioux-city,Sioux City,US
+US-sioux-falls,Sioux Falls,US
+US-sitka,Sitka,US
+US-skagway,Skagway,US
+US-sleetmute,Sleetmute,US
+US-south-bend,South Bend,US
+US-south-naknek,South Naknek,US
+US-spokane,Spokane,US
+US-st-augustine,St Augustine,US
+US-st-louis,St Louis,US
+US-st-mary-s,St Mary's,US
+US-st-michael,St Michael,US
+US-st-paul-island,St Paul Island,US
+US-state-college,State College,US
+US-stebbins,Stebbins,US
+US-stevens-village,Stevens Village,US
+US-stillwater,Stillwater,US
+US-stockton,Stockton,US
+US-stony-river,Stony River,US
+US-syracuse,Syracuse,US
+US-tacoma,Tacoma,US
+US-takotna,Takotna,US
+US-tallahassee,Tallahassee,US
+US-tampa,Tampa,US
+US-tanana,Tanana,US
+US-taos,Taos,US
+US-tatitlek,Tatitlek,US
+US-teller,Teller,US
+US-telluride,Telluride,US
+US-teterboro,Teterboro,US
+US-texarkana,Texarkana,US
+US-thief-river-falls,Thief River Falls,US
+US-tin-city,Tin City,US
+US-togiak-village,Togiak Village,US
+US-tok,Tok,US
+US-toksook-bay,Toksook Bay,US
+US-toledo,Toledo,US
+US-traverse-city,Traverse City,US
+US-truckee,Truckee,US
+US-tucson,Tucson,US
+US-tulsa,Tulsa,US
+US-tuluksak,Tuluksak,US
+US-tuntutuliak,Tuntutuliak,US
+US-tununak,Tununak,US
+US-tupelo,Tupelo,US
+US-twin-falls,Twin Falls,US
+US-twin-hills,Twin Hills,US
+US-tyler,Tyler,US
+US-unalakleet,Unalakleet,US
+US-unalaska,Unalaska,US
+US-utopia-creek,Utopia Creek,US
+US-utqiagvik,Utqiaġvik,US
+US-valdez,Valdez,US
+US-valdosta,Valdosta,US
+US-valparaiso,Valparaiso,US
+US-venetie,Venetie,US
+US-vernal,Vernal,US
+US-vero-beach,Vero Beach,US
+US-victoria,Victoria,US
+US-waco,Waco,US
+US-waimea,Waimea,US
+US-wainwright,Wainwright,US
+US-wales,Wales,US
+US-walla-walla,Walla Walla,US
+US-washington,Washington,US
+US-waterloo,Waterloo,US
+US-wenatchee,Wenatchee,US
+US-west-lafayette,West Lafayette,US
+US-west-palm-beach,West Palm Beach,US
+US-west-yellowstone,West Yellowstone,US
+US-westerly,Westerly,US
+US-weyers-cave,Weyers Cave,US
+US-white-mountain,White Mountain,US
+US-white-plains,White Plains,US
+US-wichita,Wichita,US
+US-wichita-falls,Wichita Falls,US
+US-wilkes-barre-scranton,Wilkes-Barre/Scranton,US
+US-williamsport,Williamsport,US
+US-williston,Williston,US
+US-wolf-point,Wolf Point,US
+US-worcester,Worcester,US
+US-wrangell,Wrangell,US
+US-yakataga,Yakataga,US
+US-yakima,Yakima,US
+US-yakutat,Yakutat,US
+US-yuma,Yuma,US
+UY-ciudad-de-la-costa,Ciudad de la Costa,UY
+UY-punta-del-este,Punta del Este,UY
+UY-rivera-santana-do-livramento,Rivera/Santana do Livramento,UY
+UZ-andijan,Andijan,UZ
+UZ-bukhara,Bukhara,UZ
+UZ-fergana,Fergana,UZ
+UZ-karshi,Karshi,UZ
+UZ-namangan,Namangan,UZ
+UZ-navoi,Navoi,UZ
+UZ-nukus,Nukus,UZ
+UZ-samarkand,Samarkand,UZ
+UZ-tashkent,Tashkent,UZ
+UZ-termez,Termez,UZ
+UZ-urgench,Urgench,UZ
+UZ-zomin,Zomin,UZ
+VC-bequia,Bequia,VC
+VC-canouan,Canouan,VC
+VC-kingstown,Kingstown,VC
+VC-lovell,Lovell,VC
+VC-union-island,Union Island,VC
+VE-barcelona,Barcelona,VE
+VE-barinas,Barinas,VE
+VE-barquisimeto,Barquisimeto,VE
+VE-canaima,Canaima,VE
+VE-carupano,Carúpano,VE
+VE-coro,Coro,VE
+VE-cumana,Cumaná,VE
+VE-el-tigre,El Tigre,VE
+VE-el-vigia,El Vigía,VE
+VE-gran-roque-island,Gran Roque Island,VE
+VE-guyana-city,Guyana City,VE
+VE-isla-de-coche,Isla de Coche,VE
+VE-isla-margarita,Isla Margarita,VE
+VE-maiquetia,Maiquetía,VE
+VE-maracaibo,Maracaibo,VE
+VE-maturin,Maturín,VE
+VE-paraguana,Paraguaná,VE
+VE-san-antonio-del-tachira,San Antonio del Tachira,VE
+VE-santa-elena-de-uairen,Santa Elena de Uairén,VE
+VE-santo-domingo,Santo Domingo,VE
+VE-valencia,Valencia,VE
+VE-valera,Valera,VE
+VG-beef-island,Beef Island,VG
+VG-spanish-town,Spanish Town,VG
+VI-charlotte-amalie,Charlotte Amalie,VI
+VI-christiansted,Christiansted,VI
+VN-buon-ma-thuot,Buon Ma Thuot,VN
+VN-ca-mau-city,Ca Mau City,VN
+VN-can-tho,Can Tho,VN
+VN-con-dao,Con Dao,VN
+VN-da-lat,Da Lat,VN
+VN-da-nang,Da Nang,VN
+VN-dien-bien-phu,Dien Bien Phu,VN
+VN-dong-hoi,Dong Hoi,VN
+VN-haiphong,Haiphong,VN
+VN-hanoi,Hanoi,VN
+VN-ho-chi-minh-city,Ho Chi Minh City,VN
+VN-hue,Huế,VN
+VN-nha-trang-nha-trang-aiurportcam-ranh,Nha Trang/nha Trang aiurportCam Ranh,VN
+VN-phu-quoc-island,Phu Quoc Island,VN
+VN-pleiku,Pleiku,VN
+VN-quy-nohn,Quy Nohn,VN
+VN-rach-gia,Rach Gia,VN
+VN-tam-nghia,Tam Nghĩa,VN
+VN-thanh-hoa,Thanh Hóa,VN
+VN-tuy-hoa,Tuy Hoa,VN
+VN-van-don,Van Don,VN
+VN-vinh,Vinh,VN
+VU-craig-cove,Craig Cove,VU
+VU-epi-island,Epi Island,VU
+VU-futuna-island,Futuna Island,VU
+VU-lamap,Lamap,VU
+VU-lamen-bay,Lamen Bay,VU
+VU-longana,Longana,VU
+VU-lonorore,Lonorore,VU
+VU-luganville,Luganville,VU
+VU-norsup,Norsup,VU
+VU-olpoi,Olpoi,VU
+VU-paama-island,Paama Island,VU
+VU-pentecost-island,Pentecost Island,VU
+VU-port-vila,Port Vila,VU
+VU-sola,Sola,VU
+VU-tanna-island,Tanna Island,VU
+VU-tongoa-island,Tongoa Island,VU
+VU-walaha,Walaha,VU
+WF-futuna-island,Futuna Island,WF
+WF-wallis-island,Wallis Island,WF
+WS-apia,Apia,WS
+XK-prishtina,Prishtina,XK
+YE-aden,Aden,YE
+YE-al-ghaydah,Al Ghaydah,YE
+YE-mori,Mori,YE
+YE-mukalla,Mukalla,YE
+YE-sanaa,Sanaa,YE
+YE-seiyun,Seiyun,YE
+YE-taiz,Taiz,YE
+YT-dzaoudzi,Dzaoudzi,YT
+ZA-bloemfontein,Bloemfontein,ZA
+ZA-cape-town,Cape Town,ZA
+ZA-durban,Durban,ZA
+ZA-east-london,East London,ZA
+ZA-george,George,ZA
+ZA-gqeberha,Gqeberha,ZA
+ZA-hoedspruit,Hoedspruit,ZA
+ZA-johannesburg,Johannesburg,ZA
+ZA-kimberley,Kimberley,ZA
+ZA-mafeking,Mafeking,ZA
+ZA-margate,Margate,ZA
+ZA-mbombela,Mbombela,ZA
+ZA-mkuze,Mkuze,ZA
+ZA-mthatha,Mthatha,ZA
+ZA-phalaborwa,Phalaborwa,ZA
+ZA-pietermaritzburg,Pietermaritzburg,ZA
+ZA-polokwane,Polokwane,ZA
+ZA-richards-bay,Richards Bay,ZA
+ZA-sishen,Sishen,ZA
+ZA-skukuza,Skukuza,ZA
+ZA-upington,Upington,ZA
+ZM-kasama,Kasama,ZM
+ZM-livingstone,Livingstone,ZM
+ZM-lusaka,Lusaka,ZM
+ZM-mfuwe,Mfuwe,ZM
+ZM-ndola,Ndola,ZM
+ZM-solwesi,Solwesi,ZM
+ZW-bulawayo,Bulawayo,ZW
+ZW-harare,Harare,ZW
+ZW-kariba,Kariba,ZW
+ZW-victoria-falls,Victoria Falls,ZW

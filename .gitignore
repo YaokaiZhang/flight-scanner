@@ -14,4 +14,4 @@ web/test-results/
 web/playwright-report/
 web/next-env.d.ts
 .e2e/
-data/
+/data/

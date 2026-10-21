@@ -1,0 +1,137 @@
+# Regions: named groups of countries (CONTEXT.md "Region"). Hand-written; bump `version` on change.
+#
+# Membership rules (applied by flight_scanner.places when loading):
+#   - `continent = "XX"` takes every sovereign country whose OurAirports continent is XX;
+#     `add` / `remove` adjust that list; `countries` lists members explicitly.
+#   - Territories belong to their sovereign country's Regions: a territory listed in
+#     [territories] is a member of every Region its sovereign is a member of (so Réunion and
+#     Greenland follow France and Denmark). Its own OurAirports continent is ignored.
+#     A Region can opt out with `territories = false` (e.g. Schengen, which is a legal area).
+#     The Canary Islands, Madeira and the Azores are part of ES/PT in ISO 3166 already.
+#   - `all_countries = true` means every country in the snapshot ("Anywhere").
+#   - `children` lists sub-Regions shown in the Region tree; they must cover the Region.
+#   - Codes must exist in data/countries.csv; loading fails otherwise.
+version = "2026-10-21.1"
+
+[territories]
+# territory = sovereign
+BL = "FR"
+GF = "FR"
+GP = "FR"
+MF = "FR"
+MQ = "FR"
+NC = "FR"
+PF = "FR"
+PM = "FR"
+RE = "FR"
+TF = "FR"
+WF = "FR"
+YT = "FR"
+AW = "NL"
+BQ = "NL"
+CW = "NL"
+SX = "NL"
+AI = "GB"
+BM = "GB"
+FK = "GB"
+GG = "GB"
+GI = "GB"
+GS = "GB"
+IM = "GB"
+IO = "GB"
+JE = "GB"
+KY = "GB"
+MS = "GB"
+PN = "GB"
+SH = "GB"
+TC = "GB"
+VG = "GB"
+FO = "DK"
+GL = "DK"
+AS = "US"
+GU = "US"
+MP = "US"
+PR = "US"
+UM = "US"
+VI = "US"
+CC = "AU"
+CX = "AU"
+HM = "AU"
+NF = "AU"
+CK = "NZ"
+NU = "NZ"
+TK = "NZ"
+HK = "CN"
+MO = "CN"
+
+[[regions]]
+id = "anywhere"
+name = "Anywhere"
+all_countries = true
+children = ["europe", "africa", "asia", "north_america", "south_america", "oceania", "antarctica"]
+
+[[regions]]
+id = "europe"
+name = "Europe"
+continent = "EU"
+add = ["CY"]  # EU member that OurAirports files under Asia
+
+[[regions]]
+id = "africa"
+name = "Africa"
+continent = "AF"
+
+[[regions]]
+id = "asia"
+name = "Asia"
+continent = "AS"
+remove = ["CY"]
+
+[[regions]]
+id = "north_america"
+name = "North America"
+continent = "NA"
+
+[[regions]]
+id = "south_america"
+name = "South America"
+continent = "SA"
+
+[[regions]]
+id = "oceania"
+name = "Oceania"
+continent = "OC"
+
+[[regions]]
+id = "antarctica"
+name = "Antarctica"
+continent = "AN"
+
+[[regions]]
+id = "nordics"
+name = "Nordics"
+countries = ["DK", "FI", "IS", "NO", "SE"]
+
+[[regions]]
+id = "baltics"
+name = "Baltics"
+countries = ["EE", "LT", "LV"]
+
+[[regions]]
+id = "schengen"
+name = "Schengen Area"
+territories = false
+countries = [
+  "AT", "BE", "BG", "CH", "CZ", "DE", "DK", "EE", "ES", "FI", "FR", "GR", "HR", "HU", "IS",
+  "IT", "LI", "LT", "LU", "LV", "MT", "NL", "NO", "PL", "PT", "RO", "SE", "SI", "SK",
+]
+
+[[regions]]
+id = "eu"
+name = "European Union"
+territories = false
+countries = [
+  "AT", "BE", "BG", "CY", "CZ", "DE", "DK", "EE", "ES", "FI", "FR", "GR", "HR", "HU", "IE",
+  "IT", "LT", "LU", "LV", "MT", "NL", "PL", "PT", "RO", "SE", "SI", "SK",
+  "GF", "GP", "MF", "MQ", "RE", "YT",  # outermost regions are EU territory
+]

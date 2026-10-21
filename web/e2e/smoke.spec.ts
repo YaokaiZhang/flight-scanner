@@ -22,8 +22,11 @@ function runPipeline(at: string) {
 test("create a Watch in the UI, then see its Deal in the Deals feed", async ({ page }) => {
   await page.goto("/watches");
   await page.getByLabel("Name").fill("Barcelona weekend");
-  await page.getByLabel("From (airport)").fill("hel");
-  await page.getByLabel("To (airport)").fill("bcn");
+  await page.getByRole("combobox", { name: "From" }).fill("hel");
+  await page.getByRole("option", { name: /Helsinki Vantaa Airport/ }).click();
+  await page.getByRole("combobox", { name: "To" }).fill("bcn");
+  await page.getByRole("option", { name: /BCN/ }).first().click();
+  await expect(page.getByText("Resolves to 1 airport")).toHaveCount(2);
   await page.getByLabel("Departure (one way)").fill("2026-11-14");
   await page.getByLabel("Price threshold (EUR)").fill("120");
   await page.getByLabel("Email").uncheck(); // Telegram only

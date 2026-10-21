@@ -7,6 +7,7 @@
     h.run()                                               # real Postgres, dbt and Dagster
     h.notifier.alerts                                     # what came out
 
+Swap reference data with `h.use_reference(ReferenceData.load(dir))`.
 Add more fake sources with `h.add_source(ReplayAdapter("other", h.clock))`, and channel stand-ins
 with `h.add_notifier(RecordingNotifier("telegram"))` (gets only Watches that chose Telegram).
 """
@@ -23,6 +24,7 @@ from flight_scanner.clock import FakeClock
 from flight_scanner.db import DbSettings, connect
 from flight_scanner.notify.base import Notifier, RecordingNotifier
 from flight_scanner.pipeline import Runtime, rebuild, run_once
+from flight_scanner.places import ReferenceData
 from flight_scanner.raw_store import RawStore
 from flight_scanner.reprocess import ReprocessReport
 from flight_scanner.sources.base import SourceAdapter
@@ -54,11 +56,15 @@ class PipelineHarness:
         self.runtime.notifiers.append(notifier)
         return notifier
 
+    def use_reference(self, reference: ReferenceData) -> None:
+        """Swap the Places reference data used by later runs (and Watch validation)."""
+        self.runtime.reference = reference
+
     def create_watch(self, spec: watches.WatchSpec | dict) -> watches.Watch:
         if isinstance(spec, dict):
             spec = watches.WatchSpec.model_validate(spec)
         with connect(self.db) as conn:
-            return watches.create(conn, spec, self.clock)
+            return watches.create(conn, spec, self.clock, self.runtime.reference)
 
     def run(self) -> dg.ExecuteInProcessResult:
         """One full scan at the clock's current instant. Raises if any step fails."""
