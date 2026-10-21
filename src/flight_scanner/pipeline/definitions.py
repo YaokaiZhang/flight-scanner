@@ -6,7 +6,7 @@ import json
 import dagster as dg
 from dagster_dbt import DbtCliResource, dbt_assets, get_asset_key_for_model
 
-from flight_scanner import deals, digests, scan_planner, verification, watches
+from flight_scanner import deals, digests, scan_planner, source_health, verification, watches
 from flight_scanner.clock import today
 from flight_scanner.db import connect
 from flight_scanner.deal_context import add_deal_context
@@ -103,12 +103,16 @@ def scan_plan(context: dg.AssetExecutionContext, runtime: dg.ResourceParam[Runti
     ]
 )
 def source_prices(context: dg.AssetExecutionContext, runtime: dg.ResourceParam[Runtime]):
-    """Fetch, store raw and parse the scan plan's scheduled tasks; one outage never stops others."""
+    """Fetch, store raw and parse the scan plan's scheduled tasks; one outage never stops others.
+    A source that was turned away (bot protection) is disabled (`source_health`)."""
     with connect(runtime.db, autocommit=True) as conn:
         plan_id = scan_planner.latest_plan_id(conn)
         tasks = scan_planner.scheduled(conn, plan_id) if plan_id is not None else []
         report = ingest(conn, runtime.sources, tasks, runtime.raw_store)
         scan_planner.finish(conn, report.task_status, runtime.clock.now())
+        for outcome in report.outcomes:
+            if outcome.blocked:  # disabled until the owner re-enables it
+                source_health.block(conn, outcome.source, outcome.error, runtime.clock.now())
     meta = {"sources": dg.MetadataValue.json(report.as_metadata())}
     yield dg.MaterializeResult(asset_key=LEG_PRICES, metadata=meta)
     yield dg.MaterializeResult(asset_key=ROUND_TRIP_PRICES, metadata=meta)
