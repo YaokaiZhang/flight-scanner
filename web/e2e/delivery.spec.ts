@@ -1,0 +1,17 @@
+// The Watch editor offers immediate Alerts or a daily Digest (ticket 07).
+import { expect, test } from "@playwright/test";
+
+test("a Watch created with Daily Digest is stored in Digest mode", async ({ page, request }) => {
+  await page.goto("/watches");
+  await page.getByLabel("Name").fill("Low priority Lisbon");
+  await page.getByLabel("From (airport)").fill("hel");
+  await page.getByLabel("To (airport)").fill("lis");
+  await page.getByLabel("Departure (one way)").fill("2026-11-20");
+  await page.getByLabel("Daily Digest").check();
+  await page.getByRole("button", { name: "Create Watch" }).click();
+  await expect(page.getByRole("status")).toContainText("Saved");
+
+  const watches = await (await request.get("/api/watches")).json();
+  const lisbon = watches.find((w: { name: string }) => w.name === "Low priority Lisbon");
+  expect(lisbon.delivery).toBe("digest");
+});

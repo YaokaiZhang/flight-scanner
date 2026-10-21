@@ -6,10 +6,14 @@
 
 **Blocked by:** 01
 
-**Status:** ready-for-agent
+**Status:** resolved
 
-- [ ] A Deal still present on later scans produces no further Alert.
-- [ ] A further drop of ≥10% from the last alerted price produces a new Alert.
-- [ ] A fare absent for ≥24 h that reappears as a Deal produces a new Alert.
-- [ ] Per-Watch delivery choice: immediate or daily Digest; a Digest lists all Deals for that Watch since the last Digest.
-- [ ] Seam-1 tests for each rule, driven by the injectable clock.
+- [x] A Deal still present on later scans produces no further Alert.
+- [x] A further drop of ≥10% from the last alerted price produces a new Alert.
+- [x] A fare absent for ≥24 h that reappears as a Deal produces a new Alert.
+- [x] Per-Watch delivery choice: immediate or daily Digest; a Digest lists all Deals for that Watch since the last Digest.
+- [x] Seam-1 tests for each rule, driven by the injectable clock.
+
+## Comments
+
+- Branch `ticket/07-alert-dedup-and-digest`: Deals carry Alert rounds (re-alert on a further >=10% drop or after >=24 h absence), per-Watch `delivery` (immediate | digest), daily 08:00 Helsinki Digest via `digests.send_digests`; seam-1/2 and Playwright tests.

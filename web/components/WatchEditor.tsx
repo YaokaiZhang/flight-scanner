@@ -23,6 +23,7 @@ export function WatchEditor({ onCreated }: { onCreated: () => void }) {
       price_threshold: threshold
         ? { amount_eur: Number(threshold), basis: f.get("basis") === "per_adult" ? "per_adult" : "total" }
         : null,
+      delivery: f.get("delivery") === "digest" ? "digest" : "immediate",
     };
     setBusy(true);
     setMessage(null);
@@ -76,6 +77,13 @@ export function WatchEditor({ onCreated }: { onCreated: () => void }) {
           <div className="choice">
             <label><input type="radio" name="basis" value="total" defaultChecked /> Total</label>
             <label><input type="radio" name="basis" value="per_adult" /> Per adult</label>
+          </div>
+        </fieldset>
+        <fieldset className="field" style={{ border: 0 }}>
+          <legend className="field-label">Delivery</legend>
+          <div className="choice">
+            <label><input type="radio" name="delivery" value="immediate" defaultChecked /> Immediate</label>
+            <label><input type="radio" name="delivery" value="digest" /> Daily Digest</label>
           </div>
         </fieldset>
         <div>

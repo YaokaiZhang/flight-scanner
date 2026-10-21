@@ -1,8 +1,10 @@
 """The notifier interface and the channel-agnostic Alert content.
 
 `AlertMessage` is everything an Alert says; channels (email, Telegram: ticket 06) only format and
-deliver it. `send` raises on delivery failure; the pipeline then leaves the Alert unsent so the
-next run retries it.
+deliver it. A `DigestMessage` is one Watch's daily batch of Alerts; a channel that can send one
+message for it implements `send_digest` (`DigestNotifier`), otherwise `deliver_digest` falls back
+to one `send` per Deal. `send` raises on delivery failure; the pipeline then leaves the Alert
+unsent so the next run retries it.
 """
 
 from __future__ import annotations
@@ -33,11 +35,34 @@ class AlertMessage:
     observed_at: datetime
 
 
+@dataclass(frozen=True)
+class DigestMessage:
+    """A Watch's Deals since its last Digest, sent as one message."""
+
+    watch_id: int
+    watch_name: str
+    deals: tuple[AlertMessage, ...]
+
+
 @runtime_checkable
 class Notifier(Protocol):
     channel: str
 
     def send(self, alert: AlertMessage) -> None: ...
+
+
+@runtime_checkable
+class DigestNotifier(Notifier, Protocol):
+    def send_digest(self, digest: DigestMessage) -> None: ...
+
+
+def deliver_digest(notifier: Notifier, digest: DigestMessage) -> None:
+    """One message if the channel supports Digests, else one Alert per Deal. Raises on failure."""
+    if isinstance(notifier, DigestNotifier):
+        notifier.send_digest(digest)
+    else:
+        for alert in digest.deals:
+            notifier.send(alert)
 
 
 class RecordingNotifier:
@@ -47,9 +72,13 @@ class RecordingNotifier:
 
     def __init__(self) -> None:
         self.alerts: list[AlertMessage] = []
+        self.digests: list[DigestMessage] = []
 
     def send(self, alert: AlertMessage) -> None:
         self.alerts.append(alert)
+
+    def send_digest(self, digest: DigestMessage) -> None:
+        self.digests.append(digest)
 
 
 class LogNotifier:
@@ -68,3 +97,8 @@ class LogNotifier:
             alert.price_total_eur,
             alert.verification,
         )
+
+    def send_digest(self, digest: DigestMessage) -> None:
+        log.warning("DIGEST %s: %d Deal(s)", digest.watch_name, len(digest.deals))
+        for alert in digest.deals:
+            self.send(alert)
