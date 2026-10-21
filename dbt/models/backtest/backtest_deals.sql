@@ -1,7 +1,8 @@
 -- Backtest: was each past Deal a real dip? Judged from what the same trip (origin, destination,
 -- outbound, return) cost on the Helsinki days after the Deal was detected, up to as_of.
---   Deal price: the per-adult price of its first Alert (the price the owner was told), or, when
---   it was never alerted, the price its current Alert round is due on.
+--   Deals that failed Verification and were never alerted are left out (never a Deal).
+--   Deal price: the per-adult cached price of its first Alert, or, when it was never alerted,
+--   the price its current Alert round is due on.
 --   Baseline: the Baseline the Deal records (app.deals; refreshed while it is a Candidate).
 --   Later daily price: the day's cheapest Leg price (one way), or the cheaper of the day's
 --   single-ticket Round-trip price and its outbound + return Leg prices (ADR-0001), any source.
@@ -42,6 +43,8 @@ deals as (
     from {{ source('app', 'deals') }} as d
     left join first_alerts as a on a.deal_id = d.id
     where d.detected_at <= {{ as_of() }}
+        -- failed Verification and never alerted: it was never a Deal for the owner
+        and (d.verification <> 'failed' or a.deal_id is not null)
 ),
 
 legs as (

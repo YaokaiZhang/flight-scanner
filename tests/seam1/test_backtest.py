@@ -5,7 +5,7 @@ Deal. What the same trip costs on the following days decides whether it was a re
 went back toward the Baseline) or not (it stayed low). Read through GET /backtest.
 """
 
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, date, datetime, timedelta
 
 from fastapi.testclient import TestClient
 
@@ -146,3 +146,20 @@ def test_a_round_trip_deal_is_judged_by_its_later_outbound_plus_return_prices(pi
     assert deal["later_observation_days"] == 2
     assert deal["highest_later_price_per_adult_eur"] == 100
     assert deal["outcome"] == "real_dip"
+
+
+def test_a_candidate_that_failed_verification_was_never_a_deal_and_is_not_backtested(pipeline):
+    google = pipeline.use_google_flights()
+    pipeline.create_watch(
+        watch(ONE_WAY_20_NOV) | {"price_threshold": {"amount_eur": 80, "basis": "total"}}
+    )
+    pipeline.fake.replay(payload([leg("HEL", "BCN", "2026-11-20", 50)]))
+    google.offer("HEL", "BCN", date(2026, 11, 20), None, total=120)  # live: over the threshold
+
+    pipeline.run()
+    pipeline.clock.advance(minutes=30)
+    pipeline.run()
+
+    assert pipeline.notifier.alerts == []
+    result = backtest(pipeline)
+    assert (result["deals"], result["past_deals"]) == (0, [])
