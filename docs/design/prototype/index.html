@@ -1,0 +1,1094 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Flight Scanner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500&family=Playfair+Display:ital,wght@1,700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #fcfcfc;
+    --ink: #0076ff;          /* large data, marks, selection */
+    --ink-deep: #0058c4;     /* small ink text: 6.3:1 on paper */
+    --graphite: #4b4b4b;     /* body text: 8.6:1 */
+    --pencil: #6b6b6b;       /* secondary text: 5.3:1 */
+    --construction: #d1d1d1; /* rules and guides only, never text */
+    --swash: rgba(0, 118, 255, 0.12);
+    --swash-strong: rgba(0, 118, 255, 0.22);
+    --amber: #8a5300;        /* unverified / provisional: 6.2:1 */
+    --amber-wash: rgba(196, 122, 0, 0.10);
+    --red: #b42318;
+    --mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+    --script: 'Playfair Display', Georgia, serif;
+    --ease: cubic-bezier(0.16, 1, 0.3, 1);
+    --gutter: 32px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  ::selection { background: var(--swash-strong); color: var(--graphite); }
+  html { scrollbar-color: var(--construction) transparent; scrollbar-width: thin; }
+
+  body {
+    background-color: var(--paper);
+    background-image: radial-gradient(circle, var(--construction) 1px, transparent 1.5px);
+    background-size: 40px 40px;
+    background-position: center;
+    color: var(--graphite);
+    font-family: var(--mono);
+    font-size: 13px;
+    line-height: 1.6;
+    font-variant-numeric: tabular-nums;
+    caret-color: var(--ink);
+  }
+
+  button, input, select { font: inherit; color: inherit; }
+  button { background: none; border: 0; cursor: pointer; text-align: inherit; }
+  a { color: var(--ink-deep); text-underline-offset: 3px; text-decoration-thickness: 1px; }
+  :focus-visible { outline: 1.5px solid var(--ink); outline-offset: 3px; }
+  .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .skip { position: absolute; left: 12px; top: -40px; background: var(--paper); padding: 6px 10px; border: 1.5px solid var(--ink); z-index: 10; }
+  .skip:focus { top: 12px; }
+
+  .icon { width: 14px; height: 14px; stroke: currentColor; stroke-width: 1.5; fill: none; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+
+  /* ---------- shell ---------- */
+  .workspace {
+    display: grid;
+    grid-template-columns: 80px minmax(0, 1fr) 360px;
+    height: 100vh;
+    padding: var(--gutter);
+    gap: 28px;
+  }
+
+  .nav-vertical {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 36px;
+    border-right: 1.5px solid var(--construction);
+    padding-right: 20px;
+    min-height: 0;
+  }
+  .brand { display: flex; flex-direction: column; align-items: center; gap: 14px; color: var(--ink); text-decoration: none; }
+  .brand svg { width: 52px; height: 52px; overflow: visible; }
+  .wordmark {
+    font-family: var(--script);
+    font-style: italic;
+    font-weight: 700;
+    font-size: 19px;
+    letter-spacing: 0.01em;
+    writing-mode: vertical-lr;
+    transform: rotate(180deg);
+    white-space: nowrap;
+  }
+  .nav-list { list-style: none; display: flex; flex-direction: column; align-items: center; gap: 34px; }
+  .nav-item {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    writing-mode: vertical-lr;
+    transform: rotate(180deg);
+    color: var(--pencil);
+    transition: color 0.3s ease;
+    position: relative;
+    padding: 4px 2px;
+  }
+  .nav-item:hover, .nav-item[aria-current="page"] { color: var(--ink-deep); }
+  .nav-item[aria-current="page"]::after {
+    content: '';
+    position: absolute;
+    top: -10px;
+    left: calc(100% + 6px);
+    width: 2px;
+    height: 40px;
+    background: var(--ink);
+  }
+  .nav-foot { margin-top: auto; font-size: 10px; letter-spacing: 0.04em; color: var(--pencil); writing-mode: vertical-lr; transform: rotate(180deg); white-space: nowrap; }
+
+  .main-canvas { min-height: 0; overflow-y: auto; padding-right: 8px; position: relative; }
+  .inspector {
+    border-left: 1px solid var(--construction);
+    padding-left: 30px;
+    min-height: 0;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+    padding-bottom: 8px;
+  }
+
+  /* ---------- page header ---------- */
+  .page-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 16px 24px;
+    padding-bottom: 20px;
+    margin-bottom: 8px;
+    border-bottom: 1px dashed var(--construction);
+  }
+  h1 { font-size: 22px; font-weight: 500; color: var(--graphite); letter-spacing: -0.01em; line-height: 1.2; }
+  .lede { font-size: 11px; color: var(--pencil); margin-top: 6px; }
+  .lede b { color: var(--ink-deep); font-weight: 500; }
+  h2 { font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.12em; color: var(--graphite); margin: 36px 0 14px; }
+
+  /* ---------- controls ---------- */
+  .controls { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+  .seg { display: inline-flex; border: 1.5px solid var(--graphite); }
+  .seg button { padding: 6px 12px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; }
+  .seg button + button { border-left: 1px solid var(--construction); }
+  .seg button[aria-pressed="true"] { background: var(--swash); color: var(--ink-deep); }
+  .seg button:hover { color: var(--ink-deep); }
+
+  .field { display: flex; flex-direction: column; gap: 6px; }
+  .field > span, .field-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--pencil); }
+  .input, select.input {
+    appearance: none;
+    background: transparent;
+    border: 0;
+    border-bottom: 1.5px solid var(--graphite);
+    padding: 6px 2px;
+    font-size: 13px;
+    min-width: 0;
+    border-radius: 0;
+  }
+  select.input {
+    padding-right: 22px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%234b4b4b' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 4px center;
+    cursor: pointer;
+  }
+  .input:hover { border-color: var(--ink); }
+  .input:focus-visible { outline: none; border-color: var(--ink); background: var(--swash); }
+  .input::placeholder { color: var(--pencil); }
+
+  .btn-marker {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 18px;
+    border: 1.5px solid var(--graphite);
+    color: var(--graphite);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    text-decoration: none;
+    transition: transform 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+    white-space: nowrap;
+  }
+  .btn-marker:hover { border-color: var(--ink); color: var(--ink-deep); background: var(--swash); transform: rotate(-1deg); }
+  .btn-marker.primary { border-color: var(--ink); color: var(--ink-deep); }
+  .btn-marker.primary:hover { background: var(--swash-strong); }
+  .btn-marker.danger { border-color: transparent; color: var(--red); padding-inline: 4px; }
+  .btn-marker.danger:hover { background: none; border-color: transparent; text-decoration: underline; }
+  .btn-icon { display: inline-grid; place-items: center; width: 36px; height: 36px; border: 1.5px solid var(--construction); color: var(--graphite); transition: transform 0.2s ease, border-color 0.2s ease, color 0.2s ease; }
+  .btn-icon:hover { border-color: var(--ink); color: var(--ink-deep); transform: rotate(-2deg); }
+  .btn-icon[aria-pressed="true"] { border-color: var(--ink); background: var(--swash); color: var(--ink-deep); }
+  .btn-icon .icon { width: 16px; height: 16px; }
+
+  .tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 2px 7px;
+    border: 1px solid currentColor;
+    white-space: nowrap;
+    line-height: 1.5;
+  }
+  .tag .icon { width: 11px; height: 11px; }
+  .tag.verified { color: var(--ink-deep); }
+  .tag.unverified { color: var(--amber); border-style: dashed; background: var(--amber-wash); }
+  .tag.plain { color: var(--pencil); border-color: var(--construction); }
+  .tag.drop { color: var(--ink-deep); border-color: transparent; background: var(--swash); }
+  .tag.off { color: var(--pencil); border-style: dashed; border-color: var(--pencil); }
+  .tag.fail { color: var(--red); }
+
+  /* ---------- inspector widgets ---------- */
+  .widget-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--graphite);
+  }
+  .widget-label::before { content: ''; width: 8px; height: 8px; border: 1px solid var(--ink); border-radius: 50%; flex: none; }
+  .data-point { font-size: 34px; color: var(--ink); font-weight: 300; line-height: 1.1; letter-spacing: -0.02em; margin-bottom: 6px; }
+  .data-point small { font-size: 12px; letter-spacing: 0; color: var(--pencil); font-weight: 400; margin-left: 4px; }
+  .data-point.amber { color: var(--amber); }
+  .data-desc { font-size: 11px; color: var(--graphite); line-height: 1.7; }
+  .data-desc em { font-style: normal; color: var(--ink-deep); }
+  .meta { font-size: 11px; color: var(--pencil); line-height: 1.7; letter-spacing: 0.02em; }
+  .route-big { font-size: 22px; font-weight: 500; color: var(--graphite); letter-spacing: -0.01em; }
+  .route-big .arrow { color: var(--ink-deep); font-weight: 300; margin: 0 6px; }
+  .route-cities { font-size: 11px; color: var(--pencil); }
+
+  .legs { list-style: none; display: grid; gap: 14px; }
+  .leg { display: grid; grid-template-columns: 34px 1fr; gap: 4px 10px; font-size: 11px; }
+  .leg-dir { font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--pencil); padding-top: 2px; }
+  .leg-time { color: var(--graphite); font-weight: 500; }
+  .leg-sub { grid-column: 2; color: var(--pencil); font-size: 11px; }
+
+  .actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+  .actions .spacer { flex: 1; }
+  .btn-marker.book { margin-top: 22px; width: 100%; justify-content: center; padding-block: 11px; }
+  .actions.rate { margin-top: 16px; }
+
+  .synthetic { font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--pencil); border-top: 1px dashed var(--construction); padding-top: 12px; margin-top: auto; }
+
+  /* ---------- deals feed ---------- */
+  .scale-head {
+    display: grid;
+    grid-template-columns: var(--deal-cols);
+    gap: 20px;
+    padding: 18px 12px 6px;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--pencil);
+  }
+  .scale-axis { position: relative; height: 14px; }
+  .scale-axis span { position: absolute; transform: translateX(-50%); white-space: nowrap; }
+  .scale-axis span.base { color: var(--graphite); font-weight: 500; }
+  :root { --deal-cols: minmax(130px, 0.9fr) minmax(190px, 1fr) minmax(200px, 2fr) minmax(110px, 0.7fr); }
+
+  .deal-list { list-style: none; }
+  .deal-list li + li { border-top: 1px solid var(--construction); }
+  .deal-row {
+    display: grid;
+    grid-template-columns: var(--deal-cols);
+    gap: 20px;
+    align-items: center;
+    width: 100%;
+    padding: 18px 12px;
+    transition: background-color 0.2s ease;
+  }
+  .deal-row:hover { background: rgba(0, 118, 255, 0.05); }
+  .deal-row[aria-pressed="true"] { background: var(--swash); }
+  .deal-row[aria-pressed="true"] .route { color: var(--ink-deep); }
+  .route { font-size: 15px; font-weight: 500; letter-spacing: -0.01em; }
+  .route .arrow { color: var(--ink-deep); font-weight: 300; margin: 0 4px; }
+  .sub { font-size: 11px; color: var(--pencil); margin-top: 2px; }
+  .when { font-size: 12px; color: var(--graphite); white-space: nowrap; }
+  .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .price { text-align: right; }
+  .price b { display: block; font-size: 24px; font-weight: 300; color: var(--ink); line-height: 1.1; letter-spacing: -0.02em; }
+  .price b small { font-size: 11px; color: var(--pencil); letter-spacing: 0; font-weight: 400; margin-left: 3px; }
+
+  /* the baseline ruler: the signature drawing */
+  .ruler { position: relative; height: 54px; }
+  .ruler .track {
+    position: absolute; left: 0; right: 0; bottom: 8px; height: 6px;
+    border-bottom: 1px solid var(--construction);
+    background-image: repeating-linear-gradient(to right, var(--construction) 0 1px, transparent 1px calc(100% / 14));
+    background-size: 100% 4px; background-repeat: no-repeat; background-position: bottom;
+  }
+  .ruler .band {
+    position: absolute; bottom: 8px; height: 30px;
+    background: var(--swash);
+    border-left: 1px dashed var(--ink);
+    border-right: 1px dashed var(--ink);
+  }
+  .ruler .band.low { background: var(--amber-wash); border-color: var(--amber); }
+  .ruler .median { position: absolute; bottom: 8px; height: 36px; border-left: 1.5px dashed var(--graphite); }
+  .ruler .tick { position: absolute; bottom: 4px; height: 40px; width: 2px; margin-left: -1px; background: var(--ink); border-radius: 1px; }
+  .ruler .tick::after { content: ''; position: absolute; bottom: -2px; left: -3px; width: 8px; height: 8px; border-radius: 50%; background: var(--ink); }
+  .ruler .dim {
+    position: absolute; bottom: 30px; height: 1px; background: var(--ink);
+    transform-origin: right center;
+    animation: draw 0.7s var(--ease) both;
+  }
+  .ruler .dim::before, .ruler .dim::after { content: ''; position: absolute; top: -3px; width: 1px; height: 7px; background: var(--ink); }
+  .ruler .dim::before { left: 0; }
+  .ruler .dim::after { right: 0; }
+  .ruler .callout {
+    position: absolute; bottom: 33px; transform: translateX(-50%);
+    font-size: 11px; font-weight: 500; color: var(--ink-deep); white-space: nowrap; background: var(--paper); padding: 0 4px;
+  }
+  .deal-row[aria-pressed="true"] .ruler .callout, .deal-row:hover .ruler .callout { background: transparent; }
+  .ruler .mark { position: absolute; bottom: 6px; width: 0; height: 0; display: none; }
+  .ruler .note { display: none; }
+  .deal-row[aria-pressed="true"] .ruler .mark { display: block; }
+  .deal-row[aria-pressed="true"] .ruler .note { display: block; }
+  .ruler .ring { position: absolute; left: -11px; top: -11px; width: 22px; height: 22px; border: 1px dashed var(--graphite); border-radius: 50%; }
+  .ruler .leader { position: absolute; right: 9px; top: -9px; width: 30px; height: 1px; background: var(--graphite); transform-origin: right center; transform: rotate(24deg); }
+  .ruler .note { position: absolute; bottom: 14px; text-align: right; white-space: nowrap; font-size: 11px; line-height: 1.35; color: var(--pencil); background: #dfedfd; padding: 1px 4px; }
+  .ruler .note b { display: block; font-weight: 500; color: var(--ink-deep); text-transform: uppercase; letter-spacing: 0.04em; }
+  @keyframes draw { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+
+  .empty {
+    padding: 48px 12px;
+    text-align: center;
+    color: var(--pencil);
+    font-size: 12px;
+    border-bottom: 1px dashed var(--construction);
+  }
+  .empty strong { display: block; color: var(--graphite); font-weight: 500; margin-bottom: 4px; }
+
+  /* ---------- tables ---------- */
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  th {
+    text-align: left; font-weight: 400; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--pencil);
+    padding: 10px 12px; border-bottom: 1.5px solid var(--graphite); white-space: nowrap;
+  }
+  td { padding: 14px 12px; border-bottom: 1px solid var(--construction); vertical-align: top; }
+  td.num, th.num { text-align: right; }
+  tr.selectable { cursor: pointer; transition: background-color 0.2s ease; }
+  tr.selectable:hover { background: rgba(0, 118, 255, 0.05); }
+  tr.selectable[aria-selected="true"] { background: var(--swash); }
+  tr.selectable[aria-selected="true"] .row-title { color: var(--ink-deep); }
+  .row-title { font-weight: 500; font-size: 13px; }
+  .row-title button { font-weight: inherit; }
+  tr.paused td { color: var(--pencil); }
+
+  /* ---------- watch editor ---------- */
+  .editor { display: grid; gap: 22px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; padding: 3px 4px 3px 9px; border: 1px solid var(--graphite); }
+  .chip .kind { font-size: 11px; color: var(--pencil); text-transform: uppercase; letter-spacing: 0.04em; }
+  .chip button { display: inline-grid; place-items: center; width: 18px; height: 18px; color: var(--pencil); }
+  .chip button:hover { color: var(--red); }
+  .chip button .icon { width: 11px; height: 11px; }
+  .chip.exclude { border-style: dashed; color: var(--pencil); }
+  .chip.exclude .name { text-decoration: line-through; text-decoration-color: var(--graphite); }
+  .resolved { font-size: 11px; color: var(--graphite); }
+  .resolved b { color: var(--ink-deep); font-weight: 500; }
+  details.tree { font-size: 11px; color: var(--graphite); }
+  details.tree summary { cursor: pointer; color: var(--pencil); list-style: none; display: inline-flex; gap: 6px; align-items: center; }
+  details.tree summary::-webkit-details-marker { display: none; }
+  details.tree summary .icon { width: 10px; height: 10px; transition: transform 0.2s ease; }
+  details.tree[open] summary .icon { transform: rotate(90deg); }
+  details.tree ul { list-style: none; margin: 8px 0 0 4px; padding-left: 12px; border-left: 1px dashed var(--construction); display: grid; gap: 3px; }
+  details.tree li span { color: var(--pencil); }
+  details.tree li.x { color: var(--pencil); text-decoration: line-through; }
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .stepper { display: inline-flex; align-items: center; border-bottom: 1.5px solid var(--graphite); }
+  .stepper button { width: 26px; height: 30px; display: grid; place-items: center; }
+  .stepper button:hover { color: var(--ink-deep); }
+  .stepper output { min-width: 24px; text-align: center; }
+  input[type="range"] { width: 100%; accent-color: var(--ink); }
+  .choice { display: flex; flex-wrap: wrap; gap: 14px; font-size: 12px; }
+  .choice label { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; }
+  .choice input { accent-color: var(--ink); width: 14px; height: 14px; }
+  .saved { font-size: 11px; color: var(--ink-deep); min-height: 1em; }
+
+  /* the Trip-pattern dimension line */
+  .dimension { position: relative; height: 74px; margin-top: 4px; }
+  .dimension .axis { position: absolute; left: 0; right: 0; top: 46px; height: 1px; background: var(--construction); }
+  .dimension .win { position: absolute; top: 30px; height: 16px; background: var(--swash); border-left: 1.5px solid var(--ink); border-right: 1.5px solid var(--ink); }
+  .dimension .ret { position: absolute; top: 38px; height: 8px; border-top: 1px dashed var(--ink); border-right: 1px dashed var(--ink); }
+  .dimension .line { position: absolute; top: 18px; height: 1px; background: var(--ink); }
+  .dimension .line::before, .dimension .line::after { content: ''; position: absolute; top: -3px; width: 1px; height: 7px; background: var(--ink); }
+  .dimension .line::before { left: 0; } .dimension .line::after { right: 0; }
+  .dimension .lbl { position: absolute; font-size: 11px; white-space: nowrap; }
+  .dimension .lbl.top { top: 0; transform: translateX(-50%); color: var(--ink-deep); font-weight: 500; }
+  .dimension .lbl.bot { top: 52px; color: var(--pencil); }
+
+  /* ---------- route explorer ---------- */
+  .chart { position: relative; margin-top: 18px; }
+  .chart svg { display: block; width: 100%; overflow: visible; }
+  .chart text { font-family: var(--mono); font-size: 11px; fill: var(--pencil); }
+  .chart .ink-path { stroke-dasharray: 1; stroke-dashoffset: 0; animation: ink 1.1s var(--ease) both; }
+  @keyframes ink { from { stroke-dashoffset: 1; } }
+  .legend { display: flex; flex-wrap: wrap; gap: 18px; font-size: 11px; color: var(--pencil); margin-top: 10px; }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .legend svg { width: 18px; height: 10px; }
+
+  .tiers { list-style: none; display: grid; gap: 8px; font-size: 11px; }
+  .tiers li { display: grid; grid-template-columns: 14px 1fr auto; gap: 8px; align-items: baseline; color: var(--pencil); }
+  .tiers li .dot { width: 8px; height: 8px; border: 1px solid var(--construction); border-radius: 50%; align-self: center; }
+  .tiers li.on { color: var(--graphite); }
+  .tiers li.on .dot { background: var(--ink); border-color: var(--ink); }
+  .tiers li.on b { color: var(--ink-deep); font-weight: 500; }
+  .tiers li b { font-weight: 400; }
+
+  /* ---------- data health ---------- */
+  .fresh { display: inline-flex; align-items: center; gap: 6px; }
+  .fresh i { width: 7px; height: 7px; border-radius: 50%; background: var(--ink); }
+  .fresh.stale i { background: transparent; border: 1px solid var(--amber); }
+  .fresh.off i { background: transparent; border: 1px dashed var(--pencil); }
+  .matrix { display: grid; grid-template-columns: minmax(120px, auto) repeat(4, minmax(56px, 1fr)); gap: 3px; font-size: 11px; }
+  .matrix .hd { font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--pencil); padding: 4px 6px; }
+  .matrix .rl { padding: 8px 6px; color: var(--graphite); white-space: nowrap; }
+  .matrix .cell { padding: 8px 6px; text-align: right; color: var(--graphite); border: 1px solid var(--construction); }
+  .matrix .cell.none {
+    color: var(--amber);
+    border-style: dashed; border-color: var(--amber);
+    background-image: repeating-linear-gradient(-45deg, var(--amber-wash) 0 4px, transparent 4px 8px);
+  }
+  .checks { list-style: none; display: grid; gap: 0; }
+  .checks li { display: grid; grid-template-columns: auto 1fr auto; gap: 14px; align-items: baseline; padding: 12px 0; border-bottom: 1px solid var(--construction); font-size: 12px; }
+  .checks li .meta { white-space: nowrap; }
+
+  .budget { position: relative; height: 46px; margin: 8px 0 4px; }
+  .budget .scale { position: absolute; left: 0; right: 0; top: 18px; height: 14px; border-bottom: 1px solid var(--graphite);
+    background-image: repeating-linear-gradient(to right, var(--construction) 0 1px, transparent 1px 10%); background-size: 100% 6px; background-repeat: no-repeat; background-position: bottom; }
+  .budget .used { position: absolute; left: 0; top: 18px; height: 14px; background: var(--swash-strong); border-right: 2px solid var(--ink); }
+  .budget .today { position: absolute; top: 12px; height: 26px; border-left: 1px dashed var(--ink); }
+  .budget .lbl { position: absolute; top: 0; font-size: 11px; color: var(--pencil); transform: translateX(-50%); white-space: nowrap; }
+  .budget .end { position: absolute; top: 36px; font-size: 11px; color: var(--pencil); }
+
+  /* ---------- backtest ---------- */
+  .hist { display: grid; grid-template-columns: repeat(8, 1fr); gap: 8px; align-items: end; height: 160px; padding-top: 18px; border-bottom: 1.5px solid var(--graphite); }
+  .hist .bar { position: relative; border: 1.5px solid var(--ink); border-bottom: 0; background: var(--swash); transform-origin: bottom; animation: rise 0.8s var(--ease) both; }
+  .hist .bar.miss { border-color: var(--graphite); background: transparent; border-style: dashed; }
+  .hist .col { display: flex; flex-direction: column; justify-content: flex-end; height: 100%; }
+  .hist .col > span { text-align: center; font-size: 11px; color: var(--graphite); padding-bottom: 3px; }
+  .hist-axis { display: grid; grid-template-columns: repeat(8, 1fr); gap: 8px; font-size: 11px; color: var(--pencil); padding-top: 6px; text-align: center; }
+  @keyframes rise { from { transform: scaleY(0); } }
+
+  /* ---------- coordinate labels (real data) ---------- */
+  .sky-coordinate { position: fixed; font-size: 10px; letter-spacing: 0.02em; color: var(--pencil); pointer-events: none; z-index: 1; }
+
+  [hidden] { display: none !important; }
+
+  @media (max-width: 1180px) {
+    .workspace { grid-template-columns: 72px minmax(0, 1fr) 300px; gap: 22px; --gutter: 24px; }
+    :root { --deal-cols: minmax(110px, 0.8fr) minmax(170px, 1fr) minmax(160px, 1.6fr) minmax(96px, 0.7fr); }
+    .inspector { padding-left: 22px; }
+  }
+
+  @media (max-width: 860px) {
+    .workspace { display: block; height: auto; padding: 0 16px 32px; }
+    .nav-vertical {
+      position: sticky; top: 0; z-index: 5;
+      flex-direction: row; gap: 16px; align-items: center;
+      border-right: 0; border-bottom: 1.5px solid var(--construction);
+      padding: 10px 0; background: var(--paper);
+      margin: 0 -16px; padding-inline: 16px;
+      overflow-x: auto;
+    }
+    .brand { flex-direction: row; gap: 8px; }
+    .brand svg { width: 34px; height: 34px; }
+    .wordmark { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+    .nav-list { flex-direction: row; gap: 14px; }
+    .nav-item { writing-mode: horizontal-tb; transform: none; padding: 8px 0; letter-spacing: 0.06em; }
+    .nav-item[aria-current="page"]::after { top: auto; bottom: 0; left: 0; width: 100%; height: 2px; }
+    .nav-foot, .sky-coordinate { display: none; }
+    .main-canvas { overflow: visible; padding: 22px 0 0; }
+    .inspector { border-left: 0; border-top: 1.5px solid var(--construction); padding: 28px 0 0; margin-top: 28px; overflow: visible; gap: 32px; }
+    .scale-head { display: none; }
+    .deal-row {
+      grid-template-columns: 1fr auto;
+      grid-template-areas: "route price" "when when" "ruler ruler";
+      gap: 6px 12px; padding: 16px 4px;
+    }
+    .deal-row > :nth-child(1) { grid-area: route; }
+    .deal-row > :nth-child(2) { grid-area: when; }
+    .deal-row > :nth-child(3) { grid-area: ruler; }
+    .deal-row > :nth-child(4) { grid-area: price; }
+    .ruler { margin-top: 4px; }
+    .deal-row[aria-pressed="true"] .ruler { margin-bottom: 38px; }
+    .deal-row[aria-pressed="true"] .ruler .note { right: auto !important; left: 0; bottom: -40px; text-align: left; padding-left: 0; }
+    .ruler .leader { display: none; }
+    .matrix { grid-template-columns: minmax(96px, auto) repeat(4, minmax(44px, 1fr)); }
+    .row2 { grid-template-columns: 1fr; }
+    .table-wrap thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+    .table-wrap table, .table-wrap tbody { display: block; }
+    .table-wrap tr { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 16px; padding: 14px 4px; border-bottom: 1px solid var(--construction); }
+    .table-wrap td { display: block; padding: 0; border: 0; text-align: left !important; }
+    .table-wrap td::before { content: attr(data-label); display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--pencil); }
+    .table-wrap td.row-title { grid-column: 1 / -1; }
+    .table-wrap td.row-title::before { content: none; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+  }
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-check" viewBox="0 0 16 16"><path d="M3 8.5l3 3 7-7"/></symbol>
+  <symbol id="i-dash" viewBox="0 0 16 16"><circle cx="8" cy="8" r="5.5" stroke-dasharray="2 2"/></symbol>
+  <symbol id="i-out" viewBox="0 0 16 16"><path d="M6 3H3v10h10v-3M9 3h4v4M13 3L7 9"/></symbol>
+  <symbol id="i-up" viewBox="0 0 16 16"><path d="M5 14V7l3-5c1.2 0 1.8.8 1.6 2L9 7h3.6c.9 0 1.5.8 1.3 1.6l-1.2 4.2c-.2.7-.8 1.2-1.5 1.2H5zM2 7h3v7H2z"/></symbol>
+  <symbol id="i-down" viewBox="0 0 16 16"><path d="M11 2v7l-3 5c-1.2 0-1.8-.8-1.6-2L7 9H3.4c-.9 0-1.5-.8-1.3-1.6l1.2-4.2C3.5 2.5 4.1 2 4.8 2H11zM14 9h-3V2h3z"/></symbol>
+  <symbol id="i-x" viewBox="0 0 16 16"><path d="M4 4l8 8M12 4l-8 8"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 16 16"><path d="M8 3v10M3 8h10"/></symbol>
+  <symbol id="i-minus" viewBox="0 0 16 16"><path d="M3 8h10"/></symbol>
+  <symbol id="i-chev" viewBox="0 0 16 16"><path d="M6 3l5 5-5 5"/></symbol>
+  <symbol id="i-tickets" viewBox="0 0 16 16"><path d="M2 5h7v6H2zM7 3h7v6h-3"/></symbol>
+  <symbol id="i-drop" viewBox="0 0 16 16"><path d="M8 3v10M4 9l4 4 4-4"/></symbol>
+</svg>
+
+<div class="workspace">
+  <nav class="nav-vertical" aria-label="Primary">
+    <a class="brand" href="#deals" aria-label="Flight Scanner, Deals">
+      <!-- hand-drawn mark: felt-tip "fs" with its flight path and construction circle -->
+      <svg viewBox="0 0 64 64" fill="none" aria-hidden="true">
+        <path d="M4 60 Q30 66 58 10" stroke="#4b4b4b" stroke-width="0.8" stroke-dasharray="1.5 3" stroke-linecap="round"/>
+        <path d="M22 54 C21 40 22 30 22 23 C22 13 27 9 34 9 C39 9 41.5 11 42.5 14" stroke="var(--ink)" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M13 29 C18 28.2 25 27.8 32 28.4" stroke="var(--ink)" stroke-width="4.5" stroke-linecap="round"/>
+        <path d="M53 33 C49 28.5 41 28.5 40 33.5 C39 38.5 49 39 51.5 44 C54 49.5 47 55 39.5 50.5" stroke="var(--ink)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="42.5" cy="14" r="7" stroke="#4b4b4b" stroke-width="0.6" stroke-dasharray="2 2"/>
+        <line x1="47.5" y1="9" x2="56" y2="1" stroke="#4b4b4b" stroke-width="0.8"/>
+        <circle cx="58" cy="10" r="2" fill="var(--ink)"/>
+      </svg>
+      <span class="wordmark">Flight Scanner</span>
+    </a>
+    <ul class="nav-list">
+      <li><button class="nav-item" data-view="deals" aria-current="page">Deals</button></li>
+      <li><button class="nav-item" data-view="watches">Watches</button></li>
+      <li><button class="nav-item" data-view="routes">Routes</button></li>
+      <li><button class="nav-item" data-view="health">Health</button></li>
+      <li><button class="nav-item" data-view="backtest">Backtest</button></li>
+    </ul>
+    <div class="nav-foot">HEL 60.317°N 24.963°E</div>
+  </nav>
+
+  <main class="main-canvas" id="main" tabindex="-1"></main>
+  <aside class="inspector" aria-label="Inspector" aria-live="polite"></aside>
+</div>
+
+<div class="sky-coordinate" style="top: 12px; right: 32px;" id="coord-scan"></div>
+<div class="sky-coordinate" style="bottom: 10px; left: 140px;">verda · localhost:3000 · via SSH tunnel · synthetic prototype data</div>
+
+<script>
+/* ===== synthetic prototype data (not observed prices) ===== */
+const NOW = 'Wed 21 Oct 2026, 11:47 EEST';
+const deals = [
+  { id: 'd-2611-0042', o: 'HEL', oc: 'Helsinki', d: 'HRG', dc: 'Hurghada', out: 'Sat 14 Nov', back: 'Thu 19 Nov', nights: 5,
+    price: 118, adults: 2, base: 214, mad: 18, tier: 'route', obs: 41, days: 19, status: 'verified', tickets: 1,
+    watch: 'Sun in November', seen: '21 Oct 11:38', verifiedAt: '21 Oct 11:44', insight: '€190–€260', source: 'travelpayouts · cached 3 h',
+    legs: [['Out', 'Sat 14 Nov · 06:55 → 13:40', 'airBaltic · 1 stop RIX · 7 h 45'], ['Back', 'Thu 19 Nov · 14:30 → 22:05', 'airBaltic · 1 stop RIX · 7 h 35']],
+    context: 'Off-season capacity: airBaltic added a second weekly Riga–Hurghada rotation from 7 Nov and is filling it with launch fares.' },
+  { id: 'd-2611-0039', o: 'TLL', oc: 'Tallinn', d: 'BCN', dc: 'Barcelona', out: 'Sun 22 Nov', back: 'Wed 25 Nov', nights: 3,
+    price: 64, adults: 2, base: 138, mad: 15, tier: 'country', obs: 23, days: 8, status: 'unverified', tickets: 2,
+    watch: 'Sun in November', seen: '21 Oct 10:52', insight: null, source: 'travelpayouts · cached 6 h',
+    legs: [['Out', 'Sun 22 Nov · 07:10 → 10:35', 'Ryanair · direct · 4 h 25'], ['Back', 'Wed 25 Nov · 15:20 → 22:40', 'airBaltic · 1 stop RIX · 6 h 20']],
+    context: 'Ryanair autumn sale on Baltic routes, ends 25 Oct.' },
+  { id: 'd-2611-0035', o: 'HEL', oc: 'Helsinki', d: 'LIS', dc: 'Lisbon', out: 'Sat 7 Nov', back: 'Wed 11 Nov', nights: 4,
+    price: 141, adults: 1, base: 226, mad: 21, tier: 'route', obs: 57, days: 31, status: 'verified', tickets: 1, drop: 12,
+    watch: 'Lisbon long weekend', seen: '21 Oct 09:15', verifiedAt: '21 Oct 09:21', insight: '€205–€290', source: 'travelpayouts · cached 1 h',
+    legs: [['Out', 'Sat 7 Nov · 10:05 → 13:35', 'Finnair · direct · 5 h 30'], ['Back', 'Wed 11 Nov · 14:25 → 21:50', 'Finnair · direct · 5 h 25']],
+    context: null },
+  { id: 'd-2611-0031', o: 'HEL', oc: 'Helsinki', d: 'FUE', dc: 'Fuerteventura', out: 'Sat 28 Nov', back: 'Thu 3 Dec', nights: 5,
+    price: 189, adults: 2, base: 298, mad: 30, tier: 'insight', obs: 9, days: 4, status: 'verified', tickets: 1,
+    watch: 'Sun in November', seen: '20 Oct 18:02', verifiedAt: '20 Oct 18:09', insight: '€270–€340', source: 'travelpayouts · cached 11 h',
+    legs: [['Out', 'Sat 28 Nov · 08:40 → 13:20', 'Norwegian · direct · 6 h 40'], ['Back', 'Thu 3 Dec · 14:15 → 22:35', 'Norwegian · direct · 6 h 20']],
+    context: null },
+  { id: 'd-2611-0027', o: 'HEL', oc: 'Helsinki', d: 'CAI', dc: 'Cairo', out: 'Tue 10 Nov', back: 'Mon 16 Nov', nights: 6,
+    price: 162, adults: 2, base: 251, mad: 40, tier: 'provisional', obs: 14, days: 3, status: 'unverified', tickets: 1,
+    watch: 'Sun in November', seen: '20 Oct 07:30', insight: null, source: 'travelpayouts · cached 30 h',
+    legs: [['Out', 'Tue 10 Nov · 06:10 → 13:55', 'Turkish Airlines · 1 stop IST · 8 h 45'], ['Back', 'Mon 16 Nov · 08:20 → 17:05', 'Turkish Airlines · 1 stop IST · 9 h 45']],
+    context: null },
+  { id: 'd-2612-0008', o: 'HEL', oc: 'Helsinki', d: 'TFS', dc: 'Tenerife South', out: 'Sun 20 Dec', back: 'Tue 29 Dec', nights: 9,
+    price: 211, adults: 2, base: 342, mad: 33, tier: 'route', obs: 38, days: 22, status: 'verified', tickets: 2,
+    watch: 'Christmas Canaries', seen: '19 Oct 21:14', verifiedAt: '19 Oct 21:20', insight: '€320–€410', source: 'travelpayouts · cached 2 h',
+    legs: [['Out', 'Sun 20 Dec · 07:30 → 12:55', 'Norwegian · direct · 7 h 25'], ['Back', 'Tue 29 Dec · 13:40 → 22:10', 'Finnair · direct · 6 h 30']],
+    context: 'Christmas week fares usually peak above €400; Norwegian released extra seats on 19 Oct.' },
+];
+const tierName = { route: 'route', country: 'destination country (Spain)', insight: 'Price insight', provisional: 'provisional (low confidence)' };
+
+const watches = [
+  { name: 'Sun in November', from: ['HEL', 'TLL'], to: 'Europe − Sweden, + Egypt', pattern: '3–6 nights, departing any day in Nov 2026', adults: 2, thr: '—', sens: 30, delivery: 'Immediate · email + Telegram', active: true, airports: 412, deals: 4 },
+  { name: 'Lisbon long weekend', from: ['HEL'], to: 'LIS', pattern: '3–5 nights, departing 7 Nov ± 2 days', adults: 1, thr: '€180', sens: 30, delivery: 'Daily Digest · email', active: true, airports: 1, deals: 1 },
+  { name: 'Christmas Canaries', from: ['HEL'], to: 'Canary Islands', pattern: '7–10 nights, departing 18–23 Dec', adults: 2, thr: '€260 / adult', sens: 25, delivery: 'Immediate · Telegram', active: true, airports: 7, deals: 1 },
+  { name: 'Anywhere, rolling', from: ['HEL'], to: 'Anywhere − Nordics', pattern: '2–4 nights within the next 60 days (rolling)', adults: 1, thr: '€90', sens: 40, delivery: 'Daily Digest · Telegram', active: false, airports: 1386, deals: 0 },
+];
+
+const state = { view: 'deals', deal: deals[0].id, filter: 'all', watchFilter: 'all', watch: 0, bt: 0, rating: {} };
+
+/* ===== helpers ===== */
+const $ = (s, r = document) => r.querySelector(s);
+const ico = (id, cls = 'icon') => `<svg class="${cls}" aria-hidden="true"><use href="#i-${id}"/></svg>`;
+const pct = d => Math.round((1 - d.price / d.base) * 100);
+const eur = n => '€' + n.toLocaleString('en-GB');
+const label = t => `<div class="widget-label">${t}</div>`;
+const SCALE = 1.4; // ruler spans 0 → 140% of Baseline
+const pos = r => (r / SCALE * 100).toFixed(2) + '%';
+
+function statusTags(d) {
+  const t = [];
+  t.push(d.status === 'verified'
+    ? `<span class="tag verified">${ico('check')}Verified</span>`
+    : `<span class="tag unverified">${ico('dash')}Unverified</span>`);
+  if (d.tickets === 2) t.push(`<span class="tag plain">${ico('tickets')}2 separate tickets</span>`);
+  if (d.drop) t.push(`<span class="tag drop">${ico('drop')}Dropped ${d.drop}%</span>`);
+  return t.join('');
+}
+
+function ruler(d) {
+  const r = d.price / d.base, m = d.mad / d.base;
+  const low = d.tier === 'provisional';
+  return `<div class="ruler" aria-hidden="true">
+    <div class="track"></div>
+    <div class="band${low ? ' low' : ''}" style="left:${pos(1 - m)};width:calc(${pos(2 * m)})"></div>
+    <div class="median" style="left:${pos(1)}"></div>
+    <div class="dim" style="left:${pos(r)};width:calc(${pos(1)} - ${pos(r)})"></div>
+    <div class="callout" style="left:calc((${pos(r)} + ${pos(1)}) / 2)">−${pct(d)}%</div>
+    <div class="tick" style="left:${pos(r)}"></div>
+    <div class="mark" style="left:${pos(r)}"><i class="ring"></i><i class="leader"></i></div>
+    <span class="note" style="right:calc(100% - ${pos(r)} + 38px)"><b>${eur(d.price)} · ${d.status}</b>${d.status === 'verified' ? 'live check ' + d.verifiedAt.split(' ').pop() : d.source.split('· ')[1]}</span>
+  </div>`;
+}
+
+/* ===== views ===== */
+function viewDeals() {
+  const list = deals.filter(d =>
+    (state.filter === 'all' || d.status === state.filter) &&
+    (state.watchFilter === 'all' || d.watch === state.watchFilter));
+  const vCount = deals.filter(d => d.status === 'verified').length;
+  const rows = list.map(d => `<li>
+    <button class="deal-row" data-deal="${d.id}" aria-pressed="${d.id === state.deal}"
+      aria-label="${d.oc} to ${d.dc}, ${d.out} to ${d.back}, ${eur(d.price)} per adult, ${pct(d)} percent below Baseline, ${d.status}">
+      <div>
+        <div class="route">${d.o}<span class="arrow">→</span>${d.d}</div>
+        <div class="sub">${d.oc} → ${d.dc}</div>
+      </div>
+      <div>
+        <div class="when">${d.out} → ${d.back}</div>
+        <div class="sub">${d.nights} nights · ${d.adults} adult${d.adults > 1 ? 's' : ''}</div>
+        <div class="tags">${statusTags(d)}</div>
+      </div>
+      ${ruler(d)}
+      <div class="price"><b>${eur(d.price)}<small>/adult</small></b><div class="sub">base ${eur(d.base)}</div></div>
+    </button></li>`).join('');
+
+  const empty = `<div class="empty"><strong>No ${state.filter === 'all' ? '' : state.filter + ' '}Deals${state.watchFilter === 'all' ? '' : ' for ' + state.watchFilter} this week.</strong>
+    The Watch is still scanning; you will get an Alert the moment a fare falls below its Baseline.</div>`;
+
+  return `<header class="page-head">
+      <div>
+        <h1>Deals</h1>
+        <p class="lede"><b>${deals.length} Alerts</b> in the last 7 days · ${vCount} Verified · last scan cycle 11:40 EEST</p>
+      </div>
+      <div class="controls">
+        <div class="seg" role="group" aria-label="Verification status">
+          ${['all', 'verified', 'unverified'].map(f => `<button data-filter="${f}" aria-pressed="${state.filter === f}">${f}</button>`).join('')}
+        </div>
+        <label class="field"><span class="sr-only">Watch</span>
+          <select class="input" id="watch-filter">
+            <option value="all">All Watches</option>
+            ${watches.map(w => `<option ${state.watchFilter === w.name ? 'selected' : ''}>${w.name}</option>`).join('')}
+          </select>
+        </label>
+      </div>
+    </header>
+    <div class="scale-head" aria-hidden="true">
+      <span>Route</span><span>Dates</span>
+      <div class="scale-axis">
+        <span style="left:0">€0</span><span style="left:${pos(0.5)}">−50%</span>
+        <span class="base" style="left:${pos(1)}">Baseline</span><span style="left:${pos(1.3)}">+30%</span>
+      </div>
+      <span style="text-align:right">Per adult</span>
+    </div>
+    ${list.length ? `<ul class="deal-list">${rows}</ul>` : empty}`;
+}
+
+function inspectDeal() {
+  const d = deals.find(x => x.id === state.deal) || deals[0];
+  const r = state.rating[d.id];
+  const verify = d.status === 'verified'
+    ? `Live check ${d.verifiedAt} · SerpApi, round-trip mode, ${d.adults} adult${d.adults > 1 ? 's' : ''}. Price insight typical range <em>${d.insight}</em>.`
+    : `Not checked live: today's Verification budget was spent on higher-ranked Candidates. The cached price may have moved; confirm before booking.`;
+  return `<section>
+      <h2 class="sr-only">Selected Deal</h2>
+      <div class="route-big">${d.o}<span class="arrow">→</span>${d.d}</div>
+      <div class="route-cities">${d.oc} → ${d.dc} · ${d.watch}</div>
+    </section>
+    <section>
+      ${label('Price')}
+      <div class="data-point">${eur(d.price)}<small>per adult</small></div>
+      <div class="data-desc">${eur(d.price * d.adults)} total for ${d.adults} adult${d.adults > 1 ? 's' : ''} · round trip · ${d.tickets === 2 ? '2 separate tickets' : 'single ticket'}</div>
+    </section>
+    <section>
+      ${label('Against Baseline')}
+      <div class="data-point${d.tier === 'provisional' ? ' amber' : ''}">−${pct(d)}<small>%</small></div>
+      <div class="data-desc">Baseline <em>${eur(d.base)}</em> (MAD ${eur(d.mad)}) · ${tierName[d.tier]} tier · ${d.obs} observations over ${d.days} days.</div>
+    </section>
+    <section>
+      ${label('Itinerary')}
+      <ul class="legs">${d.legs.map(l => `<li class="leg"><span class="leg-dir">${l[0]}</span><span class="leg-time">${l[1]}</span><span class="leg-sub">${l[2]}</span></li>`).join('')}</ul>
+    </section>
+    <section>
+      ${label(d.status === 'verified' ? 'Verified' : 'Unverified')}
+      <div class="data-desc">${verify}</div>
+      ${d.context ? `<p class="data-desc" style="margin-top:12px"><span class="field-label">Deal context · placeholder text</span><br>${d.context}</p>` : ''}
+      <a class="btn-marker primary book" href="#book" onclick="return false">Book on Google Flights ${ico('out')}</a>
+      <div class="actions rate" role="group" aria-label="Rate this Alert">
+        <span class="field-label">Rate this Alert</span>
+        <span class="spacer"></span>
+        <button class="btn-icon" data-rate="up" aria-pressed="${r === 'up'}" aria-label="Good Alert">${ico('up')}</button>
+        <button class="btn-icon" data-rate="down" aria-pressed="${r === 'down'}" aria-label="Bad Alert">${ico('down')}</button>
+      </div>
+    </section>
+    <div class="synthetic">${d.id} · first seen ${d.seen} · ${d.source}<br>Synthetic prototype data</div>`;
+}
+
+function dimensionLine() {
+  // Nov 2026 window, 3–6 nights: the return may land up to 6 Dec
+  const span = 37; // 1 Nov → 7 Dec
+  const p = v => (v / span * 100).toFixed(2) + '%';
+  return `<div class="dimension" aria-label="Departure window 1 to 30 November; returns as late as 6 December">
+    <div class="line" style="left:0;width:${p(30)}"></div>
+    <span class="lbl top" style="left:${p(15)}">30 days · depart</span>
+    <div class="axis"></div>
+    <div class="win" style="left:0;width:${p(30)}"></div>
+    <div class="ret" style="left:${p(30)};width:${p(6)}"></div>
+    <span class="lbl bot" style="left:0">1 Nov</span>
+    <span class="lbl bot" style="left:${p(30)};transform:translateX(-100%)">30 Nov</span>
+    <span class="lbl bot" style="left:${p(36)};transform:translateX(-50%)">↳ 6 Dec</span>
+  </div>`;
+}
+
+function viewWatches() {
+  return `<header class="page-head">
+      <div><h1>Watches</h1><p class="lede"><b>3 active</b> · 1 paused · 1,806 airports covered</p></div>
+      <button class="btn-marker primary">${ico('plus')}New Watch</button>
+    </header>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Watch</th><th>Where</th><th>Trip pattern</th><th class="num">Adults</th><th class="num">Threshold</th><th class="num">Deals</th><th>State</th></tr></thead>
+      <tbody>${watches.map((w, i) => `<tr class="selectable${w.active ? '' : ' paused'}" data-watch="${i}" aria-selected="${state.watch === i}">
+        <td class="row-title"><button data-watch="${i}">${w.name}</button><div class="sub">${w.delivery}</div></td>
+        <td>${w.from.join(', ')} → ${w.to}<div class="sub">${w.airports.toLocaleString('en-GB')} airports</div></td>
+        <td>${w.pattern}<div class="sub">sensitivity ${w.sens}%</div></td>
+        <td class="num">${w.adults}</td><td class="num">${w.thr}</td><td class="num">${w.deals}</td>
+        <td>${w.active ? '<span class="tag verified">Active</span>' : '<span class="tag off">Paused</span>'}</td>
+      </tr>`).join('')}</tbody>
+    </table></div>`;
+}
+
+function inspectWatch() {
+  const w = watches[state.watch];
+  const isSun = state.watch === 0;
+  return `<section>
+      ${label('Edit Watch')}
+      <form class="editor" onsubmit="return false">
+        <label class="field"><span>Name</span><input class="input" value="${w.name}"></label>
+        <div class="field"><span class="field-label">From</span>
+          <div class="chips">${w.from.map(c => `<span class="chip"><span class="name">${c}</span><span class="kind">airport</span><button type="button" aria-label="Remove ${c}">${ico('x')}</button></span>`).join('')}</div>
+        </div>
+        <div class="field"><span class="field-label">To</span>
+          <div class="chips">${isSun ? `
+            <span class="chip"><span class="name">Europe</span><span class="kind">region</span><button type="button" aria-label="Remove Europe">${ico('x')}</button></span>
+            <span class="chip"><span class="name">Egypt</span><span class="kind">country</span><button type="button" aria-label="Remove Egypt">${ico('x')}</button></span>
+            <span class="chip exclude">${ico('minus')}<span class="name">Sweden</span><span class="kind">exclude</span><button type="button" aria-label="Remove exclusion Sweden">${ico('x')}</button></span>`
+            : `<span class="chip"><span class="name">${w.to}</span><button type="button" aria-label="Remove ${w.to}">${ico('x')}</button></span>`}
+          </div>
+          <input class="input" placeholder="Add a Place, or −Place to exclude" aria-label="Add Place">
+          <p class="resolved">Resolves to <b>${w.airports.toLocaleString('en-GB')} airports</b></p>
+          ${isSun ? `<details class="tree"><summary>${ico('chev')}Region tree</summary><ul>
+            <li>Europe <span>· 44 countries · 389 airports</span></li>
+            <li>Canary Islands <span>· via Spain · 5 airports</span></li>
+            <li class="x">Sweden · 26 airports</li>
+            <li>Egypt <span>· 23 airports</span></li></ul></details>` : ''}
+        </div>
+        <label class="field"><span>Trip pattern</span>
+          <select class="input">
+            <option>N–M nights departing within a month</option><option>Fixed dates</option><option>Fixed departure, N–M nights</option>
+            <option>Target date ± K days, N–M nights</option><option>N–M nights within a rolling window</option><option>One-way</option>
+          </select>
+        </label>
+        <div class="row2">
+          <label class="field"><span>Month</span><input class="input" value="Nov 2026"></label>
+          <label class="field"><span>Stay nights</span><input class="input" value="3–6"></label>
+        </div>
+        ${dimensionLine()}
+        <div class="row2">
+          <div class="field"><span class="field-label">Adults</span>
+            <div class="stepper"><button type="button" aria-label="Fewer adults">${ico('minus')}</button><output>${w.adults}</output><button type="button" aria-label="More adults">${ico('plus')}</button></div>
+          </div>
+          <label class="field"><span>Price threshold</span><input class="input" placeholder="Optional, €" value="${w.thr === '—' ? '' : w.thr}"></label>
+        </div>
+        <label class="field"><span>Sensitivity · <output id="sens-out">${w.sens}</output>% below Baseline</span>
+          <input type="range" min="10" max="60" step="5" value="${w.sens}" id="sens"></label>
+        <div class="field"><span class="field-label">Delivery</span>
+          <div class="choice">
+            <label><input type="radio" name="dl" ${w.delivery.startsWith('Imm') ? 'checked' : ''}>Immediate</label>
+            <label><input type="radio" name="dl" ${w.delivery.startsWith('Daily') ? 'checked' : ''}>Daily Digest</label>
+          </div>
+          <div class="choice">
+            <label><input type="checkbox" ${w.delivery.includes('email') ? 'checked' : ''}>Email</label>
+            <label><input type="checkbox" ${w.delivery.includes('Telegram') ? 'checked' : ''}>Telegram</label>
+          </div>
+        </div>
+        <div class="actions">
+          <button class="btn-marker primary" type="submit" id="save">Save Watch</button>
+          <button class="btn-marker" type="button">${w.active ? 'Pause' : 'Resume'}</button>
+          <span class="spacer"></span>
+          <button class="btn-marker danger" type="button">Delete</button>
+        </div>
+        <p class="saved" id="saved" role="status"></p>
+      </form>
+    </section>`;
+}
+
+/* route explorer: 60 days of daily-minimum prices (seeded, synthetic) */
+function series() {
+  let s = 7;
+  const rnd = () => (s = (s * 16807) % 2147483647) / 2147483647;
+  const pts = [];
+  for (let i = 0; i < 60; i++) {
+    let v = 214 + Math.sin(i / 6) * 14 + (rnd() - 0.5) * 34;
+    if (i >= 57) v = [131, 124, 118][i - 57];
+    pts.push({ i, v: Math.round(v), src: i % 9 === 4 ? 'insight' : 'tp' });
+  }
+  return pts;
+}
+const SERIES = series();
+
+function chartSVG(w) {
+  const h = 300, ml = 46, mr = w < 520 ? 16 : 150, mt = 24, mb = 34;
+  const x = i => ml + (i / 59) * (w - ml - mr);
+  const y = v => mt + (1 - (v - 80) / (300 - 80)) * (h - mt - mb);
+  const base = 214, mad = 18;
+  let g = '';
+  for (let v = 100; v <= 300; v += 50) g += `<line x1="${ml}" x2="${w - mr}" y1="${y(v)}" y2="${y(v)}" stroke="#d1d1d1" stroke-width="0.6" stroke-dasharray="3 4"/><text x="${ml - 8}" y="${y(v) + 3}" text-anchor="end">€${v}</text>`;
+  const ticks = [[0, '22 Aug'], [14, '5 Sep'], [28, '19 Sep'], [42, '3 Oct'], [59, '21 Oct']];
+  ticks.forEach(([i, t]) => g += `<line x1="${x(i)}" x2="${x(i)}" y1="${h - mb}" y2="${h - mb + 4}" stroke="#4b4b4b" stroke-width="0.8"/><text x="${x(i)}" y="${h - mb + 18}" text-anchor="middle">${t}</text>`);
+  const band = `<rect x="${ml}" y="${y(base + mad)}" width="${w - ml - mr}" height="${y(base - mad) - y(base + mad)}" fill="rgba(0,118,255,0.10)"/>
+    <line x1="${ml}" x2="${w - mr}" y1="${y(base + mad)}" y2="${y(base + mad)}" stroke="#0076ff" stroke-width="0.6" stroke-dasharray="2 3"/>
+    <line x1="${ml}" x2="${w - mr}" y1="${y(base - mad)}" y2="${y(base - mad)}" stroke="#0076ff" stroke-width="0.6" stroke-dasharray="2 3"/>
+    <line x1="${ml}" x2="${w - mr}" y1="${y(base)}" y2="${y(base)}" stroke="#4b4b4b" stroke-width="1" stroke-dasharray="6 4"/>`;
+  const d = SERIES.map((p, k) => `${k ? 'L' : 'M'}${x(p.i).toFixed(1)} ${y(p.v).toFixed(1)}`).join(' ');
+  const dots = SERIES.map(p => p.src === 'insight'
+    ? `<rect x="${x(p.i) - 3}" y="${y(p.v) - 3}" width="6" height="6" fill="#fcfcfc" stroke="#4b4b4b" stroke-width="1"/>`
+    : `<circle cx="${x(p.i)}" cy="${y(p.v)}" r="2" fill="#fcfcfc" stroke="#0076ff" stroke-width="1"/>`).join('');
+  const last = SERIES[59], lx = x(59), ly = y(last.v);
+  const wide = mr > 100;
+  const annot = `<circle cx="${lx}" cy="${ly}" r="13" fill="none" stroke="#4b4b4b" stroke-width="0.6" stroke-dasharray="2 2"/>
+       <line x1="${lx - 10}" y1="${ly - 9}" x2="${lx - 34}" y2="${ly - 34}" stroke="#4b4b4b" stroke-width="1"/>
+       <text x="${lx - 38}" y="${ly - 52}" text-anchor="end" style="fill:#0058c4;font-weight:500;font-size:11px">DEAL €118</text>
+       <text x="${lx - 38}" y="${ly - 38}" text-anchor="end">−45% · Verified 21 Oct</text>
+       ${wide
+         ? `<text x="${w - mr + 8}" y="${y(base) - 6}" style="fill:#4b4b4b;font-weight:500">BASELINE €214</text>
+            <text x="${w - mr + 8}" y="${y(base) + 8}">± MAD €18</text>`
+         : `<rect x="${ml + 4}" y="${y(base - mad) + 5}" width="150" height="15" fill="#fcfcfc"/>
+            <text x="${ml + 8}" y="${y(base - mad) + 16}" style="fill:#4b4b4b;font-weight:500">BASELINE €214 ± €18</text>`}`;
+  return `<svg viewBox="0 0 ${w} ${h}" height="${h}" role="img" aria-label="Daily minimum price, HEL to HRG, November departures, 5–7 nights, over the last 60 days. Prices hover around the €214 Baseline, then drop to €118 on 21 October.">
+    ${g}${band}<path class="ink-path" d="${d}" pathLength="1" fill="none" stroke="#0076ff" stroke-width="1.5" stroke-linejoin="round"/>${dots}${annot}
+    <line x1="${ml}" x2="${w - mr}" y1="${h - mb}" y2="${h - mb}" stroke="#4b4b4b" stroke-width="1"/></svg>`;
+}
+
+function viewRoutes() {
+  const sel = (lbl, opts) => `<label class="field"><span>${lbl}</span><select class="input">${opts.map(o => `<option>${o}</option>`).join('')}</select></label>`;
+  return `<header class="page-head">
+      <div><h1>Route explorer</h1><p class="lede">Daily minimum per adult against the <b>Baseline band</b> · last 60 days of observations</p></div>
+      <div class="controls">
+        ${sel('From', ['HEL', 'TLL'])}${sel('To', ['HRG', 'BCN', 'LIS', 'FUE', 'CAI', 'TFS'])}
+        ${sel('Departs', ['Nov 2026', 'Dec 2026'])}${sel('Stay', ['5–7 nights', '3–4 nights', '8–14 nights'])}
+      </div>
+    </header>
+    <div class="chart" id="chart"></div>
+    <div class="legend">
+      <span><svg viewBox="0 0 18 10"><path d="M0 5h18" stroke="#0076ff" stroke-width="1.5"/></svg>Daily minimum</span>
+      <span><svg viewBox="0 0 18 10"><circle cx="9" cy="5" r="2.5" fill="#fcfcfc" stroke="#0076ff"/></svg>Travelpayouts</span>
+      <span><svg viewBox="0 0 18 10"><rect x="6" y="2" width="6" height="6" fill="#fcfcfc" stroke="#4b4b4b"/></svg>Price insight</span>
+      <span><svg viewBox="0 0 18 10"><path d="M0 5h18" stroke="#4b4b4b" stroke-dasharray="4 3"/></svg>Baseline</span>
+      <span><svg viewBox="0 0 18 10"><rect x="0" y="1" width="18" height="8" fill="rgba(0,118,255,0.12)"/></svg>± MAD</span>
+    </div>
+    <h2>Latest observations</h2>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Observed</th><th>Dates</th><th>Source</th><th>Kind</th><th class="num">Per adult</th></tr></thead>
+      <tbody>
+        <tr><td>21 Oct 11:38</td><td>14 → 19 Nov</td><td>travelpayouts</td><td>2 Leg prices</td><td class="num">€118</td></tr>
+        <tr><td>21 Oct 11:44</td><td>14 → 19 Nov</td><td>serpapi</td><td>Round-trip price · live</td><td class="num">€121</td></tr>
+        <tr><td>20 Oct 23:10</td><td>15 → 21 Nov</td><td>travelpayouts</td><td>Round-trip price</td><td class="num">€124</td></tr>
+        <tr><td>20 Oct 11:02</td><td>12 → 18 Nov</td><td>travelpayouts</td><td>2 Leg prices</td><td class="num">€131</td></tr>
+      </tbody>
+    </table></div>`;
+}
+
+function inspectRoutes() {
+  return `<section>
+      ${label('Baseline in force')}
+      <div class="data-point">€214<small>median</small></div>
+      <div class="data-desc">MAD <em>€18</em> · 41 observations over 19 distinct days · computed 21 Oct 06:12 on Databricks, published to Postgres.</div>
+    </section>
+    <section>
+      ${label('Tier ladder')}
+      <ul class="tiers">
+        <li class="on"><i class="dot"></i><span>Route · HEL → HRG</span><b>€214</b></li>
+        <li><i class="dot"></i><span>Country · Egypt</span><b>€231</b></li>
+        <li><i class="dot"></i><span>Price insight</span><b>€190–260</b></li>
+        <li><i class="dot"></i><span>Provisional</span><b>€208</b></li>
+      </ul>
+      <p class="data-desc" style="margin-top:12px">The route tier needs 20 observations over 7 days; this route has cleared it since 3 Oct.</p>
+    </section>
+    <section>
+      ${label('Coverage')}
+      <div class="data-desc">Travelpayouts 38 · Price insight 3 · SerpApi live 4.<br>Single-ticket returns seen on 6 of 60 days.</div>
+    </section>
+    <div class="synthetic">Key · HEL · HRG · 2026-11 · 5–7 nights<br>Synthetic prototype data</div>`;
+}
+
+function viewHealth() {
+  const src = [
+    ['Travelpayouts', 'Discovery · Leg + Round-trip prices', 'fresh', '22 min', '11:25', 'every 30 min'],
+    ['SerpApi', 'Verification · live round trip', 'fresh', '3 min', '11:44', 'on demand'],
+    ['Databricks', 'Baseline recompute', 'fresh', '5 h', '06:12', 'daily'],
+    ['Ryanair calendar', 'Live Leg prices', 'off', '—', '—', 'disabled'],
+    ['Wizz calendar', 'Live Leg prices', 'off', '—', '—', 'disabled'],
+  ];
+  const cov = [['HEL → Europe', 96, 91, 74, 58], ['HEL → Egypt', 88, 70, 41, 0], ['TLL → Europe', 81, 0, 52, 33], ['TLL → Egypt', 22, 0, 0, 0], ['HEL → Canaries', 100, 97, 85, 61]];
+  return `<header class="page-head">
+      <div><h1>Data health</h1><p class="lede"><b style="color:var(--red)">1 check failing</b> · detection blocked for 1 slice · planner backlog 38 tasks</p></div>
+    </header>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Source</th><th>Role</th><th>Freshness</th><th class="num">Last success</th><th>Cadence</th></tr></thead>
+      <tbody>${src.map(s => `<tr><td class="row-title">${s[0]}</td><td>${s[1]}</td>
+        <td><span class="fresh ${s[2]}"><i></i>${s[2] === 'off' ? 'Disabled' : s[3] + ' old'}</span></td><td class="num">${s[4]}</td><td>${s[5]}</td></tr>`).join('')}</tbody>
+    </table></div>
+    <h2>Asset checks</h2>
+    <ul class="checks">
+      <li><span class="tag fail">Failing</span><span>Zero rows for TLL origin from Travelpayouts. Deal detection is blocked for TLL × Dec 2026.</span><span class="meta">since 09:40</span></li>
+      <li><span class="tag verified">${ico('check')}Pass</span><span>Source-wide price level within ±15% of 7-day median</span><span class="meta">11:25</span></li>
+      <li><span class="tag verified">${ico('check')}Pass</span><span>No source staler than 2 × its cadence</span><span class="meta">11:25</span></li>
+    </ul>
+    <h2>Coverage · % of route-days with data</h2>
+    <div class="matrix" role="table" aria-label="Coverage by route and departure month">
+      <div class="hd" role="columnheader">Route</div>${['Nov', 'Dec', 'Jan', 'Feb'].map(m => `<div class="hd" role="columnheader" style="text-align:right">${m}</div>`).join('')}
+      ${cov.map(r => `<div class="rl" role="rowheader">${r[0]}</div>${r.slice(1).map(v => v
+        ? `<div class="cell" role="cell" style="background:rgba(0,118,255,${(v / 100 * 0.28).toFixed(2)})">${v}%</div>`
+        : `<div class="cell none" role="cell">no data</div>`).join('')}`).join('')}
+    </div>`;
+}
+
+function inspectHealth() {
+  return `<section>
+      ${label('Verification budget')}
+      <div class="data-point">143<small>of 250 left</small></div>
+      <div class="budget" aria-hidden="true">
+        <div class="scale"></div><div class="used" style="width:42.8%"></div>
+        <div class="today" style="left:42.8%"></div><span class="lbl" style="left:42.8%">today · 107 used</span>
+        <span class="end" style="left:0">0</span><span class="end" style="right:0">250</span>
+      </div>
+      <div class="data-desc">About <em>13 a day</em> remains until the budget resets on 1 Nov. 5 Candidates went out Unverified this week.</div>
+    </section>
+    <section>
+      ${label('Scan planner')}
+      <div class="data-point">38<small>tasks queued</small></div>
+      <div class="data-desc">12 skipped this cycle over the Travelpayouts rate limit. Highest priority: HEL → Egypt, Nov, volatility 0.31.</div>
+    </section>
+    <section>
+      ${label('System metadata')}
+      <div class="meta">HOST verda · 4 vCPU · 16 GB<br>DAGSTER daemon heartbeat 11:46:52<br>POSTGRES marts refreshed 11:41<br>RAW 1.8 GB · 41 days partitioned</div>
+    </section>
+    <div class="synthetic">Synthetic prototype data</div>`;
+}
+
+const bt = [
+  { name: 'Sun in November', deals: 23, real: 18, rate: 2.6, up: 11, down: 3, hist: [6, 5, 4, 3, 2, 1, 1, 1], miss: [1, 2, 1, 1, 0, 0, 0, 0] },
+  { name: 'Lisbon long weekend', deals: 6, real: 5, rate: 0.7, up: 3, down: 0, hist: [2, 1, 1, 1, 1, 0, 0, 0], miss: [1, 0, 0, 0, 0, 0, 0, 0] },
+  { name: 'Christmas Canaries', deals: 4, real: 2, rate: 0.5, up: 1, down: 1, hist: [2, 1, 0, 1, 0, 0, 0, 0], miss: [1, 1, 0, 0, 0, 0, 0, 0] },
+];
+function viewBacktest() {
+  const b = bt[state.bt];
+  const max = Math.max(...b.hist);
+  return `<header class="page-head">
+      <div><h1>Backtest</h1><p class="lede">Did each past Deal's price return to its Baseline? · last 90 days</p></div>
+    </header>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Watch</th><th class="num">Deals</th><th class="num">Real dips</th><th class="num">Precision</th><th class="num">Alerts / week</th><th class="num">Ratings</th></tr></thead>
+      <tbody>${bt.map((w, i) => `<tr class="selectable" data-bt="${i}" aria-selected="${state.bt === i}">
+        <td class="row-title"><button data-bt="${i}">${w.name}</button></td><td class="num">${w.deals}</td><td class="num">${w.real}</td>
+        <td class="num">${(w.real / w.deals).toFixed(2)}</td><td class="num">${w.rate}</td><td class="num">${w.up} up · ${w.down} down</td></tr>`).join('')}</tbody>
+    </table></div>
+    <h2>${b.name} · % below Baseline at Alert</h2>
+    <div class="hist" role="img" aria-label="Histogram of Deals by percent below Baseline">
+      ${b.hist.map((v, i) => `<div class="col">${v ? `<span>${v}</span>` : ''}
+        ${b.miss[i] ? `<div class="bar miss" style="height:${b.miss[i] / max * 120}px"></div>` : ''}
+        <div class="bar" style="height:${Math.max(v - b.miss[i], 0) / max * 120}px;animation-delay:${i * 40}ms"></div></div>`).join('')}
+    </div>
+    <div class="hist-axis">${['25', '30', '35', '40', '45', '50', '55', '60+'].map(t => `<span>${t}%</span>`).join('')}</div>
+    <div class="legend"><span><svg viewBox="0 0 18 10"><rect x="1" y="1" width="16" height="8" fill="rgba(0,118,255,0.12)" stroke="#0076ff"/></svg>Real dip</span>
+      <span><svg viewBox="0 0 18 10"><rect x="1" y="1" width="16" height="8" fill="none" stroke="#4b4b4b" stroke-dasharray="2 2"/></svg>Stayed low (Baseline error or seasonal shift)</span></div>`;
+}
+
+function inspectBacktest() {
+  const b = bt[state.bt];
+  return `<section>
+      ${label('Precision')}
+      <div class="data-point">${(b.real / b.deals).toFixed(2)}</div>
+      <div class="data-desc">${b.real} of ${b.deals} Deals returned toward their Baseline within 14 days. ${b.deals - b.real} stayed low.</div>
+    </section>
+    <section>
+      ${label('Feedback')}
+      <div class="data-point">${b.up}<small>up</small> ${b.down}<small>down</small></div>
+      <div class="data-desc">Every down-rated Alert was in the 30–40% band.</div>
+    </section>
+    <section>
+      ${label('Tuning')}
+      <div class="data-desc">At <em>35% sensitivity</em> this Watch would have sent 4 fewer Alerts; 3 of those were rated down.</div>
+      <button class="btn-marker" style="margin-top:16px">Set sensitivity to 35%</button>
+    </section>
+    <div class="synthetic">Synthetic prototype data</div>`;
+}
+
+/* ===== render + wiring ===== */
+const VIEWS = {
+  deals: [viewDeals, inspectDeal], watches: [viewWatches, inspectWatch], routes: [viewRoutes, inspectRoutes],
+  health: [viewHealth, inspectHealth], backtest: [viewBacktest, inspectBacktest],
+};
+const main = $('#main'), insp = $('.inspector');
+
+function render(focusMain) {
+  const [v, i] = VIEWS[state.view];
+  main.innerHTML = v();
+  insp.innerHTML = i();
+  document.querySelectorAll('.nav-item').forEach(b =>
+    b.dataset.view === state.view ? b.setAttribute('aria-current', 'page') : b.removeAttribute('aria-current'));
+  if (state.view === 'routes') drawChart();
+  main.querySelectorAll('table').forEach(t => {
+    const heads = [...t.querySelectorAll('th')].map(th => th.textContent);
+    t.querySelectorAll('tbody tr').forEach(tr => [...tr.children].forEach((td, i) => td.dataset.label = heads[i]));
+  });
+  if (focusMain) main.focus({ preventScroll: true });
+}
+function renderInspector() { insp.innerHTML = VIEWS[state.view][1](); }
+
+function drawChart() {
+  const el = $('#chart');
+  if (el) el.innerHTML = chartSVG(Math.max(300, el.clientWidth));
+}
+new ResizeObserver(() => state.view === 'routes' && drawChart()).observe(main);
+
+document.addEventListener('click', e => {
+  const t = e.target.closest('button, tr.selectable');
+  if (!t) return;
+  if (t.dataset.view) { state.view = t.dataset.view; history.replaceState(null, '', '#' + state.view); render(true); return; }
+  if (t.dataset.filter) { state.filter = t.dataset.filter; render(); return; }
+  if (t.dataset.deal) {
+    state.deal = t.dataset.deal;
+    document.querySelectorAll('.deal-row').forEach(r => r.setAttribute('aria-pressed', r.dataset.deal === state.deal));
+    renderInspector(); return;
+  }
+  if (t.dataset.watch) { state.watch = +t.dataset.watch; render(); return; }
+  if (t.dataset.bt) { state.bt = +t.dataset.bt; render(); return; }
+  if (t.dataset.rate) {
+    const r = state.rating[state.deal] === t.dataset.rate ? null : t.dataset.rate;
+    state.rating[state.deal] = r; renderInspector(); return;
+  }
+  if (t.id === 'save') { $('#saved').textContent = 'Saved · re-resolving airports, next scan 12:10'; return; }
+  if (t.closest('.chip') && t.getAttribute('aria-label')?.startsWith('Remove')) { t.closest('.chip').remove(); }
+});
+document.addEventListener('change', e => {
+  if (e.target.id === 'watch-filter') { state.watchFilter = e.target.value; render(); }
+});
+document.addEventListener('input', e => {
+  if (e.target.id === 'sens') $('#sens-out').textContent = e.target.value;
+});
+
+$('#coord-scan').textContent = `${NOW} · scan cycle 30 min · next 12:10`;
+const fromHash = () => { const v = location.hash.slice(1); if (VIEWS[v]) state.view = v; };
+addEventListener('hashchange', () => { fromHash(); render(true); });
+fromHash();
+render();
+</script>
+</body>
+</html>
