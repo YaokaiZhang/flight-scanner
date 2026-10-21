@@ -28,7 +28,8 @@ function StatusTags({ deal }: { deal: Deal }) {
       ) : (
         <span className="tag unverified"><Icon name="dash" />Unverified</span>
       )}
-      {deal.separate_tickets && <span className="tag plain"><Icon name="tickets" />2 separate tickets</span>}
+      {deal.ticketing === "separate_tickets" && <span className="tag plain"><Icon name="tickets" />2 separate tickets</span>}
+      {deal.ticketing === "single_ticket" && <span className="tag plain">Single ticket</span>}
     </>
   );
 }

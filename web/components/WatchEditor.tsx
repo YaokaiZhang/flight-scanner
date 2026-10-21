@@ -9,18 +9,16 @@ import {
   type Delivery,
   type Place,
   type PlaceSet,
-  type TripPreset,
   type Watch,
   type WatchSpec,
 } from "@/lib/api";
 import { Icon, PlacePicker } from "./PlacePicker";
-import { TripPatternFields } from "./TripPatternFields";
+import { EMPTY_TRIP_DRAFT, TripPatternFields, toPreset, tripDraftOf, type TripDraft } from "./TripPatternFields";
 
 type Draft = {
   name: string;
   origins: PlaceSet;
   destinations: PlaceSet;
-  trip_pattern: TripPreset | null;
   adults: number;
   threshold: string;
   basis: "total" | "per_adult";
@@ -33,7 +31,6 @@ const EMPTY: Draft = {
   name: "",
   origins: { include: [], exclude: [] },
   destinations: { include: [], exclude: [] },
-  trip_pattern: null,
   adults: 1,
   threshold: "",
   basis: "total",
@@ -47,7 +44,6 @@ function draftOf(w: Watch): Draft {
     name: w.name,
     origins: w.origins,
     destinations: w.destinations,
-    trip_pattern: w.trip_pattern,
     adults: w.adults,
     threshold: w.price_threshold ? String(w.price_threshold.amount_eur) : "",
     basis: w.price_threshold?.basis ?? "total",
@@ -82,6 +78,7 @@ export function WatchEditor({
   const [busy, setBusy] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [message, setMessage] = useState<{ ok: boolean; text: string } | null>(null);
+  const [trip, setTrip] = useState<TripDraft>(watch ? tripDraftOf(watch.trip_pattern) : EMPTY_TRIP_DRAFT);
 
   const set = <K extends keyof Draft>(k: K, v: Draft[K]) => setDraft((d) => ({ ...d, [k]: v }));
   const toggleChannel = (c: Channel, on: boolean) =>
@@ -102,8 +99,13 @@ export function WatchEditor({
 
   function submit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    if (!draft.origins.include.length || !draft.destinations.include.length || !draft.trip_pattern) {
-      setMessage({ ok: false, text: "Add at least one origin and one destination Place, and a departure date." });
+    if (!draft.origins.include.length || !draft.destinations.include.length) {
+      setMessage({ ok: false, text: "Add at least one origin and one destination Place." });
+      return;
+    }
+    const tripPattern = toPreset(trip);
+    if (!tripPattern) {
+      setMessage({ ok: false, text: "Complete the Trip pattern." });
       return;
     }
     if (draft.channels.length === 0) {
@@ -115,7 +117,7 @@ export function WatchEditor({
       name: draft.name.trim(),
       origins: draft.origins,
       destinations: draft.destinations,
-      trip_pattern: draft.trip_pattern,
+      trip_pattern: tripPattern,
       adults: draft.adults,
       price_threshold: threshold ? { amount_eur: Number(threshold), basis: draft.basis } : null,
       sensitivity_pct: draft.sensitivity_pct,
@@ -127,6 +129,7 @@ export function WatchEditor({
       setMessage({ ok: true, text: `Saved “${saved.name}”.` });
       if (!watch) {
         setDraft(EMPTY);
+        setTrip(EMPTY_TRIP_DRAFT);
       }
       onSaved(saved);
     });
@@ -181,7 +184,7 @@ export function WatchEditor({
             set("destinations", v);
           }}
         />
-        <TripPatternFields value={draft.trip_pattern} onChange={(v) => set("trip_pattern", v)} />
+        <TripPatternFields draft={trip} onChange={setTrip} />
         <div className="row2">
           <div className="field">
             <span className="field-label" id="adults-label">Adults</span>

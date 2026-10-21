@@ -10,9 +10,9 @@ from fastapi.responses import JSONResponse
 from psycopg_pool import ConnectionPool
 from pydantic import BaseModel
 
-from flight_scanner import feedback, watches
+from flight_scanner import feedback, trip_patterns, watches
 from flight_scanner.api import routes
-from flight_scanner.clock import Clock, SystemClock
+from flight_scanner.clock import Clock, SystemClock, today
 from flight_scanner.db import DbSettings
 from flight_scanner.notify.base import pct_below_baseline
 from flight_scanner.notify.content import booking_link
@@ -25,6 +25,7 @@ from flight_scanner.places import (
     TreeNode,
     default_reference,
 )
+from flight_scanner.trip_patterns import TripPreset
 from flight_scanner.watches import InvalidWatch, Watch, WatchSpec
 
 
@@ -35,6 +36,10 @@ class Feedback(BaseModel):
 
 class FeedbackIn(BaseModel):
     rating: feedback.Rating | None  # null clears the rating
+
+
+class TripPatternQuery(BaseModel):
+    trip_pattern: TripPreset
 
 
 class Deal(BaseModel):
@@ -50,6 +55,7 @@ class Deal(BaseModel):
     price_total_eur: float
     source: str
     observed_at: datetime
+    ticketing: str
     verification: str
     baseline_tier: str | None
     detected_at: datetime
@@ -219,7 +225,10 @@ def create_app(
 
     @app.put("/watches/{watch_id}")
     def update_watch(watch_id: int, spec: WatchSpec, c: Conn) -> WatchOut:
-        return found(watches.update(c, watch_id, spec, clock, ref))
+        found(watches.update(c, watch_id, spec, clock, ref))
+        # An edited Trip pattern may expire the Watch or revive an expired one: show it now.
+        watches.refresh_expiry(c, today(clock))
+        return found(watches.get(c, watch_id))
 
     @app.post("/watches/{watch_id}/pause")
     def pause_watch(watch_id: int, c: Conn) -> WatchOut:
@@ -234,6 +243,11 @@ def create_app(
         if not watches.delete(c, watch_id):
             raise HTTPException(404, "watch not found")
         return Response(status_code=204)
+
+    @app.post("/trip-patterns/resolve")
+    def resolve_trip_pattern(q: TripPatternQuery) -> trip_patterns.Resolution:
+        """The resolved departure window and Stay-night range of a preset, for today."""
+        return trip_patterns.resolve(q.trip_pattern, today(clock))
 
     @app.get("/deals")
     def list_deals(

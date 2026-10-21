@@ -57,14 +57,14 @@ def record_deals(conn: psycopg.Connection, now: datetime) -> int:
         rows = conn.execute(
             f"""INSERT INTO app.deals AS d (watch_id, origin, destination, outbound_date,
                    return_date, price_per_adult_eur, price_total_eur, adults, source, observed_at,
-                   verification, baseline_tier, detected_at, last_seen_at,
+                   ticketing, verification, baseline_tier, detected_at, last_seen_at,
                    alert_round, alert_price_total_eur, alert_due_at, airlines, stops,
                    travel_minutes, separate_tickets, booking_url, baseline_per_adult_eur)
                SELECT watch_id, origin, destination, outbound_date, return_date,
                    price_per_adult_eur, price_total_eur, adults, source, observed_at,
-                   'unverified', baseline_tier, %(now)s, %(now)s, 1, price_total_eur, %(now)s,
-                   airlines, stops, travel_minutes, separate_tickets, booking_url,
-                   baseline_per_adult_eur
+                   ticketing, 'unverified', baseline_tier, %(now)s, %(now)s, 1,
+                   price_total_eur, %(now)s, airlines, stops, travel_minutes, separate_tickets,
+                   booking_url, baseline_per_adult_eur
                FROM marts.candidates
                ON CONFLICT {_DEDUP_KEY} DO UPDATE SET
                    price_per_adult_eur = excluded.price_per_adult_eur,
@@ -72,6 +72,7 @@ def record_deals(conn: psycopg.Connection, now: datetime) -> int:
                    adults = excluded.adults,
                    source = excluded.source,
                    observed_at = excluded.observed_at,
+                   ticketing = excluded.ticketing,
                    baseline_tier = excluded.baseline_tier,
                    airlines = excluded.airlines,
                    stops = excluded.stops,
@@ -111,6 +112,7 @@ def _message(d: dict, alert_id: int | None = None) -> AlertMessage:
         adults=d["adults"],
         price_total_eur=float(d["price_total_eur"]),
         price_per_adult_eur=float(d["price_per_adult_eur"]),
+        ticketing=d["ticketing"],
         verification=d["verification"],
         baseline_tier=d["baseline_tier"],
         source=d["source"],

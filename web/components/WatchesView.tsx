@@ -2,7 +2,8 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { api, ApiError, placeKey, type PlaceRef, type Watch } from "@/lib/api";
-import { formatDate, formatEur } from "@/lib/format";
+import { formatEur } from "@/lib/format";
+import { describePreset } from "./TripPatternFields";
 import { WatchEditor } from "./WatchEditor";
 
 function places(w: Watch, side: "origins" | "destinations") {
@@ -52,7 +53,7 @@ export function WatchesView() {
             <table>
               <thead>
                 <tr>
-                  <th>Watch</th><th>Where</th><th>Departure</th>
+                  <th>Watch</th><th>Where</th><th>Trip pattern</th>
                   <th className="num">Adults</th><th className="num">Threshold</th><th>Alerts by</th><th>Status</th>
                 </tr>
               </thead>
@@ -60,7 +61,7 @@ export function WatchesView() {
                 {watches.map((w) => (
                   <tr
                     key={w.id}
-                    className={`selectable${w.status === "paused" ? " paused" : ""}`}
+                    className={`selectable${w.status !== "active" ? " paused" : ""}`}
                     aria-selected={w.id === selected}
                   >
                     <td className="row-title">
@@ -73,7 +74,7 @@ export function WatchesView() {
                         {airports(w.resolved.origins)} → {airports(w.resolved.destinations)}
                       </div>
                     </td>
-                    <td data-label="Departure">{formatDate(w.trip_pattern.departure)} · one way</td>
+                    <td data-label="Trip pattern">{describePreset(w.trip_pattern)}</td>
                     <td data-label="Adults" className="num">{w.adults}</td>
                     <td data-label="Threshold" className="num">
                       {w.price_threshold

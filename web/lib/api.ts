@@ -8,7 +8,28 @@ export type Place = PlaceRef & { name: string; context: string | null; airport_c
 /** Region tree node; `children` is null when not expanded (or for airports). */
 export type TreeNode = Place & { via: string | null; children: TreeNode[] | null };
 export type Resolution = { airport_count: number; airports: string[]; reference_version: string };
-export type TripPreset = { preset: "one_way_fixed"; departure: string };
+export type StayNights = { min: number; max: number };
+type RoundTripOptions = { stay_nights: StayNights; return_by?: string | null };
+export type TripPreset =
+  | { preset: "one_way_fixed"; departure: string }
+  | { preset: "fixed_dates"; departure: string; return_date: string }
+  | ({ preset: "month"; month: string } & RoundTripOptions)
+  | ({ preset: "rolling"; within_days: number } & RoundTripOptions)
+  | ({ preset: "fixed_departure"; departure: string } & RoundTripOptions)
+  | ({ preset: "around_date"; target: string; flex_days: number } & RoundTripOptions);
+
+/** A preset as the API resolved it for today. */
+export type TripResolution = {
+  kind: "one_way" | "round_trip";
+  rolling: boolean;
+  departure_start: string;
+  departure_end: string;
+  stay_nights: StayNights | null;
+  return_by: string | null;
+  latest_return: string | null;
+  trip_count: number;
+  expired: boolean;
+};
 export type PriceThreshold = { amount_eur: number; basis: "total" | "per_adult" };
 export type Delivery = "immediate" | "digest";
 export type Channel = "email" | "telegram";
@@ -30,7 +51,7 @@ export type Watch = WatchSpec & {
   origins: PlaceSet;
   destinations: PlaceSet;
   sensitivity_pct: number;
-  status: "active" | "paused";
+  status: "active" | "paused" | "expired";
   delivery: Delivery;
   created_at: string;
   updated_at: string;
@@ -53,6 +74,7 @@ export type Deal = {
   price_total_eur: number;
   source: string;
   observed_at: string;
+  ticketing: "one_way" | "single_ticket" | "separate_tickets";
   verification: "verified" | "unverified";
   baseline_tier: string | null;
   detected_at: string;
@@ -140,6 +162,8 @@ export const api = {
   },
   rateDeal: (id: number, rating: Rating | null) =>
     call<Deal>(`/deals/${id}/feedback`, json("POST", { rating })),
+  resolveTripPattern: (trip_pattern: TripPreset) =>
+    call<TripResolution>("/trip-patterns/resolve", json("POST", { trip_pattern })),
   listRoutes: () => call<Route[]>("/routes"),
   routeHistory: (origin: string, destination: string, departure: string, returnDate?: string) => {
     const q = new URLSearchParams({ departure_date: departure });

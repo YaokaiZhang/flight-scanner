@@ -200,7 +200,8 @@ td.num, th.num { text-align: right; }
 tr.paused td { color: var(--pencil); }
 
 /* ---------- watch editor ---------- */
-.editor { display: grid; gap: 22px; }
+.editor { display: grid; gap: 22px; grid-template-columns: minmax(0, 1fr); } /* no field may widen the inspector */
+.editor > * { min-width: 0; }
 .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 .choice { display: flex; flex-wrap: wrap; gap: 14px; font-size: 12px; }
 .choice label { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; }
@@ -258,6 +259,26 @@ tr.selectable[aria-selected="true"] td { background: var(--swash); }
 tr.selectable[aria-selected="true"] .row-title { color: var(--ink-deep); }
 .row-title button { font-weight: inherit; text-align: left; }
 .row-title button:hover { color: var(--ink-deep); }
+/* Trip pattern (ticket 04): its fields and the resolved-window dimension line (DESIGN.md) */
+.trip-pattern { display: grid; gap: 22px; }
+.trip-pattern .field, .trip-pattern .row2 > * { min-width: 0; }
+.trip-pattern .input { width: 100%; }
+.trip-resolved { display: grid; gap: 8px; }
+.trip-summary { font-size: 11px; color: var(--pencil); line-height: 1.6; }
+.trip-summary b { color: var(--ink-deep); font-weight: 500; }
+.dimension { position: relative; height: 74px; margin-top: 4px; }
+.dimension .axis { position: absolute; left: 0; right: 0; top: 46px; height: 1px; background: var(--construction); }
+.dimension .win { position: absolute; top: 30px; height: 16px; background: var(--swash); border-left: 1.5px solid var(--ink); border-right: 1.5px solid var(--ink); }
+.dimension .ret { position: absolute; top: 38px; height: 8px; border-top: 1px dashed var(--ink); border-right: 1px dashed var(--ink); }
+.dimension .line { position: absolute; top: 18px; height: 1px; background: var(--ink); }
+.dimension .line::before, .dimension .line::after { content: ''; position: absolute; top: -3px; width: 1px; height: 7px; background: var(--ink); }
+.dimension .line::before { left: 0; }
+.dimension .line::after { right: 0; }
+.dimension .lbl { position: absolute; font-size: 11px; white-space: nowrap; }
+.dimension .lbl.top { top: 0; transform: translateX(-50%); color: var(--ink-deep); font-weight: 500; }
+.dimension .lbl.bot { top: 52px; color: var(--pencil); }
+.dimension.has-ret { height: 88px; }
+.dimension .lbl.ret-lbl { top: 68px; }
 
 .sky-coordinate { position: fixed; font-size: 10px; letter-spacing: 0.02em; color: var(--pencil); pointer-events: none; z-index: 1; }
 

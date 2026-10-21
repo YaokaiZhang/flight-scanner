@@ -1,59 +1,27 @@
--- Candidates: Watch slots whose cheapest current price passes the Deal test.
--- Walking skeleton: one-way only, and with no Baseline yet only a Price threshold can produce a
--- Candidate (ticket 04 adds composition, ticket 05 adds the Baseline test and tiers).
-with observed as (
-    select *
-    from {{ ref('stg_leg_prices') }}
-    where observed_at <= {{ as_of() }}
-),
-
-latest_per_source as (
+-- Candidates: Watch slots whose composed trip price (marts.trip_prices) passes the Deal test.
+-- With no Baseline yet only a Price threshold can produce a Candidate (ticket 05 adds the
+-- Baseline test and tiers).
+with priced_slots as (
     select
-        *,
-        row_number() over (
-            partition by source, origin, destination, departure_date
-            order by observed_at desc
-        ) as recency
-    from observed
-),
-
-cheapest as (
-    select
-        *,
-        row_number() over (
-            partition by origin, destination, departure_date
-            order by price_per_adult_eur, source
-        ) as price_rank
-    from latest_per_source
-    where recency = 1
-),
-
-priced_slots as (
-    select
-        s.watch_id,
-        s.origin,
-        s.destination,
-        s.outbound_date,
-        s.return_date,
+        p.watch_id,
+        p.origin,
+        p.destination,
+        p.outbound_date,
+        p.return_date,
+        p.ticketing,
         w.adults,
         w.price_threshold_eur,
         w.price_threshold_basis,
-        c.price_per_adult_eur,
-        c.price_per_adult_eur * w.adults as price_total_eur,
-        c.source,
-        c.observed_at,
-        c.airline,
-        c.stops,
-        c.duration_min
-    from {{ source('app', 'watch_slots') }} as s
-    inner join {{ source('app', 'watches') }} as w on w.id = s.watch_id
-    inner join cheapest as c
-        on c.origin = s.origin
-        and c.destination = s.destination
-        and c.departure_date = s.outbound_date
-        and c.price_rank = 1
-    where s.return_date is null
-        and w.status = 'active'
+        p.price_per_adult_eur,
+        p.price_per_adult_eur * w.adults as price_total_eur,
+        p.source,
+        p.observed_at,
+        p.airlines,
+        p.stops,
+        p.travel_minutes
+    from {{ ref('trip_prices') }} as p
+    inner join {{ source('app', 'watches') }} as w on w.id = p.watch_id
+    where w.status = 'active'
 )
 
 select
@@ -62,19 +30,19 @@ select
     destination,
     outbound_date,
     return_date,
+    ticketing,
     adults,
     price_per_adult_eur,
     price_total_eur,
     source,
     observed_at,
     cast(null as {{ dbt.type_string() }}) as baseline_tier,
-    -- Alert details (ticket 06). One-way: one leg, so its airline, stops and duration.
-    -- Composition (ticket 04) and Baselines (ticket 05) fill the rest; until then they are
-    -- null / false and Alerts omit them.
-    airline as airlines,
+    -- Alert details (ticket 06), from the composed price (ticket 04). Baselines (ticket 05)
+    -- fill the rest; until then they are null and Alerts omit them.
+    airlines,
     stops,
-    duration_min as travel_minutes,
-    false as separate_tickets,
+    travel_minutes,
+    ticketing = 'separate_tickets' as separate_tickets,
     cast(null as {{ dbt.type_string() }}) as booking_url,
     cast(null as {{ dbt.type_numeric() }}) as baseline_per_adult_eur
 from priced_slots

@@ -27,6 +27,7 @@ def round_trip_alert() -> AlertMessage:
         airlines="airBaltic, Ryanair",
         stops=1,
         travel_minutes=925,
+        ticketing="separate_tickets",
         separate_tickets=True,
         baseline_per_adult_eur=214.0,
         alert_id=41,
