@@ -35,6 +35,10 @@ sources:
     tables:
       - name: watches
       - name: watch_slots
+      - name: quality_gates
+        description: >
+          Slices (source, origin; origin null = the whole source) failing a data-quality check
+          (flight_scanner.data_quality); their prices are left out of trip prices.
       - name: deals
       - name: alerts
   - name: ref

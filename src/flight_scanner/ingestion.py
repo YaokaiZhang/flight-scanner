@@ -1,7 +1,8 @@
 """Ingestion: the scan plan's scheduled tasks -> each source adapter -> raw store + landing.
 
 One source failing (SourceUnavailable or any error) never stops the others; the outcome per
-source, and per scan task ("scanned" or "failed"), is returned so the pipeline can record it.
+source, and per scan task ("scanned" or "failed", prices landed, error), is returned so the
+pipeline can record it (the data-quality checks read what each task landed).
 A source that was turned away (`SourceBlocked`) is flagged `blocked`; the pipeline then disables
 it (`source_health`).
 """
@@ -51,6 +52,8 @@ class SourceOutcome:
 class IngestReport:
     outcomes: list[SourceOutcome] = field(default_factory=list)
     task_status: dict[int, str] = field(default_factory=dict)  # scan task id -> scanned|failed
+    task_rows: dict[int, int] = field(default_factory=dict)  # scan task id -> prices landed
+    task_errors: dict[int, str] = field(default_factory=dict)  # failed task id -> why
 
     def as_metadata(self) -> dict:
         return {o.source: asdict(o) for o in self.outcomes}
@@ -160,6 +163,7 @@ def ingest(
         try:
             for task in mine:
                 report.task_status[task.id] = "failed"
+                report.task_rows[task.id] = 0
                 for req in task.requests:
                     raw = adapter.fetch(req)
                     # the raw bytes are committed before parsing, so a parse bug never loses data
@@ -171,6 +175,9 @@ def ingest(
                         load_parsed(conn, payload_id, parsed)
                     outcome.leg_prices += len(parsed.leg_prices)
                     outcome.round_trip_prices += len(parsed.round_trip_prices)
+                    report.task_rows[task.id] += len(parsed.leg_prices) + len(
+                        parsed.round_trip_prices
+                    )
                 report.task_status[task.id] = "scanned"
         except Exception as e:  # noqa: BLE001 - isolate every source failure
             log.warning("source %s failed: %s", adapter.name, e)
@@ -178,4 +185,6 @@ def ingest(
             outcome.blocked = isinstance(e, SourceBlocked)
         for task in mine:
             report.task_status.setdefault(task.id, "failed")
+            if report.task_status[task.id] == "failed":
+                report.task_errors[task.id] = outcome.error or "failed"
     return report

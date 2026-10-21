@@ -27,6 +27,7 @@ EXPORT_TABLES = (
     "history.leg_price_history",
     "history.round_trip_price_history",
     "app.watch_slots",
+    "app.quality_gates",  # trip_prices leaves gated slices out (ticket 10)
     "app.deals",
     "app.alerts",
     "ref.airports",

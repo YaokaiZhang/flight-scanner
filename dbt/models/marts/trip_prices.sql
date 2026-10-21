@@ -7,11 +7,23 @@
 -- is ever composed. Each source's latest observation at or before as_of counts; the cheapest
 -- source wins. Airlines, stops and travel time (for Alerts) come from the chosen price(s).
 -- Verification sources (live checks, ticket 08) are not current prices: they only feed Baselines.
-with legs as (
+-- Data-quality gates (ticket 10): prices of a gated slice (source and Leg / Round-trip origin, or
+-- the whole source) are left out, so they never make a Candidate; other sources still price the
+-- trip.
+with gates as (
+    select source, origin
+    from {{ source('app', 'quality_gates') }}
+),
+
+legs as (
     select *
-    from {{ ref('stg_leg_prices') }}
+    from {{ ref('stg_leg_prices') }} as l
     where observed_at <= {{ as_of() }}
         and {{ not_verification_source('source') }}
+        and not exists (
+            select 1 from gates as g
+            where g.source = l.source and (g.origin is null or g.origin = l.origin)
+        )
 ),
 
 legs_latest as (
@@ -37,9 +49,13 @@ leg_best as (
 
 round_trips as (
     select *
-    from {{ ref('stg_round_trip_prices') }}
+    from {{ ref('stg_round_trip_prices') }} as t
     where observed_at <= {{ as_of() }}
         and {{ not_verification_source('source') }}
+        and not exists (
+            select 1 from gates as g
+            where g.source = t.source and (g.origin is null or g.origin = t.origin)
+        )
 ),
 
 round_trips_latest as (

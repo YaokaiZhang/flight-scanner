@@ -111,6 +111,22 @@ CREATE OR REPLACE TABLE silver.watch_slots AS
 SELECT * EXCEPT (_export_date, _ingested_at) FROM bronze.watch_slots
 WHERE _export_date = (SELECT max(_export_date) FROM bronze.watch_slots);
 
+-- app.quality_gates
+CREATE TABLE IF NOT EXISTS bronze.quality_gates;
+COPY INTO bronze.quality_gates
+FROM (
+    SELECT *, to_date(regexp_extract(_metadata.file_path, '/(\\d{4}-\\d{2}-\\d{2})/', 1)) AS _export_date,
+           current_timestamp() AS _ingested_at
+    FROM '/Volumes/flight_scanner/bronze/exports/'
+)
+FILEFORMAT = PARQUET
+PATTERN = '*/app.quality_gates.parquet'
+FORMAT_OPTIONS ('mergeSchema' = 'true')
+COPY_OPTIONS ('mergeSchema' = 'true');
+CREATE OR REPLACE TABLE silver.quality_gates AS
+SELECT * EXCEPT (_export_date, _ingested_at) FROM bronze.quality_gates
+WHERE _export_date = (SELECT max(_export_date) FROM bronze.quality_gates);
+
 -- app.deals
 CREATE TABLE IF NOT EXISTS bronze.deals;
 COPY INTO bronze.deals

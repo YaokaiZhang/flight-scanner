@@ -4,7 +4,15 @@
 import dagster as dg
 from dagster_dbt import DbtCliResource, dbt_assets, get_asset_key_for_model
 
-from flight_scanner import deals, digests, scan_planner, source_health, verification, watches
+from flight_scanner import (
+    data_quality,
+    deals,
+    digests,
+    scan_planner,
+    source_health,
+    verification,
+    watches,
+)
 from flight_scanner.clock import today
 from flight_scanner.db import connect
 from flight_scanner.deal_context import add_deal_context
@@ -21,6 +29,7 @@ SCAN_PLAN = dg.AssetKey(["app", "scan_plan"])
 DEAL_CONTEXT = dg.AssetKey(["app", "deal_context"])
 VERIFICATION = dg.AssetKey(["app", "verification"])
 REF_AIRPORTS = dg.AssetKey(["ref", "airports"])
+QUALITY_GATES = dg.AssetKey(["app", "quality_gates"])
 # what the lakehouse published (dbt source analytics.baseline_versions -> effective_baselines)
 LAKEHOUSE = dg.AssetKey(["analytics", "baseline_versions"])
 
@@ -110,13 +119,47 @@ def source_prices(context: dg.AssetExecutionContext, runtime: dg.ResourceParam[R
         plan_id = scan_planner.latest_plan_id(conn)
         tasks = scan_planner.scheduled(conn, plan_id) if plan_id is not None else []
         report = ingest(conn, runtime.sources, tasks, runtime.raw_store)
-        scan_planner.finish(conn, report.task_status, runtime.clock.now())
+        scan_planner.finish(
+            conn, report.task_status, runtime.clock.now(), report.task_rows, report.task_errors
+        )
         for outcome in report.outcomes:
             if outcome.blocked:  # disabled until the owner re-enables it
                 source_health.block(conn, outcome.source, outcome.error, runtime.clock.now())
     meta = {"sources": dg.MetadataValue.json(report.as_metadata())}
     yield dg.MaterializeResult(asset_key=LEG_PRICES, metadata=meta)
     yield dg.MaterializeResult(asset_key=ROUND_TRIP_PRICES, metadata=meta)
+
+
+@dg.asset(
+    key=QUALITY_GATES,
+    deps=[LEG_PRICES, ROUND_TRIP_PRICES],
+    group_name="ingestion",
+    check_specs=[
+        dg.AssetCheckSpec(name, asset=QUALITY_GATES, description=description)
+        for name, description in data_quality.CHECKS.items()
+    ],
+)
+def quality_gates(runtime: dg.ResourceParam[Runtime]):
+    """Data-quality checks over what the scan sources landed. A failing slice (source, origin or
+    the whole source) is gated: dbt's trip prices leave it out, so it cannot produce Candidates,
+    and the other slices carry on. The checks never stop the run (severity WARN)."""
+    now = runtime.clock.now()
+    with connect(runtime.db, autocommit=True) as conn, conn.transaction():
+        gates = data_quality.evaluate(conn, [s.name for s in runtime.sources], now)
+    failing = {
+        name: [g.as_metadata() for g in gates if g.check_name == name]
+        for name in data_quality.CHECKS
+    }
+    checks = [
+        dg.AssetCheckResult(
+            check_name=name,
+            passed=not slices,
+            severity=dg.AssetCheckSeverity.WARN,
+            metadata={"failing_slices": dg.MetadataValue.json(slices)},
+        )
+        for name, slices in failing.items()
+    ]
+    return dg.MaterializeResult(metadata={"gates": len(gates)}, check_results=checks)
 
 
 @dg.asset(key=LAKEHOUSE, group_name="analytics")
@@ -218,6 +261,7 @@ def build_definitions(runtime: Runtime) -> dg.Definitions:
         watch_slots,
         scan_plan,
         source_prices,
+        quality_gates,
         dbt_models,
         deals_asset,
         verification_asset,

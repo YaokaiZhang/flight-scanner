@@ -10,7 +10,8 @@ Public interface:
   plan(conn, slots, sources, budgets, now, today) -> plan id
                                  build, rank, schedule and record this run's tasks
   scheduled(conn, plan_id)       the plan's scheduled tasks (what ingestion fetches)
-  finish(conn, statuses, now)    record which scheduled tasks were scanned or failed
+  finish(conn, statuses, now, rows, errors)
+                                 record which scheduled tasks were scanned or failed
   latest(conn, status, source)   the most recent plan, as the API shows it
   DEAL_GAP_ESTIMATORS            pluggable "how far is the best price from a Deal" signals
 
@@ -415,12 +416,21 @@ def latest_plan_id(conn: psycopg.Connection) -> int | None:
     return row["id"]
 
 
-def finish(conn: psycopg.Connection, statuses: Mapping[int, str], now: datetime) -> None:
-    """Record the outcome ("scanned" or "failed") of executed scheduled tasks."""
+def finish(
+    conn: psycopg.Connection,
+    statuses: Mapping[int, str],
+    now: datetime,
+    rows: Mapping[int, int] | None = None,
+    errors: Mapping[int, str] | None = None,
+) -> None:
+    """Record the outcome ("scanned" or "failed") of executed scheduled tasks, with the prices
+    each landed and why a failed one failed."""
+    rows, errors = rows or {}, errors or {}
     with conn.cursor() as cur:
         cur.executemany(
-            "UPDATE app.scan_tasks SET status = %s, finished_at = %s WHERE id = %s",
-            [(status, now, task_id) for task_id, status in statuses.items()],
+            "UPDATE app.scan_tasks SET status = %s, finished_at = %s, rows = %s, error = %s "
+            "WHERE id = %s",
+            [(s, now, rows.get(i), errors.get(i), i) for i, s in statuses.items()],
         )
 
 
