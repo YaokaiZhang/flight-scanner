@@ -1,0 +1,81 @@
+{
+ "outboundFlights": [
+  {
+   "departureStation": "BUD",
+   "arrivalStation": "BCN",
+   "departureDate": "2026-11-12T00:00:00",
+   "price": {
+    "amount": 24990,
+    "currencyCode": "HUF"
+   },
+   "priceType": "price",
+   "departureDates": [
+    "2026-11-12T06:10:00"
+   ],
+   "classOfService": "B",
+   "hasMacFlight": false
+  },
+  {
+   "departureStation": "BUD",
+   "arrivalStation": "BCN",
+   "departureDate": "2026-11-14T00:00:00",
+   "price": {
+    "amount": 12990,
+    "currencyCode": "HUF"
+   },
+   "priceType": "price",
+   "departureDates": [
+    "2026-11-14T06:10:00",
+    "2026-11-14T17:45:00"
+   ],
+   "classOfService": "B",
+   "hasMacFlight": false
+  },
+  {
+   "departureStation": "BUD",
+   "arrivalStation": "BCN",
+   "departureDate": "2026-11-15T00:00:00",
+   "price": {
+    "amount": 0,
+    "currencyCode": "HUF"
+   },
+   "priceType": "checkPrice",
+   "departureDates": [
+    "2026-11-15T06:10:00"
+   ],
+   "classOfService": "B",
+   "hasMacFlight": false
+  },
+  {
+   "departureStation": "BUD",
+   "arrivalStation": "BCN",
+   "departureDate": "2026-11-16T00:00:00",
+   "price": {
+    "amount": 0,
+    "currencyCode": "HUF"
+   },
+   "priceType": "soldOut",
+   "departureDates": [
+    "2026-11-16T06:10:00"
+   ],
+   "classOfService": "B",
+   "hasMacFlight": false
+  },
+  {
+   "departureStation": "BUD",
+   "arrivalStation": "BCN",
+   "departureDate": "2026-11-19T00:00:00",
+   "price": {
+    "amount": 31490,
+    "currencyCode": "HUF"
+   },
+   "priceType": "price",
+   "departureDates": [
+    "2026-11-19T06:10:00"
+   ],
+   "classOfService": "B",
+   "hasMacFlight": false
+  }
+ ],
+ "returnFlights": null
+}

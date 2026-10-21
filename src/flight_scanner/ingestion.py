@@ -2,6 +2,8 @@
 
 One source failing (SourceUnavailable or any error) never stops the others; the outcome per
 source, and per scan task ("scanned" or "failed"), is returned so the pipeline can record it.
+A source that was turned away (`SourceBlocked`) is flagged `blocked`; the pipeline then disables
+it (`source_health`).
 """
 
 from __future__ import annotations
@@ -16,7 +18,7 @@ from psycopg.types.json import Jsonb
 
 from flight_scanner.raw_store import RawStore
 from flight_scanner.scan_planner import ScheduledTask
-from flight_scanner.sources.base import ParsedPrices, RawPayload, SourceAdapter
+from flight_scanner.sources.base import ParsedPrices, RawPayload, SourceAdapter, SourceBlocked
 
 log = logging.getLogger(__name__)
 
@@ -38,6 +40,7 @@ class SourceOutcome:
     leg_prices: int = 0
     round_trip_prices: int = 0
     error: str | None = None
+    blocked: bool = False  # turned away by the source (bot protection, access denied)
 
 
 @dataclass
@@ -145,6 +148,7 @@ def ingest(
         except Exception as e:  # noqa: BLE001 - isolate every source failure
             log.warning("source %s failed: %s", adapter.name, e)
             outcome.error = f"{type(e).__name__}: {e}"
+            outcome.blocked = isinstance(e, SourceBlocked)
         for task in mine:
             report.task_status.setdefault(task.id, "failed")
     return report

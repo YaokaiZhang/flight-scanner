@@ -14,6 +14,11 @@ Public interface:
   latest(conn, status, source)   the most recent plan, as the API shows it
   DEAL_GAP_ESTIMATORS            pluggable "how far is the best price from a Deal" signals
 
+Optional source adapter attributes the planner honours (the airline adapters set them):
+  default_budget   Budget used when FS_SCAN_BUDGETS does not name the source
+  rescan_after     timedelta: a route-month scanned more recently is skipped ("scanned < N h ago")
+A source that disabled itself after being blocked (`source_health`) has all its tasks skipped.
+
 Demand per slot: the outbound leg (origin -> destination in the outbound month, also asking for
 Round-trip prices when the slot has a return) and, for round trips, the return leg (destination
 -> origin in the return month). A source that can price "anywhere" (`wildcard_destinations`) gets
@@ -39,6 +44,7 @@ from datetime import date, datetime, time, timedelta
 import psycopg
 from psycopg.types.json import Jsonb
 
+from flight_scanner import source_health
 from flight_scanner.clock import OWNER_TZ
 from flight_scanner.sources.base import ScanRequest, SourceAdapter
 from flight_scanner.watches import Demand, WatchSlot
@@ -310,12 +316,15 @@ def plan(
     conn.execute("DELETE FROM app.scan_plans WHERE planned_at < %s", (now - KEEP_PLANS_FOR,))
     signals = Signals.load(conn, now)
     used_today = _used_today(conn, now)
+    blocked = source_health.blocks(conn)
     plan_id = conn.execute(
         "INSERT INTO app.scan_plans (planned_at) VALUES (%s) RETURNING id", (now,)
     ).fetchone()["id"]
     rows = []
     for source in sources:
-        budget = budgets.get(source.name, Budget())
+        budget = budgets.get(source.name) or getattr(source, "default_budget", Budget())
+        rescan_after: timedelta | None = getattr(source, "rescan_after", None)
+        block = blocked.get(source.name)
         per_run = budget.per_run
         per_day = (
             None if budget.per_day is None else budget.per_day - used_today.get(source.name, 0)
@@ -331,7 +340,13 @@ def plan(
             requests = source.plan([task.demand])
             cost = len(requests)
             status, reason = "scheduled", None
-            if per_run is not None and cost > per_run:
+            last = signals.last_scans.get((source.name, task.origin, task.destination, task.month))
+            if block is not None:
+                status, reason = "skipped", f"source blocked: {block.reason}"
+            elif rescan_after is not None and last is not None and now - last < rescan_after:
+                hours = rescan_after / timedelta(hours=1)
+                status, reason = "skipped", f"scanned less than {hours:g} h ago"
+            elif per_run is not None and cost > per_run:
                 status, reason = "skipped", "over the per-run budget"
             elif per_day is not None and cost > per_day:
                 status, reason = "skipped", "over the daily quota"
