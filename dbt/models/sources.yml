@@ -20,10 +20,12 @@ sources:
                   arguments: {to: "ref('fx_rates')", field: currency}
                   config: {severity: warn}
   - name: app
-    description: Application tables owned by Python (Watches, slots).
+    description: Application tables owned by Python (Watches, slots, Deals, Alerts).
     tables:
       - name: watches
       - name: watch_slots
+      - name: deals
+      - name: alerts
   - name: ref
     description: Reference data written by Python from the bundled Places snapshot.
     tables:

@@ -340,3 +340,11 @@ tr.selectable[aria-selected="true"] .row-title { color: var(--ink-deep); }
   .controls { width: 100%; }
   .controls .field { flex: 1 1 120px; min-width: 0; }
 }
+
+/* ---------- backtest (ticket 11) ---------- */
+table.bars, table.compact { font-size: 11px; }
+table.bars th { width: 64px; padding: 4px 8px 4px 0; border: 0; font-weight: 400; color: var(--pencil); text-align: left; text-transform: none; letter-spacing: 0; }
+table.bars td { padding: 4px 0; border: 0; vertical-align: middle; }
+table.bars td.num { width: 28px; padding-left: 8px; color: var(--graphite); }
+table.bars .bar { display: block; height: 8px; min-width: 1px; background: var(--swash-strong); border-left: 1.5px solid var(--ink); }
+table.compact th, table.compact td { padding: 6px 8px 6px 0; }

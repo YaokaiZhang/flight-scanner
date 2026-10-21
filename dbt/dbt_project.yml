@@ -17,6 +17,9 @@ vars:
   baseline_min_observations: 20  # route/country support: daily-minimum trip prices ...
   baseline_min_days: 7  # ... spread over at least this many distinct observation days
   provisional_min_trips: 5  # provisional Baseline: trips (departure dates) in the key
+  # Backtest (marts.backtest_deals)
+  backtest_recovery_share: 0.5  # a real dip: a later price climbs this share back to the Baseline
+  backtest_min_later_days: 3  # ... else "stayed low" once this many later days were observed
 
 models:
   flight_scanner:
@@ -30,6 +33,9 @@ models:
       +schema: marts
       +materialized: table
     marts:
+      +schema: marts
+      +materialized: table
+    backtest:
       +schema: marts
       +materialized: table
 

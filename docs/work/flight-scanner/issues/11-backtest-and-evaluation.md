@@ -6,9 +6,13 @@
 
 **Blocked by:** 05, 06
 
-**Status:** ready-for-agent
+**Status:** resolved
 
-- [ ] A model classifies each past Deal: did the price for those dates later return toward its Baseline (real dip) or stay low?
-- [ ] Per-Watch metrics: precision, Alert rate per week, distribution of % below Baseline, 👍/👎 counts joined to classifications.
-- [ ] Backtest page shows these per Watch.
-- [ ] Seam-1 test with scripted history yields the expected classification; seam-2 tests for the backtest endpoint.
+- [x] A model classifies each past Deal: did the price for those dates later return toward its Baseline (real dip) or stay low?
+- [x] Per-Watch metrics: precision, Alert rate per week, distribution of % below Baseline, 👍/👎 counts joined to classifications.
+- [x] Backtest page shows these per Watch.
+- [x] Seam-1 test with scripted history yields the expected classification; seam-2 tests for the backtest endpoint.
+
+## Comments
+
+- Branch `ticket/11-backtest-and-evaluation`: dbt `marts.backtest_deals` (own Dagster asset, after Alerts) judges each Deal from later daily trip prices (real_dip / stayed_low / pending / inconclusive / unjudged); `GET /backtest` per-Watch precision, Alerts per week, % below Baseline buckets, 👍/👎 by outcome; `/backtest` page.

@@ -113,17 +113,30 @@ def source_prices(context: dg.AssetExecutionContext, runtime: dg.ResourceParam[R
     yield dg.MaterializeResult(asset_key=ROUND_TRIP_PRICES, metadata=meta)
 
 
+BACKTEST_MODELS = "backtest_deals"
+
+
+def _dbt_build(context: dg.AssetExecutionContext, dbt: DbtCliResource, runtime: Runtime):
+    as_of = runtime.clock.now().isoformat()
+    yield from dbt.cli(["build", "--vars", json.dumps({"as_of": as_of})], context=context).stream()
+
+
 def build_definitions(runtime: Runtime) -> dg.Definitions:
     manifest = dbt_files.ensure_manifest()
 
-    @dbt_assets(manifest=manifest)
+    # Every dbt model but the backtest, which judges this run's Deals and Alerts (dbt sources
+    # app.deals / app.alerts = the assets below) and so runs after them.
+    @dbt_assets(manifest=manifest, exclude=BACKTEST_MODELS)
     def dbt_models(
         context: dg.AssetExecutionContext, dbt: DbtCliResource, runtime: dg.ResourceParam[Runtime]
     ):
-        as_of = runtime.clock.now().isoformat()
-        yield from dbt.cli(
-            ["build", "--vars", json.dumps({"as_of": as_of})], context=context
-        ).stream()
+        yield from _dbt_build(context, dbt, runtime)
+
+    @dbt_assets(manifest=manifest, select=BACKTEST_MODELS, name="dbt_backtest")
+    def dbt_backtest(
+        context: dg.AssetExecutionContext, dbt: DbtCliResource, runtime: dg.ResourceParam[Runtime]
+    ):
+        yield from _dbt_build(context, dbt, runtime)
 
     candidates_key = get_asset_key_for_model([dbt_models], "candidates")
 
@@ -172,6 +185,7 @@ def build_definitions(runtime: Runtime) -> dg.Definitions:
         deal_context_asset,
         alerts_asset,
         digests_asset,
+        dbt_backtest,
     ]
     scan_job = dg.define_asset_job("scan", selection=dg.AssetSelection.assets(*assets))
     # prices only (no dbt, detection or Alerts): builds history between full scans
@@ -181,7 +195,7 @@ def build_definitions(runtime: Runtime) -> dg.Definitions:
     # reference data and dbt (seeds, staging, history, Baselines, marts): used by `rebuild`
     # after re-parsing the raw store
     rebuild_job = dg.define_asset_job(
-        "rebuild", selection=dg.AssetSelection.assets(ref_airports, dbt_models)
+        "rebuild", selection=dg.AssetSelection.assets(ref_airports, dbt_models, dbt_backtest)
     )
     profiles = dbt_files.write_profiles(runtime.db, runtime.work_dir / "dbt-profiles")
     return dg.Definitions(

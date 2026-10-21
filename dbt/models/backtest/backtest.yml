@@ -1,0 +1,22 @@
+version: 2
+
+models:
+  - name: backtest_deals
+    description: >
+      Every past Deal judged from the prices of the same trip on the days after its detection:
+      a real dip (the price went back toward the Baseline) or not. One row per Deal.
+    columns:
+      - name: deal_id
+        data_tests: [unique, not_null]
+      - name: watch_id
+        data_tests: [not_null]
+      - name: price_per_adult_eur
+        data_tests: [not_null]
+      - name: later_observation_days
+        data_tests: [not_null]
+      - name: outcome
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [real_dip, stayed_low, pending, inconclusive, unjudged]

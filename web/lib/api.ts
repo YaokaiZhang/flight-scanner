@@ -144,6 +144,49 @@ export type RouteHistory = {
 };
 
 export type Rating = "up" | "down";
+
+// Backtest (ticket 11): each past Deal judged from the prices seen after it.
+export type Outcome = "real_dip" | "stayed_low" | "pending" | "inconclusive" | "unjudged";
+
+export type PastDeal = {
+  deal_id: number;
+  origin: string;
+  destination: string;
+  outbound_date: string;
+  return_date: string | null;
+  detected_at: string;
+  baseline_tier: string | null;
+  price_per_adult_eur: number; // at its first Alert
+  baseline_per_adult_eur: number | null;
+  pct_below_baseline: number | null;
+  later_observation_days: number;
+  highest_later_price_per_adult_eur: number | null;
+  outcome: Outcome;
+  rating: Rating | null;
+};
+
+export type FeedbackCounts = { up: number; down: number; unrated: number };
+
+export type WatchBacktest = {
+  watch_id: number;
+  watch_name: string;
+  status: string;
+  sensitivity_pct: number;
+  deals: number;
+  outcomes: Record<Outcome, number>;
+  precision: number | null; // real dips / (real dips + stayed low)
+  alerts: number;
+  weeks: number;
+  alerts_per_week: number;
+  pct_below_baseline: {
+    median: number | null;
+    buckets: { from_pct: number; to_pct: number | null; deals: number }[];
+  };
+  feedback: FeedbackCounts & { by_outcome: (FeedbackCounts & { outcome: Outcome })[] };
+  past_deals: PastDeal[];
+};
+
+export type Backtest = { computed_at: string | null; watches: WatchBacktest[] };
 export type DealStatus = "verified" | "unverified";
 
 export class ApiError extends Error {
@@ -191,6 +234,7 @@ export const api = {
   resolveTripPattern: (trip_pattern: TripPreset) =>
     call<TripResolution>("/trip-patterns/resolve", json("POST", { trip_pattern })),
   listRoutes: () => call<Route[]>("/routes"),
+  backtest: () => call<Backtest>("/backtest"),
   routeHistory: (origin: string, destination: string, departure: string, returnDate?: string) => {
     const q = new URLSearchParams({ departure_date: departure });
     if (returnDate) q.set("return_date", returnDate);
