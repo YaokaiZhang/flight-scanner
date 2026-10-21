@@ -11,7 +11,7 @@ test-paths: ["tests"]
 # Shared models must stay adapter-portable (ADR-0003): no Postgres-only SQL (DISTINCT ON, ::casts,
 # now()); use window functions, cross-db macros and the `as_of()` macro for the clock.
 vars:
-  as_of: null  # the injected clock's instant, passed by the pipeline as --vars
+  as_of: null  # the injected clock for runs by hand; the pipeline sets env FS_AS_OF (see as_of())
   # Baselines (spec defaults)
   baseline_window_days: 60  # trailing window of observation days
   baseline_min_observations: 20  # route/country support: daily-minimum trip prices ...

@@ -14,6 +14,7 @@ with `h.add_notifier(RecordingNotifier("telegram"))` (gets only Watches that cho
 Turn on Deal context with `h.use_researcher(FakeResearcher({...}), timeout_seconds=...)`.
 Turn on Verification with `google = h.use_google_flights(daily_quota=...)`: the real SerpApi
 adapter answered by `FakeGoogleFlights` (`google.offer(...)`, `google.asked`).
+dbt's data tests are skipped for speed; `h.run_dbt_data_tests()` runs them like production does.
 """
 
 from __future__ import annotations
@@ -53,6 +54,7 @@ class PipelineHarness:
             work_dir=Path(work_dir),
             sources=[self.fake],
             notifiers=[self.notifier],
+            dbt_data_tests=False,  # speed: production runs them every scan; see run_dbt_data_tests
         )
         self.last_result: dg.ExecuteInProcessResult | None = None
 
@@ -91,6 +93,10 @@ class PipelineHarness:
             monthly_quota=monthly_quota,
         )
         return google
+
+    def run_dbt_data_tests(self, on: bool = True) -> None:
+        """Run dbt's data tests in later scans, as production does (off by default: slow)."""
+        self.runtime.dbt_data_tests = on
 
     def use_reference(self, reference: ReferenceData) -> None:
         """Swap the Places reference data used by later runs (and Watch validation)."""

@@ -36,6 +36,23 @@ def test_leg_price_under_threshold_yields_exactly_one_alert(pipeline):
     assert alert.verification == "unverified"
 
 
+def test_scans_pass_every_dbt_data_test(pipeline):
+    """Production runs dbt's data tests in every scan; the harness skips them for speed, so this
+    test keeps them covered: they run as Dagster asset checks and all pass."""
+    pipeline.run_dbt_data_tests()
+    pipeline.create_watch(hel_bcn_watch(threshold_eur=120))
+    pipeline.fake.replay(PAYLOADS / "hel-bcn-2026-11.json", route=("HEL", "BCN"))
+
+    pipeline.run()
+    pipeline.clock.advance(minutes=30)
+    result = pipeline.run()
+
+    checks = result.get_asset_check_evaluations()
+    assert len(checks) >= 50
+    assert [c.check_name for c in checks if not c.passed] == []
+    assert len(pipeline.notifier.alerts) == 1
+
+
 def test_leg_price_above_threshold_yields_no_alert(pipeline):
     pipeline.create_watch(hel_bcn_watch(threshold_eur=80))
     pipeline.fake.replay(PAYLOADS / "hel-bcn-2026-11.json", route=("HEL", "BCN"))

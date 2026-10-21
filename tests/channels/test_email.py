@@ -25,7 +25,9 @@ class Inbox:
     def authenticate(self, server, session, envelope, mechanism, auth_data):
         assert isinstance(auth_data, LoginPassword)
         self.logins.append((auth_data.login.decode(), auth_data.password.decode()))
-        return AuthResult(success=auth_data.password == b"test-secret")
+        # handled=False: aiosmtpd itself answers a failure with 535 (handled=True, the default,
+        # sends nothing and the client hangs until its 30 s timeout)
+        return AuthResult(success=auth_data.password == b"test-secret", handled=False)
 
 
 def free_port() -> int:
