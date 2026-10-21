@@ -5,6 +5,8 @@ import path from "node:path";
 
 const repo = path.resolve(__dirname, "..", "..");
 const python = process.env.FS_PYTHON ?? path.join(repo, ".venv", "bin", "python");
+// Deal context from a fake researcher (the scan's --deal-context): shown in the inspector.
+const SALE = "Vueling is running an autumn sale on Helsinki routes until 31 October.";
 
 function runPipeline(at: string) {
   execFileSync(
@@ -14,6 +16,7 @@ function runPipeline(at: string) {
       "--state-dir", process.env.FS_E2E_STATE_DIR!,
       "--payload-dir", path.join(repo, "tests", "fixtures", "payloads", "fake"),
       "--at", at,
+      "--deal-context", SALE,
     ],
     { cwd: repo, stdio: "pipe", timeout: 120_000 },
   );
@@ -47,6 +50,7 @@ test("create a Watch in the UI, then see its Deal in the Deals feed", async ({ p
   // The inspector shows the Alert's details and a booking link; rate it 👍 and it sticks.
   const inspector = page.getByRole("complementary", { name: "Inspector" });
   await expect(inspector).toContainText("VY · direct · 4 h 10 min");
+  await expect(inspector).toContainText(`Why cheap?${SALE}`);
   await expect(inspector.getByRole("link", { name: /Book this trip/ })).toHaveAttribute(
     "href", /google\.com\/travel\/flights/,
   );

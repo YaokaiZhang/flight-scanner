@@ -7,6 +7,7 @@ from pathlib import Path
 
 from flight_scanner.clock import Clock
 from flight_scanner.db import DbSettings
+from flight_scanner.deal_context import DEAL_CONTEXT_TIMEOUT, Researcher
 from flight_scanner.notify.base import Notifier
 from flight_scanner.places import ReferenceData, default_reference
 from flight_scanner.raw_store import RawStore
@@ -25,3 +26,5 @@ class Runtime:
     # request budget per source (per run and per Helsinki day); absent = unlimited
     source_budgets: dict[str, Budget] = field(default_factory=dict)
     reference: ReferenceData = field(default_factory=default_reference)  # Places (ticket 03)
+    researcher: Researcher | None = None  # Deal context (ticket 14); None = off
+    deal_context_timeout: float = DEAL_CONTEXT_TIMEOUT  # seconds an Alert waits for it

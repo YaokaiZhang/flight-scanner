@@ -9,6 +9,7 @@ from dagster_dbt import DbtCliResource, dbt_assets, get_asset_key_for_model
 from flight_scanner import deals, digests, scan_planner, watches
 from flight_scanner.clock import today
 from flight_scanner.db import connect
+from flight_scanner.deal_context import add_deal_context
 from flight_scanner.ingestion import ingest
 from flight_scanner.pipeline import dbt as dbt_files
 from flight_scanner.pipeline.runtime import Runtime
@@ -18,6 +19,7 @@ LEG_PRICES = dg.AssetKey(["landing", "leg_prices"])
 ROUND_TRIP_PRICES = dg.AssetKey(["landing", "round_trip_prices"])
 WATCH_SLOTS = dg.AssetKey(["app", "watch_slots"])
 SCAN_PLAN = dg.AssetKey(["app", "scan_plan"])
+DEAL_CONTEXT = dg.AssetKey(["app", "deal_context"])
 
 
 @dg.asset(key=WATCH_SLOTS, group_name="watches")
@@ -107,14 +109,28 @@ def build_definitions(runtime: Runtime) -> dg.Definitions:
             new = deals.record_deals(conn, runtime.clock.now())
         return dg.MaterializeResult(metadata={"new_deals": new})
 
-    @dg.asset(key=["app", "alerts"], deps=[dg.AssetKey(["app", "deals"])], group_name="deals")
+    @dg.asset(key=DEAL_CONTEXT, deps=[dg.AssetKey(["app", "deals"])], group_name="deals")
+    def deal_context_asset(runtime: dg.ResourceParam[Runtime]):
+        """Optional "why is this cheap?" line for new Deals; waits at most the cap."""
+        with connect(runtime.db, autocommit=True) as conn:
+            counts = add_deal_context(
+                conn, runtime.researcher, runtime.clock.now(), runtime.deal_context_timeout
+            )
+        return dg.MaterializeResult(
+            metadata={
+                "enabled": runtime.researcher is not None,
+                **{f"context_{k}": v for k, v in counts.items()},
+            }
+        )
+
+    @dg.asset(key=["app", "alerts"], deps=[DEAL_CONTEXT], group_name="deals")
     def alerts_asset(runtime: dg.ResourceParam[Runtime]):
         """Hand every not-yet-alerted Deal to the notifiers."""
         with connect(runtime.db, autocommit=True) as conn:
             sent = deals.send_alerts(conn, runtime.notifiers, runtime.clock.now())
         return dg.MaterializeResult(metadata={"alerts_sent": sent})
 
-    @dg.asset(key=["app", "digests"], deps=[dg.AssetKey(["app", "deals"])], group_name="deals")
+    @dg.asset(key=["app", "digests"], deps=[DEAL_CONTEXT], group_name="deals")
     def digests_asset(runtime: dg.ResourceParam[Runtime]):
         """Send the daily Digest of each Watch in Digest mode once it is due."""
         with connect(runtime.db, autocommit=True) as conn:
@@ -127,6 +143,7 @@ def build_definitions(runtime: Runtime) -> dg.Definitions:
         source_prices,
         dbt_models,
         deals_asset,
+        deal_context_asset,
         alerts_asset,
         digests_asset,
     ]

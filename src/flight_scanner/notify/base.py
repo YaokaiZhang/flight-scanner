@@ -44,6 +44,7 @@ class AlertMessage:
     separate_tickets: bool = False
     baseline_per_adult_eur: float | None = None
     alert_id: int | None = None  # the app.alerts row this delivery is recorded as
+    deal_context: str | None = None  # why it might be cheap (web research; ticket 14)
 
     @property
     def pct_below_baseline(self) -> float | None:

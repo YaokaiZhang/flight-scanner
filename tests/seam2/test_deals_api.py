@@ -14,6 +14,7 @@ from flight_scanner.api import create_app
 from flight_scanner.config import Settings
 from flight_scanner.db import connect
 from flight_scanner.notify.registry import build_notifiers
+from flight_scanner.testing.fake_researcher import FakeResearcher
 from flight_scanner.testing.fake_telegram import FakeTelegram
 from flight_scanner.testing.harness import PipelineHarness
 
@@ -58,6 +59,18 @@ def test_deals_carry_alert_details_and_no_rating_yet(api, pipeline):
     assert deal["pct_below_baseline"] is None
     assert deal["booking_url"].startswith("https://www.google.com/travel/flights?q=")
     assert deal["feedback"] is None
+    assert deal["deal_context"] is None  # no researcher configured
+
+
+def test_deal_context_is_shown_in_the_feed_when_researched_in_time(api, pipeline):
+    sale = "Vueling is running an autumn sale on Helsinki routes."
+    pipeline.use_researcher(FakeResearcher({("HEL", "BCN"): sale}))
+    api.post("/watches", json=watch("Barcelona weekend"))
+    pipeline.run()
+
+    [deal] = api.get("/deals").json()
+    assert deal["deal_context"] == sale
+    assert api.get(f"/deals/{deal['id']}").json()["deal_context"] == sale
 
 
 def test_rate_a_deal_from_the_feed_then_change_and_clear_it(api, pipeline):

@@ -85,6 +85,7 @@ export type Deal = {
   booking_url: string;
   baseline_per_adult_eur: number | null;
   pct_below_baseline: number | null;
+  deal_context: string | null; // why it might be cheap (web research), when found in time
   feedback: { rating: Rating; via: "telegram" | "web" } | null;
 };
 

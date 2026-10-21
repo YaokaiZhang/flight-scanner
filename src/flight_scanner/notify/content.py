@@ -84,6 +84,8 @@ def lines(a: AlertMessage) -> list[str]:
         out.append(" · ".join(flight))
     if a.separate_tickets:
         out.append("2 separate tickets")
+    if a.deal_context:
+        out.append(f"Why cheap? {a.deal_context}")
     if a.verification == "verified":
         out.append("Verified: checked live.")
     else:
