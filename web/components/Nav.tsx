@@ -8,6 +8,7 @@ const PAGES = [
   { href: "/watches", label: "Watches" },
   { href: "/routes", label: "Routes" },
   { href: "/backtest", label: "Backtest" },
+  { href: "/data-health", label: "Data health" },
 ];
 
 export function Nav() {

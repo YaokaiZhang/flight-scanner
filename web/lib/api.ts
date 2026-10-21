@@ -195,6 +195,62 @@ export type WatchBacktest = {
 export type Backtest = { computed_at: string | null; watches: WatchBacktest[] };
 export type DealStatus = "verified" | "unverified" | "failed";
 
+// Data health (ticket 10): GET /data-health
+export type SourceStatus = "ok" | "no_data" | "gated" | "failing" | "blocked";
+export type SourceHealth = {
+  source: string;
+  status: SourceStatus;
+  last_observation_at: string | null;
+  observation_age_minutes: number | null;
+  last_success_at: string | null;
+  last_failure_at: string | null;
+  last_error: string | null;
+  blocked: { blocked_at: string; reason: string } | null;
+  gated_by: string[];
+};
+export type CoverageGap = { origin: string; destination: string; month: string; watch_ids: number[] };
+export type SourceBacklog = {
+  source: string;
+  scheduled: number;
+  scanned: number;
+  failed: number;
+  skipped: number;
+  backlog: number;
+};
+export type SkippedTask = {
+  source: string;
+  origin: string;
+  destination: string | null;
+  month: string;
+  priority: number;
+  reason: string | null;
+};
+export type VerificationUse = {
+  source: string;
+  used_today: number;
+  daily_quota: number | null;
+  used_month: number;
+  monthly_quota: number | null;
+  outcomes: Record<"verified" | "failed" | "unverified", number>;
+  reasons: Record<string, number>;
+};
+export type CheckFailure = {
+  check_name: string;
+  source: string;
+  origin: string | null;
+  detail: string;
+  checked_at: string;
+  since: string | null;
+};
+export type DataHealth = {
+  checked_at: string;
+  sources: SourceHealth[];
+  coverage: { route_months: number; covered: number; gaps: CoverageGap[] };
+  backlog: { planned_at: string | null; sources: SourceBacklog[]; skipped: SkippedTask[] };
+  verification: VerificationUse[];
+  checks: { active: CheckFailure[]; recent: CheckFailure[] };
+};
+
 export class ApiError extends Error {
   constructor(public status: number, public detail: unknown) {
     super(`API ${status}`);
@@ -241,6 +297,7 @@ export const api = {
     call<TripResolution>("/trip-patterns/resolve", json("POST", { trip_pattern })),
   listRoutes: () => call<Route[]>("/routes"),
   backtest: () => call<Backtest>("/backtest"),
+  dataHealth: () => call<DataHealth>("/data-health"),
   routeHistory: (origin: string, destination: string, departure: string, returnDate?: string) => {
     const q = new URLSearchParams({ departure_date: departure });
     if (returnDate) q.set("return_date", returnDate);

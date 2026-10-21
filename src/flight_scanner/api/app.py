@@ -11,8 +11,9 @@ from psycopg_pool import ConnectionPool
 from pydantic import BaseModel
 
 from flight_scanner import feedback, trip_patterns, watches
-from flight_scanner.api import backtest, routes, scan_tasks, sources
+from flight_scanner.api import backtest, data_health, routes, scan_tasks, sources
 from flight_scanner.clock import Clock, SystemClock, today
+from flight_scanner.data_health import VerificationBudget
 from flight_scanner.db import DbSettings
 from flight_scanner.notify.base import pct_below_baseline
 from flight_scanner.notify.content import booking_link
@@ -159,7 +160,10 @@ def _unknown_places(refs: list[PlaceRef]) -> HTTPException:
 
 
 def create_app(
-    db: DbSettings, clock: Clock | None = None, reference: ReferenceData | None = None
+    db: DbSettings,
+    clock: Clock | None = None,
+    reference: ReferenceData | None = None,
+    verification_budget: VerificationBudget | None = None,  # the data-health page shows it
 ) -> FastAPI:
     clock = clock or SystemClock()
     ref = reference or default_reference()
@@ -179,10 +183,12 @@ def create_app(
 
     app = FastAPI(title="Flight Scanner API", lifespan=lifespan)
     app.state.clock = clock
+    app.state.verification_budget = verification_budget
     app.include_router(routes.router)
     app.include_router(backtest.router)
     app.include_router(scan_tasks.router)
     app.include_router(sources.router)
+    app.include_router(data_health.router)
 
     @app.exception_handler(InvalidWatch)
     def invalid_watch(request: Request, exc: InvalidWatch) -> JSONResponse:
