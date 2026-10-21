@@ -4,6 +4,7 @@ export type PlaceRef = { kind: "airport"; code: string };
 export type PlaceSet = { include: PlaceRef[]; exclude: PlaceRef[] };
 export type TripPreset = { preset: "one_way_fixed"; departure: string };
 export type PriceThreshold = { amount_eur: number; basis: "total" | "per_adult" };
+export type Delivery = "immediate" | "digest";
 
 export type WatchSpec = {
   name: string;
@@ -12,6 +13,7 @@ export type WatchSpec = {
   trip_pattern: TripPreset;
   adults: number;
   price_threshold: PriceThreshold | null;
+  delivery?: Delivery;
 };
 
 export type Watch = WatchSpec & {
@@ -19,6 +21,7 @@ export type Watch = WatchSpec & {
   origins: PlaceSet;
   destinations: PlaceSet;
   status: "active" | "paused";
+  delivery: Delivery;
   created_at: string;
   updated_at: string;
 };

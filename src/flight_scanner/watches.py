@@ -34,6 +34,8 @@ class WatchSpec(BaseModel):
     trip_pattern: TripPreset
     adults: int = Field(default=1, ge=1, le=9)
     price_threshold: PriceThreshold | None = None
+    # "immediate": an Alert per Deal as found; "digest": one daily Digest (see `digests`).
+    delivery: Literal["immediate", "digest"] = "immediate"
 
 
 class Watch(WatchSpec):
@@ -61,7 +63,7 @@ class Demand(NamedTuple):
 
 _COLUMNS = (
     "id, name, origins, destinations, trip_pattern, adults, price_threshold_eur, "
-    "price_threshold_basis, status, created_at, updated_at"
+    "price_threshold_basis, status, delivery, created_at, updated_at"
 )
 
 
@@ -79,8 +81,8 @@ def create(conn: psycopg.Connection, spec: WatchSpec, clock: Clock) -> Watch:
     t = spec.price_threshold
     row = conn.execute(
         f"""INSERT INTO app.watches (name, origins, destinations, trip_pattern, adults,
-                price_threshold_eur, price_threshold_basis, created_at, updated_at)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING {_COLUMNS}""",
+                price_threshold_eur, price_threshold_basis, delivery, created_at, updated_at)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING {_COLUMNS}""",
         (
             spec.name,
             Jsonb(spec.origins.model_dump(mode="json")),
@@ -89,6 +91,7 @@ def create(conn: psycopg.Connection, spec: WatchSpec, clock: Clock) -> Watch:
             spec.adults,
             t.amount_eur if t else None,
             t.basis if t else None,
+            spec.delivery,
             now,
             now,
         ),

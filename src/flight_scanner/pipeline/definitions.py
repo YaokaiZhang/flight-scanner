@@ -6,7 +6,7 @@ import json
 import dagster as dg
 from dagster_dbt import DbtCliResource, dbt_assets, get_asset_key_for_model
 
-from flight_scanner import deals, watches
+from flight_scanner import deals, digests, watches
 from flight_scanner.clock import today
 from flight_scanner.db import connect
 from flight_scanner.ingestion import ingest
@@ -90,7 +90,14 @@ def build_definitions(runtime: Runtime) -> dg.Definitions:
             sent = deals.send_alerts(conn, runtime.notifiers, runtime.clock.now())
         return dg.MaterializeResult(metadata={"alerts_sent": sent})
 
-    assets = [watch_slots, source_prices, dbt_models, deals_asset, alerts_asset]
+    @dg.asset(key=["app", "digests"], deps=[dg.AssetKey(["app", "deals"])], group_name="deals")
+    def digests_asset(runtime: dg.ResourceParam[Runtime]):
+        """Send the daily Digest of each Watch in Digest mode once it is due."""
+        with connect(runtime.db, autocommit=True) as conn:
+            sent = digests.send_digests(conn, runtime.notifiers, runtime.clock.now())
+        return dg.MaterializeResult(metadata={"digests_sent": sent})
+
+    assets = [watch_slots, source_prices, dbt_models, deals_asset, alerts_asset, digests_asset]
     scan_job = dg.define_asset_job("scan", selection=dg.AssetSelection.assets(*assets))
     profiles = dbt_files.write_profiles(runtime.db, runtime.work_dir / "dbt-profiles")
     return dg.Definitions(
