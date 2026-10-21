@@ -1,7 +1,7 @@
 """Seam 1: the scan planner. Watches in -> source requests (what the fake source is asked) and
 scan tasks (read through the API) out, with Alerts still flowing for what was scanned."""
 
-from datetime import timedelta
+from datetime import date, timedelta
 
 import pytest
 from fastapi.testclient import TestClient
@@ -217,6 +217,29 @@ def test_a_price_close_to_its_baseline_deal_is_rescanned_first(pipeline):
     pipeline.fake.replay(month_of_fares("HEL", "BCN", 100), route=("HEL", "BCN"))
     pipeline.fake.replay(month_of_fares("HEL", "MAD", 75), route=("HEL", "MAD"))  # near -30%
     pipeline.run()
+
+    pipeline.set_budget("fake", per_run=1)
+    pipeline.fake.requests.clear()
+    pipeline.clock.advance(minutes=30)
+    pipeline.run()
+
+    assert asked(pipeline) == [("HEL", "MAD", "2026-11")]
+
+
+def test_a_trips_price_insight_outranks_its_provisional_baseline_in_the_deal_estimate(pipeline):
+    # BCN at 60 looks 40% under the month's provisional 100, but Verification learns that Google
+    # thinks 60-70 is typical for that very trip: MAD at 75 (25% under 100) is now the closer
+    # one to a Deal and gets the single request.
+    google = pipeline.use_google_flights()
+    watch = one_way(airports("BCN", "MAD"))
+    del watch["price_threshold"]
+    pipeline.create_watch(watch)
+    pipeline.fake.replay(month_of_fares("HEL", "BCN", 60), route=("HEL", "BCN"))
+    pipeline.fake.replay(month_of_fares("HEL", "MAD", 75), route=("HEL", "MAD"))
+    google.offer("HEL", "BCN", date(2026, 11, 14), total=60, typical=(60, 70))
+    pipeline.run()
+    pipeline.clock.advance(minutes=30)
+    pipeline.run()  # ranks with the last run's Baselines: the insight is one from here on
 
     pipeline.set_budget("fake", per_run=1)
     pipeline.fake.requests.clear()

@@ -94,6 +94,7 @@ def add_deal_context(
     deals = conn.execute(
         """SELECT d.* FROM app.deals d JOIN app.watches w ON w.id = d.watch_id
            WHERE w.status = 'active' AND d.deal_context_status IS NULL
+             AND d.verification <> 'failed'
              AND NOT EXISTS (SELECT 1 FROM app.alerts a WHERE a.deal_id = d.id)
            ORDER BY d.id"""
     ).fetchall()

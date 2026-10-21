@@ -69,4 +69,4 @@ models:
         data_tests:
           - accepted_values:
               arguments:
-                values: [route, country, provisional]
+                values: [route, country, price_insight, provisional]

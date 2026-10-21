@@ -75,7 +75,13 @@ export type Deal = {
   source: string;
   observed_at: string;
   ticketing: "one_way" | "single_ticket" | "separate_tickets";
-  verification: "verified" | "unverified";
+  // failed = checked live and no longer a Deal: recorded, never alerted
+  verification: "verified" | "unverified" | "failed";
+  // live_deal | live_not_a_deal | not_found | budget_exhausted | no_verifier | verifier_error
+  verification_reason: string | null;
+  verified_at: string | null; // when it was checked live
+  verified_price_total_eur: number | null; // the live price for the Watch's adults
+  verified_price_per_adult_eur: number | null;
   baseline_tier: string | null;
   detected_at: string;
   airlines: string | null;
@@ -90,7 +96,7 @@ export type Deal = {
   feedback: { rating: Rating; via: "telegram" | "web" } | null;
 };
 
-export type BaselineTier = "route" | "country" | "provisional";
+export type BaselineTier = "route" | "country" | "price_insight" | "provisional";
 
 export type DealBaseline = {
   tier: BaselineTier;
@@ -187,7 +193,7 @@ export type WatchBacktest = {
 };
 
 export type Backtest = { computed_at: string | null; watches: WatchBacktest[] };
-export type DealStatus = "verified" | "unverified";
+export type DealStatus = "verified" | "unverified" | "failed";
 
 export class ApiError extends Error {
   constructor(public status: number, public detail: unknown) {

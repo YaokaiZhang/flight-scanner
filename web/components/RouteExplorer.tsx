@@ -175,7 +175,9 @@ export function RouteExplorer() {
                 Cached prices, EUR per adult. Repeated identical observations extend a row instead of
                 adding one.{" "}
                 {history.baseline
-                  ? `Baseline: ${history.baseline.tier} tier, median of ${history.baseline.observations} daily minimums over ${history.baseline.observation_days} ${history.baseline.observation_days === 1 ? "day" : "days"}${history.baseline.tier === "provisional" ? " (low confidence)" : ""}.`
+                  ? history.baseline.tier === "price_insight"
+                    ? `Baseline: Price insight, Google's typical price range for this trip from its last live check (${history.baseline.observations} days of its price history are in the history above).`
+                    : `Baseline: ${history.baseline.tier} tier, median of ${history.baseline.observations} daily minimums over ${history.baseline.observation_days} ${history.baseline.observation_days === 1 ? "day" : "days"}${history.baseline.tier === "provisional" ? " (low confidence)" : ""}.`
                   : "No Baseline for this trip yet."}
               </p>
             </section>

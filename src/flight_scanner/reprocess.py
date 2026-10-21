@@ -1,11 +1,11 @@
 """Rebuild the parsed landing rows from the raw store alone.
 
 Every staging and history model is a pure function of `landing.leg_prices` /
-`landing.round_trip_prices`, and those are a pure function (each adapter's `parse`) of the raw
-payloads. `reprocess` re-derives the landing rows from the raw files listed in the manifest
-(`landing.raw_payloads`), e.g. after fixing a parser; running dbt afterwards rebuilds staging and
-history. Only sources with a parser are touched, so rows of a source that is not configured now
-are kept as they are.
+`landing.round_trip_prices` / `landing.price_insights`, and those are a pure function (each
+adapter's `parse`) of the raw payloads. `reprocess` re-derives the landing rows from the raw
+files listed in the manifest (`landing.raw_payloads`), e.g. after fixing a parser; running dbt
+afterwards rebuilds staging and history. Only sources with a parser are touched, so rows of a
+source that is not configured now are kept as they are.
 """
 
 from __future__ import annotations
@@ -39,6 +39,7 @@ def reprocess(
     with conn.transaction():
         conn.execute("DELETE FROM landing.leg_prices WHERE source = ANY(%s)", (sources,))
         conn.execute("DELETE FROM landing.round_trip_prices WHERE source = ANY(%s)", (sources,))
+        conn.execute("DELETE FROM landing.price_insights WHERE source = ANY(%s)", (sources,))
         manifest = conn.execute(
             "SELECT id, source, fetched_at, request, path, sha256 FROM landing.raw_payloads "
             "ORDER BY id"

@@ -12,7 +12,7 @@ from flight_scanner.notify.base import Notifier
 from flight_scanner.places import ReferenceData, default_reference
 from flight_scanner.raw_store import RawStore
 from flight_scanner.scan_planner import Budget
-from flight_scanner.sources.base import SourceAdapter
+from flight_scanner.sources.base import SourceAdapter, VerificationSource
 
 
 @dataclass
@@ -28,3 +28,6 @@ class Runtime:
     reference: ReferenceData = field(default_factory=default_reference)  # Places (ticket 03)
     researcher: Researcher | None = None  # Deal context (ticket 14); None = off
     deal_context_timeout: float = DEAL_CONTEXT_TIMEOUT  # seconds an Alert waits for it
+    # live Verification source (ticket 08), never planned for scans; None = every Deal is
+    # alerted Unverified
+    verifier: VerificationSource | None = None

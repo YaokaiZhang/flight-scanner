@@ -26,6 +26,10 @@ _LEG_COLS = (
     "source, observed_at, origin, destination, departure_date, price, currency, adults, "
     "airline, stops, duration_min"
 )
+_INSIGHT_COLS = (
+    "source, observed_at, origin, destination, departure_date, return_date, adults, currency, "
+    "typical_low, typical_high, lowest_price, price_level, history_points"
+)
 _RT_COLS = (
     "source, observed_at, origin, destination, departure_date, return_date, price, currency, "
     "adults, airline, stops, duration_min"
@@ -112,6 +116,29 @@ def load_parsed(conn: psycopg.Connection, payload_id: int, parsed: ParsedPrices)
                     p.duration_min,
                 )
                 for p in parsed.round_trip_prices
+            ],
+        )
+        cur.executemany(
+            f"INSERT INTO landing.price_insights (payload_id, {_INSIGHT_COLS}) "
+            "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+            [
+                (
+                    payload_id,
+                    i.source,
+                    i.observed_at,
+                    i.origin,
+                    i.destination,
+                    i.departure_date,
+                    i.return_date,
+                    i.adults,
+                    i.currency,
+                    i.typical_low,
+                    i.typical_high,
+                    i.lowest_price,
+                    i.price_level,
+                    i.history_points,
+                )
+                for i in parsed.price_insights
             ],
         )
 

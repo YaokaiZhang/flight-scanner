@@ -20,6 +20,9 @@ vars:
   # Backtest (marts.backtest_deals)
   backtest_recovery_share: 0.5  # a real dip: a later price climbs this share back to the Baseline
   backtest_min_later_days: 3  # ... else "stayed low" once this many later days were observed
+  # Verification (ticket 08): sources that only check Candidates live. Their prices (and Price-
+  # insight history) are Fare observations for Baselines but never a trip's current price.
+  verification_sources: ["serpapi"]
 
 models:
   flight_scanner:

@@ -55,9 +55,10 @@ class HistoryPoint(BaseModel):
 
 
 class BaselineBand(BaseModel):
-    """The current Baseline of the trip's key: median +/- MAD, and which tier/version it is."""
+    """The current Baseline of the trip: median +/- MAD (a Price insight: its typical range), and
+    which tier/version it is."""
 
-    tier: Literal["route", "country", "provisional"]
+    tier: Literal["route", "country", "price_insight", "provisional"]
     median_per_adult_eur: float
     low_per_adult_eur: float
     high_per_adult_eur: float
@@ -153,14 +154,23 @@ def stay_bucket(departure_date: date, return_date: date | None) -> str:
 
 
 BASELINES = "marts.baselines"
+PRICE_INSIGHTS = "marts.price_insights"
 
 
 def _baseline(
     c: psycopg.Connection, origin: str, destination: str, dep: date, ret: date | None
 ) -> BaselineBand | None:
-    """The first tier (route, country, provisional) the trip's Baseline key has right now."""
+    """The first tier (route, country, the trip's Price insight, provisional) it has right now."""
     if not _built(c, BASELINES) or not _built(c, "ref.airports"):
         return None
+    insight = None
+    if _built(c, PRICE_INSIGHTS):
+        insight = c.execute(
+            f"""SELECT * FROM {PRICE_INSIGHTS}
+                WHERE origin = %s AND destination = %s AND outbound_date = %s
+                  AND return_date IS NOT DISTINCT FROM %s""",
+            (origin, destination, dep, ret),
+        ).fetchone()
     row = c.execute(
         f"""SELECT b.*
             FROM {BASELINES} b
@@ -175,6 +185,17 @@ def _baseline(
             LIMIT 1""",
         {"o": origin, "d": destination, "dep": dep, "bucket": stay_bucket(dep, ret)},
     ).fetchone()
+    if insight is not None and (row is None or row["tier"] == "provisional"):
+        return BaselineBand(
+            tier="price_insight",
+            median_per_adult_eur=float(insight["median_per_adult_eur"]),
+            low_per_adult_eur=float(insight["typical_low_per_adult_eur"]),
+            high_per_adult_eur=float(insight["typical_high_per_adult_eur"]),
+            method=insight["method"],
+            computed_at=insight["computed_at"],
+            observations=insight["observations"],
+            observation_days=insight["observation_days"],
+        )
     if row is None:
         return None
     version = c.execute(

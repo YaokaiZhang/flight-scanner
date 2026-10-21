@@ -6,7 +6,7 @@ import json
 import dagster as dg
 from dagster_dbt import DbtCliResource, dbt_assets, get_asset_key_for_model
 
-from flight_scanner import deals, digests, scan_planner, source_health, watches
+from flight_scanner import deals, digests, scan_planner, source_health, verification, watches
 from flight_scanner.clock import today
 from flight_scanner.db import connect
 from flight_scanner.deal_context import add_deal_context
@@ -20,6 +20,7 @@ ROUND_TRIP_PRICES = dg.AssetKey(["landing", "round_trip_prices"])
 WATCH_SLOTS = dg.AssetKey(["app", "watch_slots"])
 SCAN_PLAN = dg.AssetKey(["app", "scan_plan"])
 DEAL_CONTEXT = dg.AssetKey(["app", "deal_context"])
+VERIFICATION = dg.AssetKey(["app", "verification"])
 REF_AIRPORTS = dg.AssetKey(["ref", "airports"])
 
 
@@ -146,12 +147,27 @@ def build_definitions(runtime: Runtime) -> dg.Definitions:
 
     @dg.asset(key=["app", "deals"], deps=[candidates_key], group_name="deals")
     def deals_asset(runtime: dg.ResourceParam[Runtime]):
-        """Candidates become Deals (Unverified until Verification exists), one per dedup key."""
+        """Candidates become Deals, one per dedup key, with their Alert rounds."""
         with connect(runtime.db, autocommit=True) as conn:
             new = deals.record_deals(conn, runtime.clock.now())
         return dg.MaterializeResult(metadata={"new_deals": new})
 
-    @dg.asset(key=DEAL_CONTEXT, deps=[dg.AssetKey(["app", "deals"])], group_name="deals")
+    @dg.asset(key=VERIFICATION, deps=[dg.AssetKey(["app", "deals"])], group_name="deals")
+    def verification_asset(runtime: dg.ResourceParam[Runtime]):
+        """Check the best due Deals live within the verifier's budget: Verified, failed (never
+        alerted) or Unverified. The answers are stored as Fare observations / Price insights."""
+        with connect(runtime.db, autocommit=True) as conn:
+            counts = verification.verify_deals(
+                conn, runtime.verifier, runtime.raw_store, runtime.clock.now()
+            )
+        return dg.MaterializeResult(
+            metadata={
+                "verifier": runtime.verifier.name if runtime.verifier else "none",
+                **counts,
+            }
+        )
+
+    @dg.asset(key=DEAL_CONTEXT, deps=[VERIFICATION], group_name="deals")
     def deal_context_asset(runtime: dg.ResourceParam[Runtime]):
         """Optional "why is this cheap?" line for new Deals; waits at most the cap."""
         with connect(runtime.db, autocommit=True) as conn:
@@ -186,6 +202,7 @@ def build_definitions(runtime: Runtime) -> dg.Definitions:
         source_prices,
         dbt_models,
         deals_asset,
+        verification_asset,
         deal_context_asset,
         alerts_asset,
         digests_asset,
@@ -266,6 +283,9 @@ def collect(
 def rebuild(runtime: Runtime, instance: dg.DagsterInstance | None = None) -> ReprocessReport:
     """Re-parse every raw payload of the configured sources, then rebuild all dbt models."""
     with connect(runtime.db, autocommit=True) as conn:
-        report = reprocess(conn, runtime.raw_store, {s.name: s.parse for s in runtime.sources})
+        parsers = {s.name: s.parse for s in runtime.sources}
+        if runtime.verifier is not None:
+            parsers[runtime.verifier.name] = runtime.verifier.parse
+        report = reprocess(conn, runtime.raw_store, parsers)
     _execute(runtime, "rebuild", instance)
     return report

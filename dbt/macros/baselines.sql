@@ -27,3 +27,14 @@
 {% macro departure_month(d) -%}
     cast({{ dbt.date_trunc('month', d) }} as date)
 {%- endmacro %}
+
+{# True for rows whose source is not a Verification-only source (var verification_sources):
+   live checks are Fare observations for Baselines, never current prices for detection. #}
+{% macro not_verification_source(column) -%}
+    {%- set sources = var('verification_sources', []) -%}
+    {%- if sources | length == 0 -%}
+        1 = 1
+    {%- else -%}
+        {{ column }} not in ({% for s in sources %}'{{ s }}'{% if not loop.last %}, {% endif %}{% endfor %})
+    {%- endif -%}
+{%- endmacro %}

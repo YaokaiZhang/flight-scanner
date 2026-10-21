@@ -1,15 +1,17 @@
 """Deals and Alerts: turn marts.candidates into Deals and hand new Deals to the notifiers.
 
-Rules (ticket 08 adds Verification):
+Rules:
 - A Deal is keyed by the Alert dedup key (Watch, origin, destination, outbound, return). Every
-  Candidate becomes (or refreshes) an Unverified Deal; its price and details are the latest
-  Candidate's.
+  Candidate becomes (or refreshes) a Deal; its price and details are the latest Candidate's.
+  Its Verification outcome (`flight_scanner.verification`, per Alert round) is kept on refresh.
 - Alert rounds: a new Deal is due round 1. A Deal still present is not alerted again, except a
   new round is due when its price drops >= REALERT_DROP below the last alerted price, or when it
   reappears after being absent (not a Candidate) for >= REAPPEARANCE_GAP.
 - A due round is sent once per channel to each notifier whose channel the Watch chose
   (email/Telegram; other channels such as log get every Deal); an Alert row (deal, channel,
   round) records it. Watches in Digest mode get their rounds batched by `digests.send_digests`.
+- A round whose Verification failed is never sent. A Verified Deal's Alert carries the live price
+  (for the Watch's adults) instead of the cached estimate.
 """
 
 from __future__ import annotations
@@ -108,6 +110,10 @@ def _num(v) -> float | None:
 
 
 def _message(d: dict, alert_id: int | None = None) -> AlertMessage:
+    total, per_adult = float(d["price_total_eur"]), float(d["price_per_adult_eur"])
+    if d["verification"] == "verified" and d["verified_price_total_eur"] is not None:
+        total = float(d["verified_price_total_eur"])
+        per_adult = round(total / d["adults"], 2)
     return AlertMessage(
         deal_id=d["id"],
         watch_id=d["watch_id"],
@@ -117,10 +123,11 @@ def _message(d: dict, alert_id: int | None = None) -> AlertMessage:
         outbound_date=d["outbound_date"],
         return_date=d["return_date"],
         adults=d["adults"],
-        price_total_eur=float(d["price_total_eur"]),
-        price_per_adult_eur=float(d["price_per_adult_eur"]),
+        price_total_eur=total,
+        price_per_adult_eur=per_adult,
         ticketing=d["ticketing"],
         verification=d["verification"],
+        verification_reason=d["verification_reason"],
         baseline_tier=d["baseline_tier"],
         source=d["source"],
         observed_at=d["observed_at"],
@@ -149,6 +156,7 @@ def send_alerts(conn: psycopg.Connection, notifiers: Sequence[Notifier], now: da
             f"""SELECT d.*, w.name AS watch_name
                FROM app.deals d JOIN app.watches w ON w.id = d.watch_id
                WHERE w.status = 'active' AND w.delivery = 'immediate'
+                 AND d.verification <> 'failed'
                  AND {CHANNEL_FILTER}
                  AND NOT EXISTS (SELECT 1 FROM app.alerts a
                                  WHERE a.deal_id = d.id AND a.channel = %(ch)s

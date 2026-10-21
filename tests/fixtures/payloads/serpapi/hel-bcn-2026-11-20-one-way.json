@@ -1,0 +1,97 @@
+{
+ "search_metadata": {
+  "id": "6716a1f0c2b1e4a1d2f3a4b5",
+  "status": "Success",
+  "json_endpoint": "https://serpapi.com/searches/6716a1f0c2b1e4a1d2f3a4b5.json",
+  "created_at": "2026-10-21 09:00:01 UTC",
+  "processed_at": "2026-10-21 09:00:01 UTC",
+  "google_flights_url": "https://www.google.com/travel/flights?hl=en&gl=fi&curr=EUR&tfs=CBwQAhoeEgoyMDI2LTExLTIwagcIARIDSEVM",
+  "raw_html_file": "https://serpapi.com/searches/6716a1f0c2b1e4a1d2f3a4b5.html",
+  "prettify_html_file": "https://serpapi.com/searches/6716a1f0c2b1e4a1d2f3a4b5.prettify",
+  "total_time_taken": 2.41
+ },
+ "search_parameters": {
+  "engine": "google_flights",
+  "hl": "en",
+  "gl": "fi",
+  "type": "2",
+  "departure_id": "HEL",
+  "arrival_id": "BCN",
+  "outbound_date": "2026-11-20",
+  "currency": "EUR",
+  "adults": 1
+ },
+ "best_flights": [
+  {
+   "flights": [
+    {
+     "departure_airport": {
+      "name": "Helsinki Airport",
+      "id": "HEL",
+      "time": "2026-11-20 07:05"
+     },
+     "arrival_airport": {
+      "name": "Josep Tarradellas Barcelona-El Prat Airport",
+      "id": "BCN",
+      "time": "2026-11-20 10:10"
+     },
+     "duration": 245,
+     "airplane": "Airbus A321",
+     "airline": "Finnair",
+     "airline_logo": "https://www.gstatic.com/flights/airline_logos/70px/AY.png",
+     "travel_class": "Economy",
+     "flight_number": "AY 1661",
+     "legroom": "30 in",
+     "extensions": [
+      "Average legroom (30 in)",
+      "Carbon emissions estimate: 190 kg"
+     ]
+    }
+   ],
+   "total_duration": 245,
+   "carbon_emissions": {
+    "this_flight": 190000,
+    "typical_for_this_route": 205000,
+    "difference_percent": -7
+   },
+   "price": 129,
+   "type": "One way",
+   "airline_logo": "https://www.gstatic.com/flights/airline_logos/70px/AY.png",
+   "booking_token": "WyJDalJJTkZWT2RqZz0iXQ=="
+  }
+ ],
+ "price_insights": {
+  "lowest_price": 129,
+  "price_level": "typical",
+  "typical_price_range": [
+   110,
+   170
+  ]
+ },
+ "airports": [
+  {
+   "departure": [
+    {
+     "airport": {
+      "id": "HEL",
+      "name": "Helsinki Airport"
+     },
+     "city": "Helsinki",
+     "country": "Finland",
+     "country_code": "FI"
+    }
+   ],
+   "arrival": [
+    {
+     "airport": {
+      "id": "BCN",
+      "name": "Josep Tarradellas Barcelona-El Prat Airport"
+     },
+     "city": "Barcelona",
+     "country": "Spain",
+     "country_code": "ES"
+    }
+   ]
+  }
+ ]
+}

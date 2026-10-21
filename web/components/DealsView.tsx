@@ -10,6 +10,7 @@ const ICONS = {
   up: "M5 14V7l3-5c1.2 0 1.8.8 1.6 2L9 7h3.6c.9 0 1.5.8 1.3 1.6l-1.2 4.2c-.2.7-.8 1.2-1.5 1.2H5zM2 7h3v7H2z",
   down: "M11 2v7l-3 5c-1.2 0-1.8-.8-1.6-2L7 9H3.4c-.9 0-1.5-.8-1.3-1.6l1.2-4.2C3.5 2.5 4.1 2 4.8 2H11zM14 9h-3V2h3z",
   tickets: "M2 5h7v6H2zM7 3h7v6h-3",
+  x: "M4 4l8 8M12 4l-8 8",
 } as const;
 
 function Icon({ name }: { name: keyof typeof ICONS | "dash" }) {
@@ -25,6 +26,8 @@ function StatusTags({ deal }: { deal: Deal }) {
     <>
       {deal.verification === "verified" ? (
         <span className="tag verified"><Icon name="check" />Verified</span>
+      ) : deal.verification === "failed" ? (
+        <span className="tag fail"><Icon name="x" />Failed check</span>
       ) : (
         <span className="tag unverified"><Icon name="dash" />Unverified</span>
       )}
@@ -41,7 +44,32 @@ const flightFacts = (d: Deal) =>
     d.travel_minutes !== null ? formatMinutes(d.travel_minutes) : null,
   ].filter(Boolean).join(" · ");
 
-const STATUSES: (DealStatus | "all")[] = ["all", "verified", "unverified"];
+const STATUSES: (DealStatus | "all")[] = ["all", "verified", "unverified", "failed"];
+
+// A Verified Deal is priced by its live check (exact for the Watch's adults); others by the cache.
+const perAdult = (d: Deal) =>
+  d.verification === "verified" && d.verified_price_per_adult_eur !== null ? d.verified_price_per_adult_eur : d.price_per_adult_eur;
+const total = (d: Deal) =>
+  d.verification === "verified" && d.verified_price_total_eur !== null ? d.verified_price_total_eur : d.price_total_eur;
+
+const TIER_NAMES: Record<string, string> = { price_insight: "Price insight" };
+const tierName = (tier: string) => TIER_NAMES[tier] ?? `${tier} tier`;
+
+function verificationText(d: Deal): string {
+  const adults = `${d.adults} adult${d.adults > 1 ? "s" : ""}`;
+  const at = d.verified_at ? ` at ${formatInstant(d.verified_at)}` : "";
+  const live = d.verified_price_total_eur !== null ? `${formatEur(d.verified_price_total_eur)} for ${adults}` : null;
+  if (d.verification === "verified") return `Checked live on Google Flights${at}: ${live ?? adults}.`;
+  if (d.verification === "failed") {
+    return d.verification_reason === "not_found"
+      ? `Checked live${at}: not found for ${adults}. Not alerted.`
+      : `Checked live${at}: ${live ?? "price"} is no longer a Deal. Not alerted.`;
+  }
+  const cached = `Seen by ${d.source} at ${formatInstant(d.observed_at)}. Cached price, not checked live; confirm before booking.`;
+  if (d.verification_reason === "budget_exhausted") return `Verification budget spent. ${cached}`;
+  if (d.verification_reason === "verifier_error") return `Live check unavailable. ${cached}`;
+  return cached;
+}
 
 export function DealsView() {
   const [deals, setDeals] = useState<Deal[] | null>(null);
@@ -153,9 +181,9 @@ export function DealsView() {
                       <div className="tags"><StatusTags deal={d} /></div>
                     </div>
                     <div className="price">
-                      <b>{formatEur(d.price_per_adult_eur)}<small>/adult</small></b>
+                      <b>{formatEur(perAdult(d))}<small>/adult</small></b>
                       {d.baseline_per_adult_eur !== null && <span className="sub">base {formatEur(d.baseline_per_adult_eur)}</span>}
-                      {d.adults > 1 && <span className="sub">{formatEur(d.price_total_eur)} total</span>}
+                      {d.adults > 1 && <span className="sub">{formatEur(total(d))} total</span>}
                     </div>
                   </button>
                 </li>
@@ -176,9 +204,9 @@ export function DealsView() {
             </section>
             <section>
               <h2 className="widget-label">Price</h2>
-              <div className="data-point">{formatEur(selected.price_per_adult_eur)}<small>per adult</small></div>
+              <div className="data-point">{formatEur(perAdult(selected))}<small>per adult</small></div>
               <p className="data-desc">
-                <em>{formatEur(selected.price_total_eur)}</em> total for {selected.adults} adult
+                <em>{formatEur(total(selected))}</em> total for {selected.adults} adult
                 {selected.adults > 1 ? "s" : ""} · {selected.return_date ? "round trip" : "one way"}
                 {selected.return_date ? ` · ${selected.separate_tickets ? "2 separate tickets" : "single ticket"}` : ""}
               </p>
@@ -192,7 +220,7 @@ export function DealsView() {
                   </div>
                   <p className="data-desc">
                     Baseline <em>{formatEur(selected.baseline_per_adult_eur)}</em>
-                    {selected.baseline_tier ? ` · ${selected.baseline_tier} tier` : ""}
+                    {selected.baseline_tier ? ` · ${tierName(selected.baseline_tier)}` : ""}
                     {selected.baseline?.observations != null && selected.baseline.observation_days != null
                       ? ` · ${selected.baseline.observations} obs over ${selected.baseline.observation_days} days`
                       : ""}
@@ -216,13 +244,9 @@ export function DealsView() {
               </section>
             )}
             <section>
-              <h2 className="widget-label">{selected.verification === "verified" ? "Verified" : "Unverified"}</h2>
+              <h2 className="widget-label">Verification</h2>
               <div className="tags"><StatusTags deal={selected} /></div>
-              <p className="data-desc">
-                {selected.verification === "verified"
-                  ? `Checked live for ${selected.adults} adult${selected.adults > 1 ? "s" : ""}.`
-                  : `Seen by ${selected.source} at ${formatInstant(selected.observed_at)}. Cached price, not checked live; confirm before booking.`}
-              </p>
+              <p className="data-desc">{verificationText(selected)}</p>
               <a className="btn-marker primary book" href={selected.booking_url} target="_blank" rel="noopener noreferrer">
                 Book this trip <Icon name="out" />
               </a>

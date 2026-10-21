@@ -180,12 +180,23 @@ def _gaps_by_route_month(rows: Iterable[Mapping]) -> dict[RouteMonth, float]:
 
 def baseline_gap(conn: psycopg.Connection, now: datetime) -> dict[RouteMonth, float]:
     """Gap of each Watch slot's current price (marts.trip_prices, last run) to its Deal price:
-    the Baseline it would be judged against (route, else country, else provisional tier, from
-    marts.baselines) less the Watch's sensitivity. Slots without any Baseline are unknown."""
+    the Baseline it would be judged against (route, else country, else the trip's Price insight,
+    else provisional tier; marts.baselines / marts.price_insights) less the Watch's sensitivity.
+    Slots without any Baseline are unknown."""
     if not all(_exists(conn, t) for t in ("marts.trip_prices", "marts.baselines", "ref.airports")):
         return {}
+    insights = (
+        """UNION ALL
+               SELECT 3, i.median_per_adult_eur FROM marts.price_insights i
+               WHERE i.origin = s.origin AND i.destination = s.destination
+                 AND i.outbound_date = s.outbound_date
+                 AND i.return_date IS NOT DISTINCT FROM s.return_date
+                 AND i.median_per_adult_eur > 0"""
+        if _exists(conn, "marts.price_insights")
+        else ""
+    )
     rows = conn.execute(
-        """WITH slots AS (
+        f"""WITH slots AS (
                SELECT p.origin, p.destination, p.outbound_date, p.return_date,
                       p.price_per_adult_eur, w.sensitivity_pct,
                       coalesce(oa.city, p.origin) AS origin_city, da.country,
@@ -206,12 +217,15 @@ def baseline_gap(conn: psycopg.Connection, now: datetime) -> dict[RouteMonth, fl
                       / 100.0) - 1 AS gap
            FROM slots s
            JOIN LATERAL (
-               SELECT median_per_adult_eur FROM marts.baselines b
+               SELECT CASE b.tier WHEN 'route' THEN 1 WHEN 'country' THEN 2 ELSE 4 END AS rank,
+                      b.median_per_adult_eur
+               FROM marts.baselines b
                WHERE b.origin_city = s.origin_city AND b.departure_month = s.month
                  AND b.stay_bucket = s.bucket AND b.median_per_adult_eur > 0
                  AND ((b.tier IN ('route', 'provisional') AND b.destination = s.destination)
                       OR (b.tier = 'country' AND b.destination = s.country))
-               ORDER BY CASE b.tier WHEN 'route' THEN 1 WHEN 'country' THEN 2 ELSE 3 END
+               {insights}
+               ORDER BY rank
                LIMIT 1) b ON true"""
     )
     return _gaps_by_route_month(rows)

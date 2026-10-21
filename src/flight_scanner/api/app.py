@@ -67,7 +67,14 @@ class Deal(BaseModel):
     source: str
     observed_at: datetime
     ticketing: str
-    verification: str
+    # verified | unverified | failed (checked live and not a Deal: recorded, never alerted)
+    verification: Literal["verified", "unverified", "failed"]
+    # why: live_deal | live_not_a_deal | not_found | budget_exhausted | no_verifier |
+    # verifier_error (null: not judged yet)
+    verification_reason: str | None = None
+    verified_at: datetime | None = None  # when it was checked live
+    verified_price_total_eur: float | None = None  # the live price for the Watch's adults
+    verified_price_per_adult_eur: float | None = None
     baseline_tier: str | None
     detected_at: datetime
     airlines: str | None
@@ -107,8 +114,12 @@ def _deal(row: dict) -> Deal:
             observations=row["baseline_observations"],
             observation_days=row["baseline_observation_days"],
         )
+    live = row["verified_price_total_eur"]
     return Deal(
         **{**row, "booking_url": booking_url},
+        verified_price_per_adult_eur=None
+        if live is None
+        else round(float(live) / row["adults"], 2),
         pct_below_baseline=pct,
         baseline=version,
         feedback=Feedback(rating=rating, via=row["feedback_via"]) if rating else None,
@@ -281,7 +292,7 @@ def create_app(
     def list_deals(
         c: Conn,
         watch_id: int | None = None,
-        status: Literal["verified", "unverified"] | None = None,
+        status: Literal["verified", "unverified", "failed"] | None = None,
     ) -> list[Deal]:
         rows = c.execute(
             _DEALS_SQL

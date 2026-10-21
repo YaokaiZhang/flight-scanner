@@ -45,6 +45,7 @@ def send_digests(conn: psycopg.Connection, notifiers: Sequence[Notifier], now: d
             f"""SELECT d.*, w.name AS watch_name
                FROM app.deals d JOIN app.watches w ON w.id = d.watch_id
                WHERE w.status = 'active' AND w.delivery = 'digest'
+                 AND d.verification <> 'failed'
                  AND {CHANNEL_FILTER}
                  AND d.alert_due_at < %(cutoff)s
                  AND NOT EXISTS (SELECT 1 FROM app.alerts a

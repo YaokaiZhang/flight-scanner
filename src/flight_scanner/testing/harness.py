@@ -12,6 +12,8 @@ Swap reference data with `h.use_reference(ReferenceData.load(dir))`.
 Add more fake sources with `h.add_source(ReplayAdapter("other", h.clock))`, and channel stand-ins
 with `h.add_notifier(RecordingNotifier("telegram"))` (gets only Watches that chose Telegram).
 Turn on Deal context with `h.use_researcher(FakeResearcher({...}), timeout_seconds=...)`.
+Turn on Verification with `google = h.use_google_flights(daily_quota=...)`: the real SerpApi
+adapter answered by `FakeGoogleFlights` (`google.offer(...)`, `google.asked`).
 """
 
 from __future__ import annotations
@@ -33,6 +35,8 @@ from flight_scanner.reprocess import ReprocessReport
 from flight_scanner.scan_planner import Budget
 from flight_scanner.sources.base import SourceAdapter
 from flight_scanner.sources.replay import ReplayAdapter
+from flight_scanner.sources.serpapi import DAILY_QUOTA, MONTHLY_QUOTA, SerpApiAdapter
+from flight_scanner.testing.fake_serpapi import FakeGoogleFlights
 
 
 class PipelineHarness:
@@ -72,6 +76,21 @@ class PipelineHarness:
         """Turn on Deal context with this researcher (e.g. `FakeResearcher`) and wait cap."""
         self.runtime.researcher = researcher
         self.runtime.deal_context_timeout = timeout_seconds
+
+    def use_google_flights(
+        self, daily_quota: int = DAILY_QUOTA, monthly_quota: int = MONTHLY_QUOTA
+    ) -> FakeGoogleFlights:
+        """Verify Candidates through the SerpApi adapter against a fake Google Flights."""
+        google = FakeGoogleFlights()
+        self.runtime.verifier = SerpApiAdapter(
+            "test-key",
+            self.clock,
+            transport=google,
+            sleep=lambda s: None,
+            daily_quota=daily_quota,
+            monthly_quota=monthly_quota,
+        )
+        return google
 
     def use_reference(self, reference: ReferenceData) -> None:
         """Swap the Places reference data used by later runs (and Watch validation)."""
