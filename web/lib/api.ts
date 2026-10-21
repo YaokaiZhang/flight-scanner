@@ -85,7 +85,31 @@ export type Deal = {
   booking_url: string;
   baseline_per_adult_eur: number | null;
   pct_below_baseline: number | null;
+  baseline: DealBaseline | null; // the Baseline version the Deal was judged against
   feedback: { rating: Rating; via: "telegram" | "web" } | null;
+};
+
+export type BaselineTier = "route" | "country" | "provisional";
+
+export type DealBaseline = {
+  tier: BaselineTier;
+  per_adult_eur: number;
+  method: string | null;
+  computed_at: string | null;
+  observations: number | null;
+  observation_days: number | null;
+};
+
+// The current Baseline of a trip's key: median ± MAD.
+export type BaselineBand = {
+  tier: BaselineTier;
+  median_per_adult_eur: number;
+  low_per_adult_eur: number;
+  high_per_adult_eur: number;
+  method: string;
+  computed_at: string;
+  observations: number;
+  observation_days: number;
 };
 
 export type TripDates = { departure_date: string; return_date: string };
@@ -115,6 +139,7 @@ export type RouteHistory = {
   departure_date: string;
   return_date: string | null;
   points: HistoryPoint[];
+  baseline: BaselineBand | null;
 };
 
 export type Rating = "up" | "down";

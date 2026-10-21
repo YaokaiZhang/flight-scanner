@@ -64,3 +64,9 @@ models:
       - name: separate_tickets
         description: True when the trip is two independently booked one-way tickets.
         data_tests: [not_null]
+      - name: baseline_tier
+        description: Tier of the Baseline the trip was judged against (null = threshold only).
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: [route, country, provisional]

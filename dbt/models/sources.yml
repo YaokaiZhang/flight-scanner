@@ -24,3 +24,8 @@ sources:
     tables:
       - name: watches
       - name: watch_slots
+  - name: ref
+    description: Reference data written by Python from the bundled Places snapshot.
+    tables:
+      - name: airports
+        description: City (null when unknown) and country of every airport; reference_version.

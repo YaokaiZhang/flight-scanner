@@ -193,6 +193,9 @@ export function DealsView() {
                   <p className="data-desc">
                     Baseline <em>{formatEur(selected.baseline_per_adult_eur)}</em>
                     {selected.baseline_tier ? ` · ${selected.baseline_tier} tier` : ""}
+                    {selected.baseline?.observations != null && selected.baseline.observation_days != null
+                      ? ` · ${selected.baseline.observations} obs over ${selected.baseline.observation_days} days`
+                      : ""}
                   </p>
                 </>
               ) : (

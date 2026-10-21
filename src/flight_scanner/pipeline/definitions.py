@@ -17,6 +17,31 @@ from flight_scanner.reprocess import ReprocessReport, reprocess
 LEG_PRICES = dg.AssetKey(["landing", "leg_prices"])
 ROUND_TRIP_PRICES = dg.AssetKey(["landing", "round_trip_prices"])
 WATCH_SLOTS = dg.AssetKey(["app", "watch_slots"])
+REF_AIRPORTS = dg.AssetKey(["ref", "airports"])
+
+
+@dg.asset(key=REF_AIRPORTS, group_name="reference")
+def ref_airports(runtime: dg.ResourceParam[Runtime]):
+    """City and country of every airport (Baseline keys), from the bundled Places snapshot.
+
+    Rewritten only when the reference data version changes."""
+    ref = runtime.reference
+    with connect(runtime.db, autocommit=True) as conn, conn.transaction():
+        stored = conn.execute("SELECT DISTINCT reference_version AS v FROM ref.airports").fetchall()
+        if [r["v"] for r in stored] == [ref.version]:
+            return dg.MaterializeResult(metadata={"version": ref.version, "rewritten": False})
+        conn.execute("DELETE FROM ref.airports")
+        with (
+            conn.cursor() as cur,
+            cur.copy(
+                "COPY ref.airports (code, city, country, reference_version) FROM STDIN"
+            ) as copy,
+        ):
+            for a in ref.airports.values():
+                copy.write_row((a.code, a.city, a.country, ref.version))
+    return dg.MaterializeResult(
+        metadata={"version": ref.version, "rewritten": True, "airports": len(ref.airports)}
+    )
 
 
 @dg.asset(key=WATCH_SLOTS, group_name="watches")
@@ -99,14 +124,29 @@ def build_definitions(runtime: Runtime) -> dg.Definitions:
             sent = digests.send_digests(conn, runtime.notifiers, runtime.clock.now())
         return dg.MaterializeResult(metadata={"digests_sent": sent})
 
-    assets = [watch_slots, source_prices, dbt_models, deals_asset, alerts_asset, digests_asset]
+    assets = [
+        ref_airports,
+        watch_slots,
+        source_prices,
+        dbt_models,
+        deals_asset,
+        alerts_asset,
+        digests_asset,
+    ]
     scan_job = dg.define_asset_job("scan", selection=dg.AssetSelection.assets(*assets))
-    # dbt only (seeds, staging, history, marts): used by `rebuild` after re-parsing the raw store
-    rebuild_job = dg.define_asset_job("rebuild", selection=dg.AssetSelection.assets(dbt_models))
+    # prices only (no dbt, detection or Alerts): builds history between full scans
+    collect_job = dg.define_asset_job(
+        "collect", selection=dg.AssetSelection.assets(watch_slots, source_prices)
+    )
+    # reference data and dbt (seeds, staging, history, Baselines, marts): used by `rebuild`
+    # after re-parsing the raw store
+    rebuild_job = dg.define_asset_job(
+        "rebuild", selection=dg.AssetSelection.assets(ref_airports, dbt_models)
+    )
     profiles = dbt_files.write_profiles(runtime.db, runtime.work_dir / "dbt-profiles")
     return dg.Definitions(
         assets=assets,
-        jobs=[scan_job, rebuild_job],
+        jobs=[scan_job, collect_job, rebuild_job],
         sensors=_feedback_sensors(runtime),
         schedules=[dg.ScheduleDefinition(job=scan_job, cron_schedule="*/30 * * * *")],
         resources={
@@ -156,6 +196,13 @@ def run_once(
 ) -> dg.ExecuteInProcessResult:
     """Materialise the whole scan in-process (seam-1 harness, e2e stack, manual runs)."""
     return _execute(runtime, "scan", instance)
+
+
+def collect(
+    runtime: Runtime, instance: dg.DagsterInstance | None = None
+) -> dg.ExecuteInProcessResult:
+    """Only collect prices (Watch slots and sources): no dbt, detection or Alerts."""
+    return _execute(runtime, "collect", instance)
 
 
 def rebuild(runtime: Runtime, instance: dg.DagsterInstance | None = None) -> ReprocessReport:

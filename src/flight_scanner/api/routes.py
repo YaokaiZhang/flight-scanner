@@ -1,8 +1,9 @@
 # No `from __future__ import annotations`: FastAPI resolves these type hints at runtime.
-"""Route history for the route explorer: reads the dbt `history` layer only.
+"""Route history for the route explorer: reads the dbt `history` and Baseline layers only.
 
 GET /routes                                   routes with any price history, and their dates
-GET /routes/{origin}/{destination}/history    change-only price history for one departure date
+GET /routes/{origin}/{destination}/history    change-only price history for one departure date,
+                                              plus the trip's current Baseline band (or null)
     ?departure_date=YYYY-MM-DD                Leg prices for that departure
     &return_date=YYYY-MM-DD                   ... or Round-trip prices for those exact dates
 """
@@ -53,12 +54,26 @@ class HistoryPoint(BaseModel):
     stops: int | None
 
 
+class BaselineBand(BaseModel):
+    """The current Baseline of the trip's key: median +/- MAD, and which tier/version it is."""
+
+    tier: Literal["route", "country", "provisional"]
+    median_per_adult_eur: float
+    low_per_adult_eur: float
+    high_per_adult_eur: float
+    method: str
+    computed_at: datetime
+    observations: int
+    observation_days: int
+
+
 class RouteHistory(BaseModel):
     origin: str
     destination: str
     departure_date: date
     return_date: date | None
     points: list[HistoryPoint]
+    baseline: BaselineBand | None = None
 
 
 def _built(c: psycopg.Connection, table: str) -> bool:
@@ -122,4 +137,61 @@ def route_history(
         departure_date=departure_date,
         return_date=return_date,
         points=points,
+        baseline=_baseline(c, origin, destination, departure_date, return_date),
+    )
+
+
+def stay_bucket(departure_date: date, return_date: date | None) -> str:
+    """Stay-night bucket of a trip (as dbt's `stay_bucket` macro)."""
+    if return_date is None:
+        return "one_way"
+    nights = (return_date - departure_date).days
+    for top, bucket in ((2, "1-2"), (4, "3-4"), (7, "5-7"), (14, "8-14")):
+        if nights <= top:
+            return bucket
+    return "15+"
+
+
+BASELINES = "marts.baselines"
+
+
+def _baseline(
+    c: psycopg.Connection, origin: str, destination: str, dep: date, ret: date | None
+) -> BaselineBand | None:
+    """The first tier (route, country, provisional) the trip's Baseline key has right now."""
+    if not _built(c, BASELINES) or not _built(c, "ref.airports"):
+        return None
+    row = c.execute(
+        f"""SELECT b.*
+            FROM {BASELINES} b
+            LEFT JOIN ref.airports o ON o.code = %(o)s
+            LEFT JOIN ref.airports d ON d.code = %(d)s
+            WHERE b.origin_city = coalesce(o.city, %(o)s)
+              AND b.departure_month = date_trunc('month', %(dep)s::date)::date
+              AND b.stay_bucket = %(bucket)s
+              AND ((b.tier IN ('route', 'provisional') AND b.destination = %(d)s)
+                   OR (b.tier = 'country' AND b.destination = d.country))
+            ORDER BY CASE b.tier WHEN 'route' THEN 1 WHEN 'country' THEN 2 ELSE 3 END
+            LIMIT 1""",
+        {"o": origin, "d": destination, "dep": dep, "bucket": stay_bucket(dep, ret)},
+    ).fetchone()
+    if row is None:
+        return None
+    version = c.execute(
+        """SELECT max(computed_at) AS v FROM marts.baseline_versions
+           WHERE tier = %(tier)s AND origin_city = %(origin_city)s
+             AND destination = %(destination)s AND departure_month = %(departure_month)s
+             AND stay_bucket = %(stay_bucket)s""",
+        row,
+    ).fetchone()["v"]
+    median, mad = float(row["median_per_adult_eur"]), float(row["mad_eur"])
+    return BaselineBand(
+        tier=row["tier"],
+        median_per_adult_eur=median,
+        low_per_adult_eur=median - mad,
+        high_per_adult_eur=median + mad,
+        method=row["method"],
+        computed_at=version or row["computed_at"],
+        observations=row["observations"],
+        observation_days=row["observation_days"],
     )

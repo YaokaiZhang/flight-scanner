@@ -1,0 +1,81 @@
+version: 2
+
+models:
+  - name: baseline_observations
+    description: >
+      Daily-minimum trip prices (per adult, EUR) per trip and Helsinki observation day in the
+      trailing Baseline window, with each trip's Baseline key. Built only for (origin city,
+      destination country) pairs some current Watch slot needs.
+    data_tests:
+      - unique_combination:
+          arguments:
+            columns: [origin, destination, outbound_date, return_date, obs_day]
+    columns:
+      - name: origin
+        data_tests: [not_null]
+      - name: destination
+        data_tests: [not_null]
+      - name: outbound_date
+        data_tests: [not_null]
+      - name: obs_day
+        data_tests: [not_null]
+      - name: price_per_adult_eur
+        data_tests: [not_null]
+      - name: origin_city
+        data_tests: [not_null]
+      - name: destination_country
+        data_tests: [not_null]
+      - name: departure_month
+        data_tests: [not_null]
+      - name: stay_bucket
+        data_tests: &buckets
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [one_way, "1-2", "3-4", "5-7", "8-14", "15+"]
+  - name: baselines
+    description: >
+      Current Baselines per tier (route, country, provisional) and key (origin city,
+      destination airport or country, departure month, Stay-night bucket), computed at as_of.
+      Only keys with enough support for that tier have a row.
+    data_tests: &key
+      - unique_combination:
+          arguments:
+            columns: [tier, origin_city, destination, departure_month, stay_bucket]
+    columns: &baseline_columns
+      - name: tier
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [route, country, provisional]
+      - name: origin_city
+        data_tests: [not_null]
+      - name: destination
+        description: Destination airport (route, provisional) or country (country tier).
+        data_tests: [not_null]
+      - name: departure_month
+        data_tests: [not_null]
+      - name: stay_bucket
+        data_tests: *buckets
+      - name: method
+        data_tests: [not_null]
+      - name: median_per_adult_eur
+        data_tests: [not_null]
+      - name: mad_eur
+        data_tests: [not_null]
+      - name: observations
+        data_tests: [not_null]
+      - name: observation_days
+        data_tests: [not_null]
+      - name: computed_at
+        data_tests: [not_null]
+  - name: baseline_versions
+    description: >
+      Append-only history of Baselines: a row whenever a tier and key's method, median, MAD or
+      support changes. A version is (tier, key, computed_at); Deals record its computed_at.
+    data_tests:
+      - unique_combination:
+          arguments:
+            columns: [tier, origin_city, destination, departure_month, stay_bucket, computed_at]
+    columns: *baseline_columns

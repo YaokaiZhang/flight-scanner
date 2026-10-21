@@ -42,6 +42,17 @@ class TripPatternQuery(BaseModel):
     trip_pattern: TripPreset
 
 
+class DealBaseline(BaseModel):
+    """The Baseline version a Deal was judged against: (tier, key, computed_at) plus support."""
+
+    tier: str
+    per_adult_eur: float
+    method: str | None
+    computed_at: datetime | None
+    observations: int | None
+    observation_days: int | None
+
+
 class Deal(BaseModel):
     id: int
     watch_id: int
@@ -66,6 +77,7 @@ class Deal(BaseModel):
     booking_url: str
     baseline_per_adult_eur: float | None
     pct_below_baseline: float | None
+    baseline: DealBaseline | None
     feedback: Feedback | None
 
 
@@ -84,9 +96,20 @@ def _deal(row: dict) -> Deal:
     if baseline is not None:
         pct = pct_below_baseline(float(row["price_per_adult_eur"]), float(baseline))
     rating = row["feedback_rating"]
+    version = None
+    if row["baseline_tier"] is not None and baseline is not None:
+        version = DealBaseline(
+            tier=row["baseline_tier"],
+            per_adult_eur=float(baseline),
+            method=row["baseline_method"],
+            computed_at=row["baseline_computed_at"],
+            observations=row["baseline_observations"],
+            observation_days=row["baseline_observation_days"],
+        )
     return Deal(
         **{**row, "booking_url": booking_url},
         pct_below_baseline=pct,
+        baseline=version,
         feedback=Feedback(rating=rating, via=row["feedback_via"]) if rating else None,
     )
 

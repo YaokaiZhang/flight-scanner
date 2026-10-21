@@ -329,6 +329,7 @@ tr.selectable[aria-selected="true"] .row-title { color: var(--ink-deep); }
 .chart svg { display: block; width: 100%; overflow: visible; }
 .chart text { font-family: var(--mono), ui-monospace, monospace; font-size: 11px; fill: var(--pencil); }
 .chart text.callout { fill: var(--ink-deep); font-weight: 500; }
+.chart text.baseline-label { fill: var(--graphite); font-weight: 500; }
 .chart .ink-path { stroke-dasharray: 1; stroke-dashoffset: 0; animation: ink 1.1s var(--ease) both; }
 @keyframes ink { from { stroke-dashoffset: 1; } }
 .legend { display: flex; flex-wrap: wrap; gap: 18px; font-size: 11px; color: var(--pencil); margin-top: 10px; }

@@ -59,12 +59,15 @@ def record_deals(conn: psycopg.Connection, now: datetime) -> int:
                    return_date, price_per_adult_eur, price_total_eur, adults, source, observed_at,
                    ticketing, verification, baseline_tier, detected_at, last_seen_at,
                    alert_round, alert_price_total_eur, alert_due_at, airlines, stops,
-                   travel_minutes, separate_tickets, booking_url, baseline_per_adult_eur)
+                   travel_minutes, separate_tickets, booking_url, baseline_per_adult_eur,
+                   baseline_method, baseline_computed_at, baseline_observations,
+                   baseline_observation_days)
                SELECT watch_id, origin, destination, outbound_date, return_date,
                    price_per_adult_eur, price_total_eur, adults, source, observed_at,
                    ticketing, 'unverified', baseline_tier, %(now)s, %(now)s, 1,
                    price_total_eur, %(now)s, airlines, stops, travel_minutes, separate_tickets,
-                   booking_url, baseline_per_adult_eur
+                   booking_url, baseline_per_adult_eur, baseline_method, baseline_computed_at,
+                   baseline_observations, baseline_observation_days
                FROM marts.candidates
                ON CONFLICT {_DEDUP_KEY} DO UPDATE SET
                    price_per_adult_eur = excluded.price_per_adult_eur,
@@ -80,6 +83,10 @@ def record_deals(conn: psycopg.Connection, now: datetime) -> int:
                    separate_tickets = excluded.separate_tickets,
                    booking_url = excluded.booking_url,
                    baseline_per_adult_eur = excluded.baseline_per_adult_eur,
+                   baseline_method = excluded.baseline_method,
+                   baseline_computed_at = excluded.baseline_computed_at,
+                   baseline_observations = excluded.baseline_observations,
+                   baseline_observation_days = excluded.baseline_observation_days,
                    last_seen_at = %(now)s,
                    absent_since = NULL,
                    alert_round = d.alert_round + CASE WHEN {_ROUND_DUE} THEN 1 ELSE 0 END,

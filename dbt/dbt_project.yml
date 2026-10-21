@@ -12,6 +12,11 @@ test-paths: ["tests"]
 # now()); use window functions, cross-db macros and the `as_of()` macro for the clock.
 vars:
   as_of: null  # the injected clock's instant, passed by the pipeline as --vars
+  # Baselines (spec defaults)
+  baseline_window_days: 60  # trailing window of observation days
+  baseline_min_observations: 20  # route/country support: daily-minimum trip prices ...
+  baseline_min_days: 7  # ... spread over at least this many distinct observation days
+  provisional_min_trips: 5  # provisional Baseline: trips (departure dates) in the key
 
 models:
   flight_scanner:
@@ -20,6 +25,9 @@ models:
       +materialized: view
     history:
       +schema: history
+      +materialized: table
+    baselines:
+      +schema: marts
       +materialized: table
     marts:
       +schema: marts

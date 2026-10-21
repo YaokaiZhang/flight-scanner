@@ -114,7 +114,8 @@ export function RouteExplorer() {
           <>
             <PriceHistoryChart
               points={points}
-              label={`Price per adult, ${history.origin} to ${history.destination}, ${dates}: ${points.length} price ${points.length === 1 ? "level" : "levels"}${cheapestNow !== null ? `, now ${formatEur(cheapestNow)}` : ""}.`}
+              baseline={history.baseline}
+              label={`Price per adult, ${history.origin} to ${history.destination}, ${dates}: ${points.length} price ${points.length === 1 ? "level" : "levels"}${cheapestNow !== null ? `, now ${formatEur(cheapestNow)}` : ""}${history.baseline ? `, ${history.baseline.tier} Baseline ${formatEur(history.baseline.median_per_adult_eur)}` : ""}.`}
             />
             <h2 className="section-head">Price changes</h2>
             <div className="table-wrap">
@@ -172,7 +173,10 @@ export function RouteExplorer() {
               <h2 className="widget-label">Evidence</h2>
               <p className="meta">
                 Cached prices, EUR per adult. Repeated identical observations extend a row instead of
-                adding one. No Baseline yet.
+                adding one.{" "}
+                {history.baseline
+                  ? `Baseline: ${history.baseline.tier} tier, median of ${history.baseline.observations} daily minimums over ${history.baseline.observation_days} ${history.baseline.observation_days === 1 ? "day" : "days"}${history.baseline.tier === "provisional" ? " (low confidence)" : ""}.`
+                  : "No Baseline for this trip yet."}
               </p>
             </section>
           </>

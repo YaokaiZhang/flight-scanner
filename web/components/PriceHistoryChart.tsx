@@ -1,13 +1,15 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import type { HistoryPoint } from "@/lib/api";
+import type { BaselineBand, HistoryPoint } from "@/lib/api";
 import { formatEur } from "@/lib/format";
 
 // Change-only price history drawn as a step line: each row holds its price from valid_from until
 // the next change (or until it was last seen, while current). Route-chart grammar from DESIGN.md:
 // dashed construction gridlines with pencil € labels, a 1.5px ink line, paper-filled ink dots at
-// each change, a solid graphite x-axis with 4px ticks. The Baseline band arrives with Baselines.
+// each change, a solid graphite x-axis with 4px ticks. Behind it the Baseline ± MAD band: a swash
+// band with dashed ink edges and a dashed graphite median labelled at the right margin (amber wash
+// and dashed amber edges when the Baseline is provisional).
 
 const H = 300;
 const M = { l: 52, r: 20, t: 24, b: 34 };
@@ -25,7 +27,15 @@ function niceStep(span: number) {
 
 type Segment = { source: string; from: number; to: number; price: number; current: boolean };
 
-export function PriceHistoryChart({ points, label }: { points: HistoryPoint[]; label: string }) {
+export function PriceHistoryChart({
+  points,
+  label,
+  baseline = null,
+}: {
+  points: HistoryPoint[];
+  label: string;
+  baseline?: BaselineBand | null;
+}) {
   const wrap = useRef<HTMLDivElement>(null);
   const [w, setW] = useState(720);
   useEffect(() => {
@@ -47,6 +57,7 @@ export function PriceHistoryChart({ points, label }: { points: HistoryPoint[]; l
   let t1 = Math.max(...segs.map((s) => s.to));
   if (t1 - t0 < 3_600_000) t1 = t0 + 3_600_000; // at least an hour wide
   const prices = segs.map((s) => s.price);
+  if (baseline) prices.push(baseline.low_per_adult_eur, baseline.high_per_adult_eur);
   const pad = Math.max(10, (Math.max(...prices) - Math.min(...prices)) * 0.25);
   const step = niceStep(Math.max(...prices) - Math.min(...prices) + 2 * pad);
   const lo = Math.max(0, Math.floor((Math.min(...prices) - pad) / step) * step);
@@ -87,6 +98,29 @@ export function PriceHistoryChart({ points, label }: { points: HistoryPoint[]; l
             </text>
           </g>
         ))}
+        {baseline && (() => {
+          const provisional = baseline.tier === "provisional";
+          const edge = provisional ? "var(--amber)" : "var(--ink)";
+          const yHi = y(baseline.high_per_adult_eur);
+          const yLo = y(baseline.low_per_adult_eur);
+          const yMid = y(baseline.median_per_adult_eur);
+          const narrow = w < 520;
+          const lx = narrow ? M.l + 6 : w - M.r;
+          return (
+            <g className="baseline-band" data-tier={baseline.tier}>
+              <rect x={M.l} width={w - M.l - M.r} y={yHi} height={Math.max(1, yLo - yHi)} fill={provisional ? "var(--amber-wash)" : "var(--swash)"} />
+              <line x1={M.l} x2={w - M.r} y1={yHi} y2={yHi} stroke={edge} strokeWidth={0.8} strokeDasharray="4 3" />
+              <line x1={M.l} x2={w - M.r} y1={yLo} y2={yLo} stroke={edge} strokeWidth={0.8} strokeDasharray="4 3" />
+              <line x1={M.l} x2={w - M.r} y1={yMid} y2={yMid} stroke="var(--graphite)" strokeWidth={1.5} strokeDasharray="6 4" />
+              <text x={lx} y={yHi - 6} textAnchor={narrow ? "start" : "end"} className="baseline-label">
+                {provisional ? "PROVISIONAL " : ""}BASELINE {formatEur(baseline.median_per_adult_eur)}
+              </text>
+              <text x={lx} y={yLo + 13} textAnchor={narrow ? "start" : "end"}>
+                ± MAD {formatEur(baseline.high_per_adult_eur - baseline.median_per_adult_eur)}
+              </text>
+            </g>
+          );
+        })()}
         {paths.map((p) => (
           <g key={p.src}>
             <path
@@ -128,6 +162,15 @@ export function PriceHistoryChart({ points, label }: { points: HistoryPoint[]; l
             {p.src}
           </span>
         ))}
+        {baseline && (
+          <span>
+            <svg viewBox="0 0 18 10" aria-hidden="true">
+              <rect x="0" y="1" width="18" height="8" fill={baseline.tier === "provisional" ? "var(--amber-wash)" : "var(--swash)"} />
+              <path d="M0 5h18" stroke="var(--graphite)" strokeWidth={1.5} strokeDasharray="6 4" />
+            </svg>
+            Baseline ± MAD ({baseline.tier}, {baseline.observations} obs over {baseline.observation_days} {baseline.observation_days === 1 ? "day" : "days"})
+          </span>
+        )}
         <span>One step per price change; flat while unchanged</span>
       </div>
     </div>

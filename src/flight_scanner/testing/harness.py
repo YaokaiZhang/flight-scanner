@@ -5,6 +5,7 @@
     h.fake.replay(Path("payload.json"), route=("HEL", "BCN"))
     h.clock.advance(minutes=30)
     h.run()                                               # real Postgres, dbt and Dagster
+    h.collect()                                           # prices only (builds history fast)
     h.notifier.alerts                                     # what came out
 
 Swap reference data with `h.use_reference(ReferenceData.load(dir))`.
@@ -23,7 +24,7 @@ from flight_scanner import watches
 from flight_scanner.clock import FakeClock
 from flight_scanner.db import DbSettings, connect
 from flight_scanner.notify.base import Notifier, RecordingNotifier
-from flight_scanner.pipeline import Runtime, rebuild, run_once
+from flight_scanner.pipeline import Runtime, collect, rebuild, run_once
 from flight_scanner.places import ReferenceData
 from flight_scanner.raw_store import RawStore
 from flight_scanner.reprocess import ReprocessReport
@@ -73,6 +74,11 @@ class PipelineHarness:
     def run(self) -> dg.ExecuteInProcessResult:
         """One full scan at the clock's current instant. Raises if any step fails."""
         self.last_result = run_once(self.runtime)
+        return self.last_result
+
+    def collect(self) -> dg.ExecuteInProcessResult:
+        """A scan that only collects prices (history for Baselines); detects nothing."""
+        self.last_result = collect(self.runtime)
         return self.last_result
 
     def rebuild(self) -> ReprocessReport:
