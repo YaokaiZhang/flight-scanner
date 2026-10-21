@@ -1,22 +1,31 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { api, ApiError, type Watch } from "@/lib/api";
+import { api, ApiError, placeKey, type PlaceRef, type Watch } from "@/lib/api";
 import { formatDate, formatEur } from "@/lib/format";
 import { WatchEditor } from "./WatchEditor";
 
 function places(w: Watch, side: "origins" | "destinations") {
-  return w[side].include.map((p) => p.code).join(", ");
+  const names = new Map(w.places.map((p) => [placeKey(p), p.kind === "airport" ? p.code : p.name]));
+  const name = (r: PlaceRef) => names.get(placeKey(r)) ?? r.code;
+  const inc = w[side].include.map(name).join(", ");
+  const exc = w[side].exclude.map(name);
+  return exc.length ? `${inc} − ${exc.join(", ")}` : inc;
 }
+
+const airports = (n: number) => `${n.toLocaleString("en-GB")} ${n === 1 ? "airport" : "airports"}`;
 
 export function WatchesView() {
   const [watches, setWatches] = useState<Watch[] | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [selected, setSelected] = useState<number | null>(null);
 
   const load = useCallback(() => {
     api.listWatches().then(setWatches, (e: ApiError) => setError(`Could not load Watches (${e.status ?? "network"})`));
   }, []);
   useEffect(load, [load]);
+
+  const current = watches?.find((w) => w.id === selected) ?? null;
 
   return (
     <>
@@ -28,6 +37,11 @@ export function WatchesView() {
               {watches ? <><b>{watches.filter((w) => w.status === "active").length}</b> active</> : "Loading"}
             </p>
           </div>
+          {current && (
+            <button className="btn-marker primary" type="button" onClick={() => setSelected(null)}>
+              New Watch
+            </button>
+          )}
         </header>
         {error && <p className="error" role="alert">{error}</p>}
         {watches && watches.length === 0 && (
@@ -38,16 +52,27 @@ export function WatchesView() {
             <table>
               <thead>
                 <tr>
-                  <th>Watch</th><th>From</th><th>To</th><th>Departure</th>
+                  <th>Watch</th><th>Where</th><th>Departure</th>
                   <th className="num">Adults</th><th className="num">Threshold</th><th>Status</th>
                 </tr>
               </thead>
               <tbody>
                 {watches.map((w) => (
-                  <tr key={w.id} className={w.status === "paused" ? "paused" : undefined}>
-                    <td className="row-title">{w.name}</td>
-                    <td data-label="From">{places(w, "origins")}</td>
-                    <td data-label="To">{places(w, "destinations")}</td>
+                  <tr
+                    key={w.id}
+                    className={`selectable${w.status === "paused" ? " paused" : ""}`}
+                    aria-selected={w.id === selected}
+                  >
+                    <td className="row-title">
+                      <button type="button" onClick={() => setSelected(w.id)}>{w.name}</button>
+                      <div className="sub">sensitivity {w.sensitivity_pct}%</div>
+                    </td>
+                    <td data-label="Where">
+                      {places(w, "origins")} → {places(w, "destinations")}
+                      <div className="sub">
+                        {airports(w.resolved.origins)} → {airports(w.resolved.destinations)}
+                      </div>
+                    </td>
                     <td data-label="Departure">{formatDate(w.trip_pattern.departure)} · one way</td>
                     <td data-label="Adults" className="num">{w.adults}</td>
                     <td data-label="Threshold" className="num">
@@ -66,7 +91,16 @@ export function WatchesView() {
         )}
       </main>
       <aside className="inspector" aria-label="Watch editor">
-        <WatchEditor onCreated={load} />
+        <WatchEditor
+          key={current ? current.id : "new"}
+          watch={current}
+          onSaved={load}
+          onDeleted={() => {
+            setSelected(null);
+            load();
+          }}
+          onClose={() => setSelected(null)}
+        />
       </aside>
     </>
   );

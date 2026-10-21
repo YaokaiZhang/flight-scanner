@@ -6,13 +6,17 @@
 
 **Blocked by:** 01
 
-**Status:** ready-for-agent
+**Status:** resolved
 
-- [ ] Reference data loads airports, cities and countries; Regions come from a versioned file in the repo; territories belong to their sovereign country's Region (Canary Islands ⊂ Europe).
-- [ ] "Anywhere" is a Region containing all countries.
-- [ ] API: search Places by name or code, resolve include − exclude to an airport set, return a Region's tree.
-- [ ] Exclusions work on both origin and destination sides.
-- [ ] Resolved airport sets are recomputed when reference data changes.
-- [ ] Watch editor: Place picker with search, include/exclude chips, Region tree and resolved airport count; name, adults, optional Price threshold (total or per adult), sensitivity (default 30%), pause/resume, delete.
-- [ ] Seam-2 tests: Place search, resolution with Exclusions, Region tree, Watch validation.
-- [ ] Seam-1 test: a Watch for Europe excluding Sweden produces no Alert for a cheap fare to ARN but does for one to BCN.
+- [x] Reference data loads airports, cities and countries; Regions come from a versioned file in the repo; territories belong to their sovereign country's Region (Canary Islands ⊂ Europe).
+- [x] "Anywhere" is a Region containing all countries.
+- [x] API: search Places by name or code, resolve include − exclude to an airport set, return a Region's tree.
+- [x] Exclusions work on both origin and destination sides.
+- [x] Resolved airport sets are recomputed when reference data changes.
+- [x] Watch editor: Place picker with search, include/exclude chips, Region tree and resolved airport count; name, adults, optional Price threshold (total or per adult), sensitivity (default 30%), pause/resume, delete.
+- [x] Seam-2 tests: Place search, resolution with Exclusions, Region tree, Watch validation.
+- [x] Seam-1 test: a Watch for Europe excluding Sweden produces no Alert for a cheap fare to ARN but does for one to BCN.
+
+## Comments
+
+- Resolved on branch `ticket/03-places-and-watch-editor`: `flight_scanner.places` package (bundled OurAirports snapshot + versioned `regions.toml`), Places API (search/resolve/tree/regions), Watch edit/pause/resume/delete + sensitivity, Place picker in the Watch editor. Notes: flight-scanner-notes/ticket-03.md.
