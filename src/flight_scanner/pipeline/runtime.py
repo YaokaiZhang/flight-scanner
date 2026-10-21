@@ -31,3 +31,5 @@ class Runtime:
     # live Verification source (ticket 08), never planned for scans; None = every Deal is
     # alerted Unverified
     verifier: VerificationSource | None = None
+    # run dbt's data tests in every dbt build; the seam-1 harness turns them off for speed
+    dbt_data_tests: bool = True

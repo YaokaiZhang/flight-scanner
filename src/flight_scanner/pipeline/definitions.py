@@ -1,8 +1,6 @@
 # No `from __future__ import annotations`: Dagster inspects real type hints
 # (context, ResourceParam).
 
-import json
-
 import dagster as dg
 from dagster_dbt import DbtCliResource, dbt_assets, get_asset_key_for_model
 
@@ -121,11 +119,6 @@ def source_prices(context: dg.AssetExecutionContext, runtime: dg.ResourceParam[R
 BACKTEST_MODELS = "backtest_deals"
 
 
-def _dbt_build(context: dg.AssetExecutionContext, dbt: DbtCliResource, runtime: Runtime):
-    as_of = runtime.clock.now().isoformat()
-    yield from dbt.cli(["build", "--vars", json.dumps({"as_of": as_of})], context=context).stream()
-
-
 def build_definitions(runtime: Runtime) -> dg.Definitions:
     manifest = dbt_files.ensure_manifest()
 
@@ -135,13 +128,13 @@ def build_definitions(runtime: Runtime) -> dg.Definitions:
     def dbt_models(
         context: dg.AssetExecutionContext, dbt: DbtCliResource, runtime: dg.ResourceParam[Runtime]
     ):
-        yield from _dbt_build(context, dbt, runtime)
+        yield from dbt_files.build(context, dbt, runtime)
 
     @dbt_assets(manifest=manifest, select=BACKTEST_MODELS, name="dbt_backtest")
     def dbt_backtest(
         context: dg.AssetExecutionContext, dbt: DbtCliResource, runtime: dg.ResourceParam[Runtime]
     ):
-        yield from _dbt_build(context, dbt, runtime)
+        yield from dbt_files.build(context, dbt, runtime)
 
     candidates_key = get_asset_key_for_model([dbt_models], "candidates")
 
@@ -226,7 +219,7 @@ def build_definitions(runtime: Runtime) -> dg.Definitions:
         schedules=[dg.ScheduleDefinition(job=scan_job, cron_schedule="*/30 * * * *")],
         resources={
             "runtime": runtime,
-            "dbt": DbtCliResource(
+            "dbt": dbt_files.DbtCli(
                 project_dir=str(dbt_files.DBT_PROJECT_DIR),
                 profiles_dir=str(profiles),
                 dbt_executable=dbt_files.dbt_executable(),

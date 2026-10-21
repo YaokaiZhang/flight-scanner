@@ -1,11 +1,14 @@
-{# The pipeline's clock instant as a timestamp literal. Never use now()/current_timestamp. #}
+{# The pipeline's clock instant as a timestamp literal. Never use now()/current_timestamp.
+   The pipeline sets env var FS_AS_OF; by hand, `--vars '{as_of: ...}'` works too. Both are read
+   only at execution: anything the parse depends on (vars, env vars read while parsing) would make
+   dbt re-parse the project on every scan. #}
 {% macro as_of() -%}
-    {%- set value = var('as_of') -%}
-    {%- if value is none -%}
-        {%- if execute -%}
-            {{ exceptions.raise_compiler_error("var 'as_of' is required (the injected clock)") }}
+    {%- set value = '1970-01-01T00:00:00+00:00' -%}  {# parse time only #}
+    {%- if execute -%}
+        {%- set value = var('as_of') or env_var('FS_AS_OF', '') -%}
+        {%- if not value -%}
+            {{ exceptions.raise_compiler_error("the injected clock is required: env FS_AS_OF or var 'as_of'") }}
         {%- endif -%}
-        {%- set value = '1970-01-01T00:00:00+00:00' -%}  {# parse time only #}
     {%- endif -%}
     {{ return(adapter.dispatch('as_of', 'flight_scanner')(value)) }}
 {%- endmacro %}
