@@ -86,6 +86,7 @@ export type Deal = {
   baseline_per_adult_eur: number | null;
   pct_below_baseline: number | null;
   baseline: DealBaseline | null; // the Baseline version the Deal was judged against
+  deal_context: string | null; // why it might be cheap (web research), when found in time
   feedback: { rating: Rating; via: "telegram" | "web" } | null;
 };
 

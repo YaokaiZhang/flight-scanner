@@ -11,6 +11,7 @@
 Swap reference data with `h.use_reference(ReferenceData.load(dir))`.
 Add more fake sources with `h.add_source(ReplayAdapter("other", h.clock))`, and channel stand-ins
 with `h.add_notifier(RecordingNotifier("telegram"))` (gets only Watches that chose Telegram).
+Turn on Deal context with `h.use_researcher(FakeResearcher({...}), timeout_seconds=...)`.
 """
 
 from __future__ import annotations
@@ -23,11 +24,13 @@ import dagster as dg
 from flight_scanner import watches
 from flight_scanner.clock import FakeClock
 from flight_scanner.db import DbSettings, connect
+from flight_scanner.deal_context import DEAL_CONTEXT_TIMEOUT, Researcher
 from flight_scanner.notify.base import Notifier, RecordingNotifier
 from flight_scanner.pipeline import Runtime, collect, rebuild, run_once
 from flight_scanner.places import ReferenceData
 from flight_scanner.raw_store import RawStore
 from flight_scanner.reprocess import ReprocessReport
+from flight_scanner.scan_planner import Budget
 from flight_scanner.sources.base import SourceAdapter
 from flight_scanner.sources.replay import ReplayAdapter
 
@@ -56,6 +59,19 @@ class PipelineHarness:
     def add_notifier(self, notifier: Notifier) -> Notifier:
         self.runtime.notifiers.append(notifier)
         return notifier
+
+    def set_budget(
+        self, source: str, per_run: int | None = None, per_day: int | None = None
+    ) -> None:
+        """Limit a source's requests for later runs (None: unlimited)."""
+        self.runtime.source_budgets[source] = Budget(per_run, per_day)
+
+    def use_researcher(
+        self, researcher: Researcher | None, timeout_seconds: float = DEAL_CONTEXT_TIMEOUT
+    ) -> None:
+        """Turn on Deal context with this researcher (e.g. `FakeResearcher`) and wait cap."""
+        self.runtime.researcher = researcher
+        self.runtime.deal_context_timeout = timeout_seconds
 
     def use_reference(self, reference: ReferenceData) -> None:
         """Swap the Places reference data used by later runs (and Watch validation)."""

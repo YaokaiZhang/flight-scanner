@@ -71,6 +71,7 @@ def urllib_transport(url: str, headers: dict[str, str], timeout: float) -> HttpR
 
 class TravelpayoutsAdapter:
     name = "travelpayouts"
+    wildcard_destinations = True  # destination omitted = cheapest prices to anywhere
 
     def __init__(
         self,
@@ -104,15 +105,14 @@ class TravelpayoutsAdapter:
 
     # --- plan ------------------------------------------------------------------------------
     def plan(self, demands: Sequence[Demand], budget: int | None = None) -> list[ScanRequest]:
-        """One one-way request per demand (Leg prices); plus a return-ticket request for each
-        demand whose reverse route is also demanded (Round-trip prices). Interleaved per demand
-        so a budget cut keeps both kinds for the first demands."""
-        reverse = {(d.destination, d.origin) for d in demands}
+        """One one-way request per demand (Leg prices); plus a return-ticket request
+        (Round-trip prices, any return date) when the demand is `round_trip`. Interleaved per
+        demand so a budget cut keeps both kinds for the first demands."""
         out: list[ScanRequest] = []
         for d in demands:
             month = d.month.isoformat()[:7]
             out.append(self._request(d, month, one_way=True))
-            if d.destination is not None and (d.origin, d.destination) in reverse:
+            if d.round_trip:
                 out.append(self._request(d, month, one_way=False))
         return out if budget is None else out[:budget]
 

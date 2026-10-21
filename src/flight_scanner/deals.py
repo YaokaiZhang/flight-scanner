@@ -132,6 +132,7 @@ def _message(d: dict, alert_id: int | None = None) -> AlertMessage:
         separate_tickets=d["separate_tickets"],
         baseline_per_adult_eur=_num(d["baseline_per_adult_eur"]),
         alert_id=alert_id,
+        deal_context=d["deal_context"],
     )
 
 

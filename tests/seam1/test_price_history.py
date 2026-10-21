@@ -96,8 +96,16 @@ def test_unchanged_then_changed_price_yields_two_history_rows(pipeline, travelpa
 
 
 def test_round_trip_prices_get_their_own_history(pipeline, travelpayouts, api):
-    pipeline.create_watch(one_way("HEL", "BCN"))
-    pipeline.create_watch(one_way("BCN", "HEL", departure="2026-11-18"))
+    pipeline.create_watch(
+        {
+            **one_way("HEL", "BCN"),
+            "trip_pattern": {
+                "preset": "fixed_dates",
+                "departure": "2026-11-14",
+                "return_date": "2026-11-18",
+            },
+        }
+    )
     travelpayouts.answer("HEL", one_way=False, payload="hel-bcn-2026-11-round-trip.json")
 
     pipeline.run()

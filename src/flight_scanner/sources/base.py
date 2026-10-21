@@ -2,7 +2,8 @@
 
 An adapter turns demand into prices in three steps, each separately replayable:
 
-  plan(demands, budget) -> [ScanRequest]   what to ask for (at most `budget` requests)
+  plan(demands, budget) -> [ScanRequest]   what to ask for (at most `budget` requests);
+                                          the scan planner calls it once per scan task
   fetch(request)        -> RawPayload      the source's raw bytes, exactly as received
   parse(raw)            -> ParsedPrices    Leg prices and/or Round-trip prices
 
@@ -81,6 +82,9 @@ class ParsedPrices:
 
 @runtime_checkable
 class SourceAdapter(Protocol):
+    """Optional attribute `wildcard_destinations = True`: the source can answer a Demand with
+    destination None (anywhere); the scan planner then collapses wide Watches into one task."""
+
     name: str
 
     def plan(self, demands: Sequence[Demand], budget: int | None = None) -> list[ScanRequest]: ...

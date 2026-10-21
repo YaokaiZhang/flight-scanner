@@ -6,9 +6,10 @@ import json
 import dagster as dg
 from dagster_dbt import DbtCliResource, dbt_assets, get_asset_key_for_model
 
-from flight_scanner import deals, digests, watches
+from flight_scanner import deals, digests, scan_planner, watches
 from flight_scanner.clock import today
 from flight_scanner.db import connect
+from flight_scanner.deal_context import add_deal_context
 from flight_scanner.ingestion import ingest
 from flight_scanner.pipeline import dbt as dbt_files
 from flight_scanner.pipeline.runtime import Runtime
@@ -17,6 +18,8 @@ from flight_scanner.reprocess import ReprocessReport, reprocess
 LEG_PRICES = dg.AssetKey(["landing", "leg_prices"])
 ROUND_TRIP_PRICES = dg.AssetKey(["landing", "round_trip_prices"])
 WATCH_SLOTS = dg.AssetKey(["app", "watch_slots"])
+SCAN_PLAN = dg.AssetKey(["app", "scan_plan"])
+DEAL_CONTEXT = dg.AssetKey(["app", "deal_context"])
 REF_AIRPORTS = dg.AssetKey(["ref", "airports"])
 
 
@@ -61,15 +64,11 @@ def watch_slots(context: dg.AssetExecutionContext, runtime: dg.ResourceParam[Run
     return dg.MaterializeResult(metadata={"slots": len(slots)})
 
 
-@dg.multi_asset(
-    specs=[
-        dg.AssetSpec(LEG_PRICES, deps=[WATCH_SLOTS], group_name="ingestion"),
-        dg.AssetSpec(ROUND_TRIP_PRICES, deps=[WATCH_SLOTS], group_name="ingestion"),
-    ]
-)
-def source_prices(context: dg.AssetExecutionContext, runtime: dg.ResourceParam[Runtime]):
-    """Plan, fetch, store raw and parse for every enabled source; one outage never stops others."""
-    with connect(runtime.db, autocommit=True) as conn:
+@dg.asset(key=SCAN_PLAN, deps=[WATCH_SLOTS], group_name="ingestion")
+def scan_plan(context: dg.AssetExecutionContext, runtime: dg.ResourceParam[Runtime]):
+    """Shared, ranked scan tasks per source; those over a source's budget are recorded skipped.
+    Ranking reads last run's history and trip prices (dbt runs after ingestion)."""
+    with connect(runtime.db, autocommit=True) as conn, conn.transaction():
         slots = [
             watches.WatchSlot(**r)
             for r in conn.execute(
@@ -77,13 +76,38 @@ def source_prices(context: dg.AssetExecutionContext, runtime: dg.ResourceParam[R
                 "FROM app.watch_slots"
             )
         ]
-        report = ingest(
+        plan_id = scan_planner.plan(
             conn,
+            slots,
             runtime.sources,
-            watches.demands(slots),
-            runtime.raw_store,
             runtime.source_budgets,
+            runtime.clock.now(),
+            today(runtime.clock),
         )
+        counts = {
+            f"{r['source']}.{r['status']}": r["n"]
+            for r in conn.execute(
+                "SELECT source, status, count(*) AS n FROM app.scan_tasks WHERE plan_id = %s "
+                "GROUP BY source, status",
+                (plan_id,),
+            )
+        }
+    return dg.MaterializeResult(metadata={"plan_id": plan_id, **counts})
+
+
+@dg.multi_asset(
+    specs=[
+        dg.AssetSpec(LEG_PRICES, deps=[SCAN_PLAN], group_name="ingestion"),
+        dg.AssetSpec(ROUND_TRIP_PRICES, deps=[SCAN_PLAN], group_name="ingestion"),
+    ]
+)
+def source_prices(context: dg.AssetExecutionContext, runtime: dg.ResourceParam[Runtime]):
+    """Fetch, store raw and parse the scan plan's scheduled tasks; one outage never stops others."""
+    with connect(runtime.db, autocommit=True) as conn:
+        plan_id = scan_planner.latest_plan_id(conn)
+        tasks = scan_planner.scheduled(conn, plan_id) if plan_id is not None else []
+        report = ingest(conn, runtime.sources, tasks, runtime.raw_store)
+        scan_planner.finish(conn, report.task_status, runtime.clock.now())
     meta = {"sources": dg.MetadataValue.json(report.as_metadata())}
     yield dg.MaterializeResult(asset_key=LEG_PRICES, metadata=meta)
     yield dg.MaterializeResult(asset_key=ROUND_TRIP_PRICES, metadata=meta)
@@ -110,14 +134,28 @@ def build_definitions(runtime: Runtime) -> dg.Definitions:
             new = deals.record_deals(conn, runtime.clock.now())
         return dg.MaterializeResult(metadata={"new_deals": new})
 
-    @dg.asset(key=["app", "alerts"], deps=[dg.AssetKey(["app", "deals"])], group_name="deals")
+    @dg.asset(key=DEAL_CONTEXT, deps=[dg.AssetKey(["app", "deals"])], group_name="deals")
+    def deal_context_asset(runtime: dg.ResourceParam[Runtime]):
+        """Optional "why is this cheap?" line for new Deals; waits at most the cap."""
+        with connect(runtime.db, autocommit=True) as conn:
+            counts = add_deal_context(
+                conn, runtime.researcher, runtime.clock.now(), runtime.deal_context_timeout
+            )
+        return dg.MaterializeResult(
+            metadata={
+                "enabled": runtime.researcher is not None,
+                **{f"context_{k}": v for k, v in counts.items()},
+            }
+        )
+
+    @dg.asset(key=["app", "alerts"], deps=[DEAL_CONTEXT], group_name="deals")
     def alerts_asset(runtime: dg.ResourceParam[Runtime]):
         """Hand every not-yet-alerted Deal to the notifiers."""
         with connect(runtime.db, autocommit=True) as conn:
             sent = deals.send_alerts(conn, runtime.notifiers, runtime.clock.now())
         return dg.MaterializeResult(metadata={"alerts_sent": sent})
 
-    @dg.asset(key=["app", "digests"], deps=[dg.AssetKey(["app", "deals"])], group_name="deals")
+    @dg.asset(key=["app", "digests"], deps=[DEAL_CONTEXT], group_name="deals")
     def digests_asset(runtime: dg.ResourceParam[Runtime]):
         """Send the daily Digest of each Watch in Digest mode once it is due."""
         with connect(runtime.db, autocommit=True) as conn:
@@ -127,16 +165,18 @@ def build_definitions(runtime: Runtime) -> dg.Definitions:
     assets = [
         ref_airports,
         watch_slots,
+        scan_plan,
         source_prices,
         dbt_models,
         deals_asset,
+        deal_context_asset,
         alerts_asset,
         digests_asset,
     ]
     scan_job = dg.define_asset_job("scan", selection=dg.AssetSelection.assets(*assets))
     # prices only (no dbt, detection or Alerts): builds history between full scans
     collect_job = dg.define_asset_job(
-        "collect", selection=dg.AssetSelection.assets(watch_slots, source_prices)
+        "collect", selection=dg.AssetSelection.assets(watch_slots, scan_plan, source_prices)
     )
     # reference data and dbt (seeds, staging, history, Baselines, marts): used by `rebuild`
     # after re-parsing the raw store

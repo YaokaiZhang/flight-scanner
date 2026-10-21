@@ -202,6 +202,13 @@ export function DealsView() {
                 <p className="data-desc">No Baseline yet: under the Watch&apos;s Price threshold.</p>
               )}
             </section>
+            {selected.deal_context && (
+              <section>
+                <h2 className="widget-label">Why cheap?</h2>
+                <p className="data-desc">{selected.deal_context}</p>
+                <p className="meta">Deal context from web research. Not a price source.</p>
+              </section>
+            )}
             {flightFacts(selected) && (
               <section>
                 <h2 className="widget-label">Itinerary</h2>

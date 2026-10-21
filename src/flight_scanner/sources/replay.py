@@ -7,6 +7,8 @@
 
 `fetch` returns the latest scripted payload at or before `clock.now()` for the request's route
 (or any route when scripted with `route=None`); with nothing scripted it returns an empty payload.
+A wildcard request (destination None) answers with the merged payloads of every scripted route
+from that origin. Every fetched request is kept in `requests` (what the source was asked).
 The payload format is the "fake" format below; real adapters have their own `parse`.
 
     {"currency": "EUR", "prices": [{"origin", "destination", "depart_date", "price",
@@ -45,11 +47,14 @@ class _Entry:
 
 
 class ReplayAdapter:
+    wildcard_destinations = True
+
     def __init__(self, name: str, clock: Clock):
         self.name = name
         self._clock = clock
         self._script: list[_Entry] = []
         self.fetch_count = 0
+        self.requests: list[ScanRequest] = []
 
     # --- scripting -------------------------------------------------------------------------
     def replay(
@@ -96,7 +101,27 @@ class ReplayAdapter:
     def fetch(self, request: ScanRequest) -> RawPayload:
         now = self._clock.now()
         self.fetch_count += 1
-        route = (request.params["origin"], request.params["destination"])
+        self.requests.append(request)
+        origin, destination = request.params["origin"], request.params["destination"]
+        if destination is not None:
+            routes = [(origin, destination)]
+        else:
+            routes = sorted({e.route for e in self._script if e.route and e.route[0] == origin})
+        entries = [self._latest(r, now) for r in routes or [(origin, None)]]
+        if any(e is not None and e.body is None for e in entries):
+            raise SourceUnavailable(f"{self.name}: scripted outage")
+        bodies = [e.body for e in entries if e is not None]
+        if len(bodies) <= 1:
+            return RawPayload(self.name, request, now, bodies[0] if bodies else EMPTY)
+        docs = [json.loads(b) for b in bodies]
+        merged = {
+            "currency": docs[0].get("currency", "EUR"),
+            "prices": [p for d in docs for p in d.get("prices", [])],
+            "round_trips": [p for d in docs for p in d.get("round_trips", [])],
+        }
+        return RawPayload(self.name, request, now, json.dumps(merged).encode())
+
+    def _latest(self, route: tuple[str, str | None], now: datetime) -> _Entry | None:
         live = [
             e
             for e in self._script
@@ -104,13 +129,9 @@ class ReplayAdapter:
             and (e.until is None or now < e.until)
             and (e.route is None or e.route == route)
         ]
-        latest = max(
+        return max(
             live, key=lambda e: e.at or datetime.min.replace(tzinfo=now.tzinfo), default=None
         )
-        if latest is not None and latest.body is None:
-            raise SourceUnavailable(f"{self.name}: scripted outage")
-        body = latest.body if latest is not None else EMPTY
-        return RawPayload(self.name, request, now, body)
 
     def parse(self, raw: RawPayload) -> ParsedPrices:
         doc = json.loads(raw.body)

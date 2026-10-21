@@ -159,14 +159,12 @@ def test_plan_asks_for_a_month_of_one_way_prices_per_demand():
     assert "token" not in json.dumps(dict(req.params))  # stored with the raw payload
 
 
-def test_plan_adds_round_trip_prices_when_both_directions_are_demanded():
+def test_plan_adds_round_trip_prices_for_a_round_trip_demand():
     a, _ = adapter(ScriptedTransport())
-    demands = [Demand("BCN", "HEL", NOV), Demand("HEL", "BCN", NOV), Demand("HEL", "LIS", NOV)]
+    demands = [Demand("HEL", "BCN", NOV, round_trip=True), Demand("HEL", "LIS", NOV)]
     reqs = a.plan(demands)
     kinds = [(r.params["origin"], r.params["destination"], r.params["one_way"]) for r in reqs]
-    assert ("HEL", "BCN", "false") in kinds
-    assert ("HEL", "LIS", "false") not in kinds
-    assert sum(1 for k in kinds if k[2] == "true") == 3
+    assert kinds == [("HEL", "BCN", "true"), ("HEL", "BCN", "false"), ("HEL", "LIS", "true")]
 
 
 def test_plan_never_exceeds_the_budget():
