@@ -9,6 +9,7 @@ from flight_scanner.clock import today
 from flight_scanner.db import connect
 from flight_scanner.deal_context import add_deal_context
 from flight_scanner.ingestion import ingest
+from flight_scanner.lakehouse import LakehouseRun, latest_run, run_daily
 from flight_scanner.pipeline import dbt as dbt_files
 from flight_scanner.pipeline.runtime import Runtime
 from flight_scanner.reprocess import ReprocessReport, reprocess
@@ -20,6 +21,8 @@ SCAN_PLAN = dg.AssetKey(["app", "scan_plan"])
 DEAL_CONTEXT = dg.AssetKey(["app", "deal_context"])
 VERIFICATION = dg.AssetKey(["app", "verification"])
 REF_AIRPORTS = dg.AssetKey(["ref", "airports"])
+# what the lakehouse published (dbt source analytics.baseline_versions -> effective_baselines)
+LAKEHOUSE = dg.AssetKey(["analytics", "baseline_versions"])
 
 
 @dg.asset(key=REF_AIRPORTS, group_name="reference")
@@ -114,6 +117,28 @@ def source_prices(context: dg.AssetExecutionContext, runtime: dg.ResourceParam[R
     meta = {"sources": dg.MetadataValue.json(report.as_metadata())}
     yield dg.MaterializeResult(asset_key=LEG_PRICES, metadata=meta)
     yield dg.MaterializeResult(asset_key=ROUND_TRIP_PRICES, metadata=meta)
+
+
+@dg.asset(key=LAKEHOUSE, group_name="analytics")
+def lakehouse_asset(runtime: dg.ResourceParam[Runtime]):
+    """Daily (ADR-0003): export history and staging as Parquet to the lakehouse (Databricks),
+    which rebuilds Baselines and the backtest with the shared dbt models; its Baselines are
+    written back as new versions. Never on the alerting path: an unavailable or over-quota
+    lakehouse is recorded and detection keeps the last published Baselines."""
+    if runtime.lakehouse is None:
+        return dg.MaterializeResult(metadata={"status": "off"})
+    with connect(runtime.db, autocommit=True) as conn:
+        run = run_daily(conn, runtime.lakehouse, runtime.work_dir, runtime.clock.now())
+    return dg.MaterializeResult(
+        metadata={
+            "engine": run.engine,
+            "status": run.status,
+            "detail": run.detail or "",
+            "exported_rows": run.exported_rows,
+            "baselines_published": run.baselines_published,
+            "backtest_deals": run.backtest_deals,
+        }
+    )
 
 
 BACKTEST_MODELS = "backtest_deals"
@@ -211,12 +236,19 @@ def build_definitions(runtime: Runtime) -> dg.Definitions:
     rebuild_job = dg.define_asset_job(
         "rebuild", selection=dg.AssetSelection.assets(ref_airports, dbt_models, dbt_backtest)
     )
+    # the analytical layer, once a day before the morning's scans; separate from the scan job
+    lakehouse_job = dg.define_asset_job("lakehouse", selection=[LAKEHOUSE])
     profiles = dbt_files.write_profiles(runtime.db, runtime.work_dir / "dbt-profiles")
     return dg.Definitions(
-        assets=assets,
-        jobs=[scan_job, collect_job, rebuild_job],
+        assets=[*assets, lakehouse_asset],
+        jobs=[scan_job, collect_job, rebuild_job, lakehouse_job],
         sensors=_feedback_sensors(runtime),
-        schedules=[dg.ScheduleDefinition(job=scan_job, cron_schedule="*/30 * * * *")],
+        schedules=[
+            dg.ScheduleDefinition(job=scan_job, cron_schedule="*/30 * * * *"),
+            dg.ScheduleDefinition(
+                job=lakehouse_job, cron_schedule="15 4 * * *", execution_timezone="Europe/Helsinki"
+            ),
+        ],
         resources={
             "runtime": runtime,
             "dbt": dbt_files.DbtCli(
@@ -282,3 +314,12 @@ def rebuild(runtime: Runtime, instance: dg.DagsterInstance | None = None) -> Rep
         report = reprocess(conn, runtime.raw_store, parsers)
     _execute(runtime, "rebuild", instance)
     return report
+
+
+def run_lakehouse(
+    runtime: Runtime, instance: dg.DagsterInstance | None = None
+) -> LakehouseRun | None:
+    """Run the daily lakehouse job once; returns the run it recorded (None when it is off)."""
+    _execute(runtime, "lakehouse", instance)
+    with connect(runtime.db, autocommit=True) as conn:
+        return latest_run(conn) if runtime.lakehouse is not None else None

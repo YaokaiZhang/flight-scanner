@@ -1,0 +1,35 @@
+version: 2
+
+models:
+  - name: effective_baselines
+    description: >
+      The Baselines detection uses (tiers route, country, provisional): per tier and key, the
+      latest version the lakehouse published while fresh (published_baseline_max_age_days),
+      else the operational recompute (marts.baselines). computed_at is the version.
+    data_tests:
+      - unique_combination:
+          arguments:
+            columns: [tier, origin_city, destination, departure_month, stay_bucket]
+    columns:
+      - name: tier
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [route, country, provisional]
+      - name: origin_city
+        data_tests: [not_null]
+      - name: destination
+        data_tests: [not_null]
+      - name: departure_month
+        data_tests: [not_null]
+      - name: stay_bucket
+        data_tests: [not_null]
+      - name: method
+        data_tests: [not_null]
+      - name: median_per_adult_eur
+        data_tests: [not_null]
+      - name: mad_eur
+        data_tests: [not_null]
+      - name: computed_at
+        data_tests: [not_null]

@@ -6,6 +6,7 @@ from flight_scanner.clock import SystemClock
 from flight_scanner.config import Settings
 from flight_scanner.db import migrate
 from flight_scanner.deal_context import build_researcher
+from flight_scanner.lakehouse import build_lakehouse
 from flight_scanner.notify.registry import build_notifiers
 from flight_scanner.pipeline.definitions import build_definitions
 from flight_scanner.pipeline.runtime import Runtime
@@ -26,6 +27,7 @@ def runtime_from_env() -> Runtime:
         source_budgets=settings.source_budgets,
         researcher=build_researcher(settings),
         verifier=build_verifier(settings, clock),
+        lakehouse=build_lakehouse(settings),
     )
 
 

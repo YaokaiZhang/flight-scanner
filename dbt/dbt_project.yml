@@ -17,6 +17,9 @@ vars:
   baseline_min_observations: 20  # route/country support: daily-minimum trip prices ...
   baseline_min_days: 7  # ... spread over at least this many distinct observation days
   provisional_min_trips: 5  # provisional Baseline: trips (departure dates) in the key
+  # Analytical layer (ticket 12): Baselines the lakehouse published are used for detection
+  # until they are this old; then the operational recompute takes over again.
+  published_baseline_max_age_days: 7
   # Backtest (marts.backtest_deals)
   backtest_recovery_share: 0.5  # a real dip: a later price climbs this share back to the Baseline
   backtest_min_later_days: 3  # ... else "stayed low" once this many later days were observed
@@ -35,12 +38,16 @@ models:
     baselines:
       +schema: marts
       +materialized: table
+      # the models the lakehouse (Databricks job) builds: `--select tag:lakehouse`
+      baseline_observations: {+tags: [lakehouse]}
+      baselines: {+tags: [lakehouse]}
     marts:
       +schema: marts
       +materialized: table
     backtest:
       +schema: marts
       +materialized: table
+      +tags: [lakehouse]
 
 seeds:
   flight_scanner:

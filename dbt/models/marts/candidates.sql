@@ -45,29 +45,16 @@ priced_slots as (
     where w.status = 'active'
 ),
 
-versions as (
-    select
-        tier, origin_city, destination, departure_month, stay_bucket,
-        max(computed_at) as version_computed_at
-    from {{ ref('baseline_versions') }}
-    group by tier, origin_city, destination, departure_month, stay_bucket
-),
-
+-- route/country/provisional Baselines: published by the lakehouse while fresh, else the
+-- operational recompute (ticket 12); computed_at is the version
 baselines as (
-    select b.*, v.version_computed_at
-    from {{ ref('baselines') }} as b
-    inner join versions as v
-        on v.tier = b.tier
-        and v.origin_city = b.origin_city
-        and v.destination = b.destination
-        and v.departure_month = b.departure_month
-        and v.stay_bucket = b.stay_bucket
+    select * from {{ ref('effective_baselines') }}
 ),
 
 tiers as (
     select
         s.watch_id, s.origin, s.destination, s.outbound_date, s.return_date,
-        b.tier, b.median_per_adult_eur, b.method, b.version_computed_at as computed_at,
+        b.tier, b.median_per_adult_eur, b.method, b.computed_at,
         b.observations, b.observation_days
     from priced_slots as s
     inner join baselines as b

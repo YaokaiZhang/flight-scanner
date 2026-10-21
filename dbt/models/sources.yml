@@ -1,7 +1,9 @@
 version: 2
 
+# On Databricks every source is a silver table loaded from the daily export (same table name).
 sources:
   - name: landing
+    schema: "{{ 'silver' if target.type == 'databricks' else 'landing' }}"
     description: Rows parsed by source adapters (Python), one per raw payload row.
     tables:
       - name: raw_payloads
@@ -28,6 +30,7 @@ sources:
                   arguments: {to: "ref('fx_rates')", field: currency}
                   config: {severity: warn}
   - name: app
+    schema: "{{ 'silver' if target.type == 'databricks' else 'app' }}"
     description: Application tables owned by Python (Watches, slots, Deals, Alerts).
     tables:
       - name: watches
@@ -35,7 +38,16 @@ sources:
       - name: deals
       - name: alerts
   - name: ref
+    schema: "{{ 'silver' if target.type == 'databricks' else 'ref' }}"
     description: Reference data written by Python from the bundled Places snapshot.
     tables:
       - name: airports
         description: City (null when unknown) and country of every airport; reference_version.
+  - name: analytics
+    schema: "{{ 'silver' if target.type == 'databricks' else 'analytics' }}"
+    description: What the lakehouse (Databricks, ADR-0003) wrote back; owned by Python.
+    tables:
+      - name: baseline_versions
+        description: >
+          Baseline versions the lakehouse published (change-only; method prefixed with the
+          engine, e.g. databricks/daily_min_median_60d).

@@ -1,5 +1,5 @@
-# For running dbt by hand (`dbt build --profiles-dir dbt --project-dir dbt`). The pipeline writes
-# its own profiles.yml per database (flight_scanner/pipeline/dbt.py).
+# For running dbt by hand (`dbt build --profiles-dir dbt --project-dir dbt [--target databricks]`).
+# The pipeline writes its own profiles.yml per database (flight_scanner/pipeline/dbt.py).
 flight_scanner:
   target: postgres
   outputs:
@@ -11,4 +11,15 @@ flight_scanner:
       password: "{{ env_var('POSTGRES_PASSWORD', '') }}"
       dbname: "{{ env_var('POSTGRES_DB', 'flightscanner') }}"
       schema: staging
+      threads: 4
+    # The analytical layer (ADR-0003; databricks/README.md): the same project on a Databricks
+    # SQL warehouse, e.g. `dbt build --target databricks --select baseline_observations baselines
+    # backtest_deals`. The Databricks job's dbt task generates its own profile instead.
+    databricks:
+      type: databricks
+      host: "{{ env_var('DATABRICKS_HOST', '') }}"
+      http_path: "{{ env_var('DATABRICKS_HTTP_PATH', '') }}"
+      token: "{{ env_var('DATABRICKS_TOKEN', '') }}"
+      catalog: "{{ env_var('FS_DATABRICKS_CATALOG', 'flight_scanner') }}"
+      schema: silver
       threads: 4

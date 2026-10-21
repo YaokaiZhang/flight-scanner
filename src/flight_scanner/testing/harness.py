@@ -14,6 +14,9 @@ with `h.add_notifier(RecordingNotifier("telegram"))` (gets only Watches that cho
 Turn on Deal context with `h.use_researcher(FakeResearcher({...}), timeout_seconds=...)`.
 Turn on Verification with `google = h.use_google_flights(daily_quota=...)`: the real SerpApi
 adapter answered by `FakeGoogleFlights` (`google.offer(...)`, `google.asked`).
+Turn on the analytical layer with `databricks = h.use_databricks()` (the real Databricks adapter
+answered by `FakeDatabricks`; `databricks.over_quota()`, `.go_down()`) and run its daily job with
+`h.run_lakehouse()` (returns the recorded `LakehouseRun`).
 dbt's data tests are skipped for speed; `h.run_dbt_data_tests()` runs them like production does.
 """
 
@@ -28,8 +31,9 @@ from flight_scanner import watches
 from flight_scanner.clock import FakeClock
 from flight_scanner.db import DbSettings, connect
 from flight_scanner.deal_context import DEAL_CONTEXT_TIMEOUT, Researcher
+from flight_scanner.lakehouse import DatabricksLakehouse, LakehouseRun
 from flight_scanner.notify.base import Notifier, RecordingNotifier
-from flight_scanner.pipeline import Runtime, collect, rebuild, run_once
+from flight_scanner.pipeline import Runtime, collect, rebuild, run_lakehouse, run_once
 from flight_scanner.places import ReferenceData
 from flight_scanner.raw_store import RawStore
 from flight_scanner.reprocess import ReprocessReport
@@ -37,6 +41,7 @@ from flight_scanner.scan_planner import Budget
 from flight_scanner.sources.base import SourceAdapter
 from flight_scanner.sources.replay import ReplayAdapter
 from flight_scanner.sources.serpapi import DAILY_QUOTA, MONTHLY_QUOTA, SerpApiAdapter
+from flight_scanner.testing.fake_databricks import FakeDatabricks
 from flight_scanner.testing.fake_serpapi import FakeGoogleFlights
 
 
@@ -93,6 +98,23 @@ class PipelineHarness:
             monthly_quota=monthly_quota,
         )
         return google
+
+    def use_databricks(self) -> FakeDatabricks:
+        """Turn on the daily lakehouse job: the Databricks adapter against a fake workspace."""
+        databricks = FakeDatabricks(self.db, self.runtime.work_dir)
+        self.runtime.lakehouse = DatabricksLakehouse(
+            FakeDatabricks.HOST,
+            "test-token",
+            job_id=1,
+            warehouse_id="test-warehouse",
+            transport=databricks,
+            sleep=lambda s: None,
+        )
+        return databricks
+
+    def run_lakehouse(self) -> LakehouseRun | None:
+        """The daily lakehouse job at the clock's current instant (None when it is off)."""
+        return run_lakehouse(self.runtime)
 
     def run_dbt_data_tests(self, on: bool = True) -> None:
         """Run dbt's data tests in later scans, as production does (off by default: slow)."""

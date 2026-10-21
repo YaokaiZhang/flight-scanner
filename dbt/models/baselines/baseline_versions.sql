@@ -1,7 +1,7 @@
 -- Every Baseline version ever computed (append-only): a current Baseline is appended when its
 -- tier and key are new or its method, value, spread or support changed since the latest stored
 -- version. A version is identified by (tier, key, computed_at); Deals record its computed_at.
-{{ config(materialized='incremental') }}
+{{ config(materialized='incremental', incremental_strategy='append') }}
 
 with current_baselines as (
     select * from {{ ref('baselines') }}

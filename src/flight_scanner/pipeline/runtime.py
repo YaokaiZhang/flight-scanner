@@ -8,6 +8,7 @@ from pathlib import Path
 from flight_scanner.clock import Clock
 from flight_scanner.db import DbSettings
 from flight_scanner.deal_context import DEAL_CONTEXT_TIMEOUT, Researcher
+from flight_scanner.lakehouse.base import Lakehouse
 from flight_scanner.notify.base import Notifier
 from flight_scanner.places import ReferenceData, default_reference
 from flight_scanner.raw_store import RawStore
@@ -33,3 +34,5 @@ class Runtime:
     verifier: VerificationSource | None = None
     # run dbt's data tests in every dbt build; the seam-1 harness turns them off for speed
     dbt_data_tests: bool = True
+    # the analytical layer (ticket 12, ADR-0003): the daily `lakehouse` job; None = off
+    lakehouse: Lakehouse | None = None

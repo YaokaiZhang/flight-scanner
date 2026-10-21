@@ -181,9 +181,11 @@ def _gaps_by_route_month(rows: Iterable[Mapping]) -> dict[RouteMonth, float]:
 def baseline_gap(conn: psycopg.Connection, now: datetime) -> dict[RouteMonth, float]:
     """Gap of each Watch slot's current price (marts.trip_prices, last run) to its Deal price:
     the Baseline it would be judged against (route, else country, else the trip's Price insight,
-    else provisional tier; marts.baselines / marts.price_insights) less the Watch's sensitivity.
-    Slots without any Baseline are unknown."""
-    if not all(_exists(conn, t) for t in ("marts.trip_prices", "marts.baselines", "ref.airports")):
+    else provisional tier; marts.effective_baselines / marts.price_insights) less the Watch's
+    sensitivity. Slots without any Baseline are unknown."""
+    if not all(
+        _exists(conn, t) for t in ("marts.trip_prices", "marts.effective_baselines", "ref.airports")
+    ):
         return {}
     insights = (
         """UNION ALL
@@ -219,7 +221,7 @@ def baseline_gap(conn: psycopg.Connection, now: datetime) -> dict[RouteMonth, fl
            JOIN LATERAL (
                SELECT CASE b.tier WHEN 'route' THEN 1 WHEN 'country' THEN 2 ELSE 4 END AS rank,
                       b.median_per_adult_eur
-               FROM marts.baselines b
+               FROM marts.effective_baselines b
                WHERE b.origin_city = s.origin_city AND b.departure_month = s.month
                  AND b.stay_bucket = s.bucket AND b.median_per_adult_eur > 0
                  AND ((b.tier IN ('route', 'provisional') AND b.destination = s.destination)

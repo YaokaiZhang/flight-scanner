@@ -153,7 +153,7 @@ def stay_bucket(departure_date: date, return_date: date | None) -> str:
     return "15+"
 
 
-BASELINES = "marts.baselines"
+BASELINES = "marts.effective_baselines"  # published by the lakehouse, else operational
 PRICE_INSIGHTS = "marts.price_insights"
 
 
@@ -198,13 +198,6 @@ def _baseline(
         )
     if row is None:
         return None
-    version = c.execute(
-        """SELECT max(computed_at) AS v FROM marts.baseline_versions
-           WHERE tier = %(tier)s AND origin_city = %(origin_city)s
-             AND destination = %(destination)s AND departure_month = %(departure_month)s
-             AND stay_bucket = %(stay_bucket)s""",
-        row,
-    ).fetchone()["v"]
     median, mad = float(row["median_per_adult_eur"]), float(row["mad_eur"])
     return BaselineBand(
         tier=row["tier"],
@@ -212,7 +205,7 @@ def _baseline(
         low_per_adult_eur=median - mad,
         high_per_adult_eur=median + mad,
         method=row["method"],
-        computed_at=version or row["computed_at"],
+        computed_at=row["computed_at"],  # the version
         observations=row["observations"],
         observation_days=row["observation_days"],
     )
