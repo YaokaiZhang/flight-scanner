@@ -79,3 +79,29 @@ models:
           arguments:
             columns: [tier, origin_city, destination, departure_month, stay_bucket, computed_at]
     columns: *baseline_columns
+  - name: price_insights
+    description: >
+      Price-insight Baselines: the latest Price insight per trip in the Baseline window, as a
+      Baseline (median = middle of the typical range, mad_eur = half its width). Per trip, not
+      per Baseline key; computed_at = when the insight was observed.
+    data_tests:
+      - unique_combination:
+          arguments:
+            columns: [origin, destination, outbound_date, return_date]
+    columns:
+      - name: tier
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [price_insight]
+      - name: origin
+        data_tests: [not_null]
+      - name: destination
+        data_tests: [not_null]
+      - name: outbound_date
+        data_tests: [not_null]
+      - name: median_per_adult_eur
+        data_tests: [not_null]
+      - name: computed_at
+        data_tests: [not_null]

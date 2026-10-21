@@ -5,7 +5,8 @@ An adapter turns demand into prices in three steps, each separately replayable:
   plan(demands, budget) -> [ScanRequest]   what to ask for (at most `budget` requests);
                                           the scan planner calls it once per scan task
   fetch(request)        -> RawPayload      the source's raw bytes, exactly as received
-  parse(raw)            -> ParsedPrices    Leg prices and/or Round-trip prices
+  parse(raw)            -> ParsedPrices    Leg prices and/or Round-trip prices (and, for a
+                                          Verification source, Price insights)
 
 `parse` must be a pure function of the raw payload so history can be rebuilt from the raw store.
 Adapters own their rate limiting, backoff and quota accounting inside `fetch`, and raise
@@ -75,9 +76,30 @@ class RoundTripPrice:
 
 
 @dataclass(frozen=True)
+class PriceInsight:
+    """A source's view of one trip's normal price (Google's typical price range), for `adults`
+    passengers in `currency`. Its price-history points come out as Fare observations."""
+
+    source: str
+    observed_at: datetime
+    origin: str
+    destination: str
+    departure_date: date
+    return_date: date | None  # None: one way
+    adults: int
+    currency: str
+    typical_low: Decimal
+    typical_high: Decimal
+    lowest_price: Decimal | None = None
+    price_level: str | None = None
+    history_points: int = 0
+
+
+@dataclass(frozen=True)
 class ParsedPrices:
     leg_prices: list[LegPrice] = field(default_factory=list)
     round_trip_prices: list[RoundTripPrice] = field(default_factory=list)
+    price_insights: list[PriceInsight] = field(default_factory=list)
 
 
 @runtime_checkable
@@ -88,6 +110,36 @@ class SourceAdapter(Protocol):
     name: str
 
     def plan(self, demands: Sequence[Demand], budget: int | None = None) -> list[ScanRequest]: ...
+
+    def fetch(self, request: ScanRequest) -> RawPayload: ...
+
+    def parse(self, raw: RawPayload) -> ParsedPrices: ...
+
+
+@dataclass(frozen=True)
+class VerificationTrip:
+    """One concrete trip to check live, for the Watch's adult count."""
+
+    origin: str
+    destination: str
+    outbound_date: date
+    return_date: date | None
+    adults: int = 1
+
+
+@runtime_checkable
+class VerificationSource(Protocol):
+    """A live source used only for Verification (not by the scan planner).
+
+    `verification_request` builds the one request that checks a trip; `fetch`/`parse` are as for
+    `SourceAdapter`: the live price comes out as the Fare observation at `fetched_at`, plus any
+    Price insight. The source declares its free-tier quota; Verification accounts for it."""
+
+    name: str
+    monthly_quota: int
+    daily_quota: int
+
+    def verification_request(self, trip: VerificationTrip) -> ScanRequest: ...
 
     def fetch(self, request: ScanRequest) -> RawPayload: ...
 

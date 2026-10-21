@@ -33,7 +33,7 @@ class AlertMessage:
     price_total_eur: float
     price_per_adult_eur: float
     ticketing: str  # "one_way" | "single_ticket" | "separate_tickets" (2 separate tickets)
-    verification: str  # "verified" | "unverified"
+    verification: str  # "verified" | "unverified" (a failed Verification is never alerted)
     baseline_tier: str | None
     source: str
     observed_at: datetime
@@ -45,6 +45,8 @@ class AlertMessage:
     baseline_per_adult_eur: float | None = None
     alert_id: int | None = None  # the app.alerts row this delivery is recorded as
     deal_context: str | None = None  # why it might be cheap (web research; ticket 14)
+    # why it is Unverified: budget_exhausted | no_verifier | verifier_error (ticket 08)
+    verification_reason: str | None = None
 
     @property
     def pct_below_baseline(self) -> float | None:

@@ -12,8 +12,9 @@ from pathlib import Path
 
 from flight_scanner.clock import Clock
 from flight_scanner.config import Settings
-from flight_scanner.sources.base import SourceAdapter
+from flight_scanner.sources.base import SourceAdapter, VerificationSource
 from flight_scanner.sources.replay import ReplayAdapter
+from flight_scanner.sources.serpapi import DAILY_QUOTA, MONTHLY_QUOTA, SerpApiAdapter
 from flight_scanner.sources.travelpayouts import TravelpayoutsAdapter
 
 
@@ -45,3 +46,21 @@ def build_sources(settings: Settings, clock: Clock) -> list[SourceAdapter]:
     if unknown:
         raise ValueError(f"unknown sources in FS_SOURCES: {sorted(unknown)}")
     return [FACTORIES[name](settings, clock) for name in settings.sources]
+
+
+def build_verifier(settings: Settings, clock: Clock) -> VerificationSource | None:
+    """FS_VERIFIER=serpapi checks Candidates live (needs SERPAPI_API_KEY); empty = off (every
+    Deal is alerted Unverified). FS_SERPAPI_DAILY_BUDGET / FS_SERPAPI_MONTHLY_BUDGET override the
+    free-tier quota (8 a day, 250 a month)."""
+    env = settings.env
+    kind = env.get("FS_VERIFIER", "").strip().lower()
+    if not kind:
+        return None
+    if kind != "serpapi":
+        raise ValueError(f"unknown FS_VERIFIER {kind!r} (expected 'serpapi' or empty)")
+    return SerpApiAdapter(
+        api_key=env.get("SERPAPI_API_KEY", ""),
+        clock=clock,
+        daily_quota=int(env.get("FS_SERPAPI_DAILY_BUDGET") or DAILY_QUOTA),
+        monthly_quota=int(env.get("FS_SERPAPI_MONTHLY_BUDGET") or MONTHLY_QUOTA),
+    )

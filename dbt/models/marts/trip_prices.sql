@@ -6,10 +6,12 @@
 -- Only Leg prices for the exact airport pair are used, so no Self-transfer within one direction
 -- is ever composed. Each source's latest observation at or before as_of counts; the cheapest
 -- source wins. Airlines, stops and travel time (for Alerts) come from the chosen price(s).
+-- Verification sources (live checks, ticket 08) are not current prices: they only feed Baselines.
 with legs as (
     select *
     from {{ ref('stg_leg_prices') }}
     where observed_at <= {{ as_of() }}
+        and {{ not_verification_source('source') }}
 ),
 
 legs_latest as (
@@ -37,6 +39,7 @@ round_trips as (
     select *
     from {{ ref('stg_round_trip_prices') }}
     where observed_at <= {{ as_of() }}
+        and {{ not_verification_source('source') }}
 ),
 
 round_trips_latest as (

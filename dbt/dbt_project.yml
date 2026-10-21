@@ -17,6 +17,9 @@ vars:
   baseline_min_observations: 20  # route/country support: daily-minimum trip prices ...
   baseline_min_days: 7  # ... spread over at least this many distinct observation days
   provisional_min_trips: 5  # provisional Baseline: trips (departure dates) in the key
+  # Verification (ticket 08): sources that only check Candidates live. Their prices (and Price-
+  # insight history) are Fare observations for Baselines but never a trip's current price.
+  verification_sources: ["serpapi"]
 
 models:
   flight_scanner:

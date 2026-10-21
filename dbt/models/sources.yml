@@ -19,6 +19,14 @@ sources:
               - relationships:
                   arguments: {to: "ref('fx_rates')", field: currency}
                   config: {severity: warn}
+      - name: price_insights
+        description: Price insights (typical price range of one trip) from Verification answers.
+        columns:
+          - name: currency
+            data_tests:
+              - relationships:
+                  arguments: {to: "ref('fx_rates')", field: currency}
+                  config: {severity: warn}
   - name: app
     description: Application tables owned by Python (Watches, slots).
     tables:

@@ -113,10 +113,12 @@ export function PriceHistoryChart({
               <line x1={M.l} x2={w - M.r} y1={yLo} y2={yLo} stroke={edge} strokeWidth={0.8} strokeDasharray="4 3" />
               <line x1={M.l} x2={w - M.r} y1={yMid} y2={yMid} stroke="var(--graphite)" strokeWidth={1.5} strokeDasharray="6 4" />
               <text x={lx} y={yHi - 6} textAnchor={narrow ? "start" : "end"} className="baseline-label">
-                {provisional ? "PROVISIONAL " : ""}BASELINE {formatEur(baseline.median_per_adult_eur)}
+                {provisional ? "PROVISIONAL " : ""}
+                {baseline.tier === "price_insight" ? "PRICE INSIGHT " : ""}BASELINE {formatEur(baseline.median_per_adult_eur)}
               </text>
               <text x={lx} y={yLo + 13} textAnchor={narrow ? "start" : "end"}>
-                ± MAD {formatEur(baseline.high_per_adult_eur - baseline.median_per_adult_eur)}
+                {baseline.tier === "price_insight" ? "TYPICAL ± " : "± MAD "}
+                {formatEur(baseline.high_per_adult_eur - baseline.median_per_adult_eur)}
               </text>
             </g>
           );

@@ -10,7 +10,7 @@ from flight_scanner.notify.registry import build_notifiers
 from flight_scanner.pipeline.definitions import build_definitions
 from flight_scanner.pipeline.runtime import Runtime
 from flight_scanner.raw_store import RawStore
-from flight_scanner.sources.registry import build_sources
+from flight_scanner.sources.registry import build_sources, build_verifier
 
 
 def runtime_from_env() -> Runtime:
@@ -25,6 +25,7 @@ def runtime_from_env() -> Runtime:
         notifiers=build_notifiers(settings),
         source_budgets=settings.source_budgets,
         researcher=build_researcher(settings),
+        verifier=build_verifier(settings, clock),
     )
 
 

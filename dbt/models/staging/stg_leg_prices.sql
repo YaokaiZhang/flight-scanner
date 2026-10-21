@@ -1,11 +1,14 @@
 -- Leg prices normalised to EUR per adult (fx_rates seed). One row per Fare observation: the
--- cheapest row per payload, route and departure date. Currencies without a rate are dropped.
+-- cheapest row per payload, observation instant, route and departure date (a Price insight's
+-- history points share one payload but each has its own instant). Currencies without a rate are
+-- dropped.
 with landed as (
     select
         l.*,
         fx.eur_per_unit,
         row_number() over (
-            partition by l.payload_id, l.source, l.origin, l.destination, l.departure_date
+            partition by
+                l.payload_id, l.source, l.observed_at, l.origin, l.destination, l.departure_date
             order by l.price * fx.eur_per_unit / l.adults, l.airline
         ) as price_rank
     from {{ source('landing', 'leg_prices') }} as l

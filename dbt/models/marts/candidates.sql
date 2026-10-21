@@ -1,13 +1,15 @@
 -- Candidates: Watch slots whose composed trip price (marts.trip_prices) passes the Deal test.
--- The trip is judged against the first Baseline tier its key has: route, then destination
--- country, then provisional (low confidence; Verification re-judges it, ticket 08).
---   Route or country Baseline: price per adult at least the Watch's sensitivity below it, and
---   under the Price threshold if the Watch has one.
+-- The trip is judged against the first Baseline tier it has: route, then destination country,
+-- then the trip's Price insight (from an earlier Verification, ticket 08), then provisional (low
+-- confidence; Verification re-judges it against the Price insight).
+--   Route, country or Price-insight Baseline: price per adult at least the Watch's sensitivity
+--   below it, and under the Price threshold if the Watch has one.
 --   Provisional Baseline only: the Price threshold decides when the Watch has one (a low-
 --   confidence estimate never vetoes it); otherwise the sensitivity test against it does.
 --   No Baseline at all: only a Price threshold can make a Candidate.
 -- Each Candidate carries the Baseline version (tier, method, computed_at, support) it was judged
--- against; record_deals copies these columns into app.deals as they are.
+-- against; record_deals copies these columns into app.deals as they are. Verification
+-- (flight_scanner.verification) repeats this test on the live price.
 with airports as (
     select code, coalesce(city, code) as city, country
     from {{ source('ref', 'airports') }}
@@ -62,21 +64,13 @@ baselines as (
         and v.stay_bucket = b.stay_bucket
 ),
 
-judged as (
+tiers as (
     select
-        s.*,
-        b.tier as baseline_tier,
-        b.median_per_adult_eur as baseline_per_adult_eur,
-        b.method as baseline_method,
-        b.version_computed_at as baseline_computed_at,
-        b.observations as baseline_observations,
-        b.observation_days as baseline_observation_days,
-        row_number() over (
-            partition by s.watch_id, s.origin, s.destination, s.outbound_date, s.return_date
-            order by case b.tier when 'route' then 1 when 'country' then 2 else 3 end
-        ) as tier_rank
+        s.watch_id, s.origin, s.destination, s.outbound_date, s.return_date,
+        b.tier, b.median_per_adult_eur, b.method, b.version_computed_at as computed_at,
+        b.observations, b.observation_days
     from priced_slots as s
-    left join baselines as b
+    inner join baselines as b
         on b.origin_city = s.origin_city
         and b.departure_month = s.departure_month
         and b.stay_bucket = s.stay_bucket
@@ -84,6 +78,44 @@ judged as (
             (b.tier in ('route', 'provisional') and b.destination = s.destination)
             or (b.tier = 'country' and b.destination = s.destination_country)
         )
+    union all
+    select
+        s.watch_id, s.origin, s.destination, s.outbound_date, s.return_date,
+        i.tier, i.median_per_adult_eur, i.method, i.computed_at,
+        i.observations, i.observation_days
+    from priced_slots as s
+    inner join {{ ref('price_insights') }} as i
+        on i.origin = s.origin
+        and i.destination = s.destination
+        and i.outbound_date = s.outbound_date
+        and (i.return_date = s.return_date or (i.return_date is null and s.return_date is null))
+),
+
+judged as (
+    select
+        s.*,
+        b.tier as baseline_tier,
+        b.median_per_adult_eur as baseline_per_adult_eur,
+        b.method as baseline_method,
+        b.computed_at as baseline_computed_at,
+        b.observations as baseline_observations,
+        b.observation_days as baseline_observation_days,
+        row_number() over (
+            partition by s.watch_id, s.origin, s.destination, s.outbound_date, s.return_date
+            order by case b.tier
+                when 'route' then 1
+                when 'country' then 2
+                when 'price_insight' then 3
+                else 4
+            end
+        ) as tier_rank
+    from priced_slots as s
+    left join tiers as b
+        on b.watch_id = s.watch_id
+        and b.origin = s.origin
+        and b.destination = s.destination
+        and b.outbound_date = s.outbound_date
+        and (b.return_date = s.return_date or (b.return_date is null and s.return_date is null))
 ),
 
 tested as (
@@ -126,7 +158,7 @@ select
     baseline_observation_days
 from tested
 where case
-    when baseline_tier in ('route', 'country')
+    when baseline_tier in ('route', 'country', 'price_insight')
         then below_baseline and (price_threshold_eur is null or under_threshold)
     -- a low-confidence provisional Baseline never vetoes a Price threshold
     when baseline_tier = 'provisional' and price_threshold_eur is null then below_baseline

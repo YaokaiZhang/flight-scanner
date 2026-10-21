@@ -88,6 +88,11 @@ def lines(a: AlertMessage) -> list[str]:
         out.append(f"Why cheap? {a.deal_context}")
     if a.verification == "verified":
         out.append("Verified: checked live.")
+    elif a.verification_reason == "budget_exhausted":
+        out.append(
+            f"Unverified: Verification budget spent; cached price from {a.source}, "
+            "not checked live."
+        )
     else:
         out.append(f"Unverified: cached price from {a.source}, not checked live.")
     return out

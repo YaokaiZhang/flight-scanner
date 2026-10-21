@@ -6,14 +6,18 @@
 
 **Blocked by:** 05
 
-**Status:** ready-for-agent
+**Status:** resolved
 
-- [ ] SerpApi adapter implements the source-adapter interface for Verification, enforcing a 250/month budget (~8/day) with quota accounting.
-- [ ] Candidates are ranked by % below Baseline and Watch priority; the top ones within budget are verified in round-trip mode for the Watch's adult count.
-- [ ] Outcomes: Verified Deal, failed (recorded, not alerted), or Unverified Deal when the budget is exhausted (clearly labelled).
-- [ ] Price insight (typical price range and price history) is stored; it is a Baseline tier between the country Baseline and the provisional Baseline.
-- [ ] A Candidate judged only against a provisional Baseline is re-judged against the Price insight during Verification.
-- [ ] Price-insight history points are ingested as Fare observations and count toward route-Baseline support.
-- [ ] Works if price history is absent from a response (typical range only).
-- [ ] Seam-3 contract test on recorded SerpApi payloads.
-- [ ] Seam-1 tests: pass, fail, budget exhaustion, provisional → Price insight re-judgement, history backfill making a route meet the 7-day rule.
+- [x] SerpApi adapter implements the source-adapter interface for Verification, enforcing a 250/month budget (~8/day) with quota accounting.
+- [x] Candidates are ranked by % below Baseline and Watch priority; the top ones within budget are verified in round-trip mode for the Watch's adult count.
+- [x] Outcomes: Verified Deal, failed (recorded, not alerted), or Unverified Deal when the budget is exhausted (clearly labelled).
+- [x] Price insight (typical price range and price history) is stored; it is a Baseline tier between the country Baseline and the provisional Baseline.
+- [x] A Candidate judged only against a provisional Baseline is re-judged against the Price insight during Verification.
+- [x] Price-insight history points are ingested as Fare observations and count toward route-Baseline support.
+- [x] Works if price history is absent from a response (typical range only).
+- [x] Seam-3 contract test on recorded SerpApi payloads.
+- [x] Seam-1 tests: pass, fail, budget exhaustion, provisional → Price insight re-judgement, history backfill making a route meet the 7-day rule.
+
+## Comments
+
+- Branch `ticket/08-verification-and-price-insights`: SerpApi Google Flights adapter (Verification only, 250/month + 8/day quota counted in `app.verifications`), `verification` step between `app/deals` and `app/deal_context` (Verified / failed, never alerted / Unverified with reason), Price insight stored (`landing.price_insights` -> `marts.price_insights`) as tier 3 in candidates, planner and route explorer, its price history ingested as Fare observations. Notes: flight-scanner-notes/ticket-08.md.
