@@ -22,6 +22,7 @@ def runtime_from_env() -> Runtime:
         work_dir=settings.work_dir,
         sources=build_sources(settings, clock),
         notifiers=build_notifiers(settings),
+        source_budgets=settings.source_budgets,
     )
 
 

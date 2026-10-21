@@ -27,6 +27,7 @@ from flight_scanner.pipeline import Runtime, rebuild, run_once
 from flight_scanner.places import ReferenceData
 from flight_scanner.raw_store import RawStore
 from flight_scanner.reprocess import ReprocessReport
+from flight_scanner.scan_planner import Budget
 from flight_scanner.sources.base import SourceAdapter
 from flight_scanner.sources.replay import ReplayAdapter
 
@@ -55,6 +56,12 @@ class PipelineHarness:
     def add_notifier(self, notifier: Notifier) -> Notifier:
         self.runtime.notifiers.append(notifier)
         return notifier
+
+    def set_budget(
+        self, source: str, per_run: int | None = None, per_day: int | None = None
+    ) -> None:
+        """Limit a source's requests for later runs (None: unlimited)."""
+        self.runtime.source_budgets[source] = Budget(per_run, per_day)
 
     def use_reference(self, reference: ReferenceData) -> None:
         """Swap the Places reference data used by later runs (and Watch validation)."""

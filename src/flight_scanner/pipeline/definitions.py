@@ -6,7 +6,7 @@ import json
 import dagster as dg
 from dagster_dbt import DbtCliResource, dbt_assets, get_asset_key_for_model
 
-from flight_scanner import deals, digests, watches
+from flight_scanner import deals, digests, scan_planner, watches
 from flight_scanner.clock import today
 from flight_scanner.db import connect
 from flight_scanner.ingestion import ingest
@@ -17,6 +17,7 @@ from flight_scanner.reprocess import ReprocessReport, reprocess
 LEG_PRICES = dg.AssetKey(["landing", "leg_prices"])
 ROUND_TRIP_PRICES = dg.AssetKey(["landing", "round_trip_prices"])
 WATCH_SLOTS = dg.AssetKey(["app", "watch_slots"])
+SCAN_PLAN = dg.AssetKey(["app", "scan_plan"])
 
 
 @dg.asset(key=WATCH_SLOTS, group_name="watches")
@@ -36,15 +37,11 @@ def watch_slots(context: dg.AssetExecutionContext, runtime: dg.ResourceParam[Run
     return dg.MaterializeResult(metadata={"slots": len(slots)})
 
 
-@dg.multi_asset(
-    specs=[
-        dg.AssetSpec(LEG_PRICES, deps=[WATCH_SLOTS], group_name="ingestion"),
-        dg.AssetSpec(ROUND_TRIP_PRICES, deps=[WATCH_SLOTS], group_name="ingestion"),
-    ]
-)
-def source_prices(context: dg.AssetExecutionContext, runtime: dg.ResourceParam[Runtime]):
-    """Plan, fetch, store raw and parse for every enabled source; one outage never stops others."""
-    with connect(runtime.db, autocommit=True) as conn:
+@dg.asset(key=SCAN_PLAN, deps=[WATCH_SLOTS], group_name="ingestion")
+def scan_plan(context: dg.AssetExecutionContext, runtime: dg.ResourceParam[Runtime]):
+    """Shared, ranked scan tasks per source; those over a source's budget are recorded skipped.
+    Ranking reads last run's history and trip prices (dbt runs after ingestion)."""
+    with connect(runtime.db, autocommit=True) as conn, conn.transaction():
         slots = [
             watches.WatchSlot(**r)
             for r in conn.execute(
@@ -52,13 +49,38 @@ def source_prices(context: dg.AssetExecutionContext, runtime: dg.ResourceParam[R
                 "FROM app.watch_slots"
             )
         ]
-        report = ingest(
+        plan_id = scan_planner.plan(
             conn,
+            slots,
             runtime.sources,
-            watches.demands(slots),
-            runtime.raw_store,
             runtime.source_budgets,
+            runtime.clock.now(),
+            today(runtime.clock),
         )
+        counts = {
+            f"{r['source']}.{r['status']}": r["n"]
+            for r in conn.execute(
+                "SELECT source, status, count(*) AS n FROM app.scan_tasks WHERE plan_id = %s "
+                "GROUP BY source, status",
+                (plan_id,),
+            )
+        }
+    return dg.MaterializeResult(metadata={"plan_id": plan_id, **counts})
+
+
+@dg.multi_asset(
+    specs=[
+        dg.AssetSpec(LEG_PRICES, deps=[SCAN_PLAN], group_name="ingestion"),
+        dg.AssetSpec(ROUND_TRIP_PRICES, deps=[SCAN_PLAN], group_name="ingestion"),
+    ]
+)
+def source_prices(context: dg.AssetExecutionContext, runtime: dg.ResourceParam[Runtime]):
+    """Fetch, store raw and parse the scan plan's scheduled tasks; one outage never stops others."""
+    with connect(runtime.db, autocommit=True) as conn:
+        plan_id = scan_planner.latest_plan_id(conn)
+        tasks = scan_planner.scheduled(conn, plan_id) if plan_id is not None else []
+        report = ingest(conn, runtime.sources, tasks, runtime.raw_store)
+        scan_planner.finish(conn, report.task_status, runtime.clock.now())
     meta = {"sources": dg.MetadataValue.json(report.as_metadata())}
     yield dg.MaterializeResult(asset_key=LEG_PRICES, metadata=meta)
     yield dg.MaterializeResult(asset_key=ROUND_TRIP_PRICES, metadata=meta)
@@ -99,7 +121,15 @@ def build_definitions(runtime: Runtime) -> dg.Definitions:
             sent = digests.send_digests(conn, runtime.notifiers, runtime.clock.now())
         return dg.MaterializeResult(metadata={"digests_sent": sent})
 
-    assets = [watch_slots, source_prices, dbt_models, deals_asset, alerts_asset, digests_asset]
+    assets = [
+        watch_slots,
+        scan_plan,
+        source_prices,
+        dbt_models,
+        deals_asset,
+        alerts_asset,
+        digests_asset,
+    ]
     scan_job = dg.define_asset_job("scan", selection=dg.AssetSelection.assets(*assets))
     # dbt only (seeds, staging, history, marts): used by `rebuild` after re-parsing the raw store
     rebuild_job = dg.define_asset_job("rebuild", selection=dg.AssetSelection.assets(dbt_models))

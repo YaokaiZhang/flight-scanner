@@ -11,7 +11,7 @@ from psycopg_pool import ConnectionPool
 from pydantic import BaseModel
 
 from flight_scanner import feedback, trip_patterns, watches
-from flight_scanner.api import routes
+from flight_scanner.api import routes, scan_tasks
 from flight_scanner.clock import Clock, SystemClock, today
 from flight_scanner.db import DbSettings
 from flight_scanner.notify.base import pct_below_baseline
@@ -144,6 +144,7 @@ def create_app(
 
     app = FastAPI(title="Flight Scanner API", lifespan=lifespan)
     app.include_router(routes.router)
+    app.include_router(scan_tasks.router)
 
     @app.exception_handler(InvalidWatch)
     def invalid_watch(request: Request, exc: InvalidWatch) -> JSONResponse:

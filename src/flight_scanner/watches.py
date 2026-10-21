@@ -8,7 +8,7 @@ Public interface:
   slots(conn, today, reference) - concrete (watch, origin, destination, outbound, return) trips;
                                  Places are resolved here, on every call, so reference-data
                                  changes reach existing Watches without editing them
-  demands(slots)               - de-duplicated (origin, destination, month) for source planning
+  Demand                       - what a source is asked to price (built by `scan_planner`)
 """
 
 from __future__ import annotations
@@ -77,11 +77,14 @@ class WatchSlot(NamedTuple):
 
 
 class Demand(NamedTuple):
-    """What a source adapter is asked to price. `destination` None means anywhere."""
+    """What a source adapter is asked to price (one scan task). `destination` None means
+    anywhere. `round_trip`: a slot returns from destination to origin, so single-ticket
+    Round-trip prices are wanted too (the return leg is its own Demand)."""
 
     origin: str
     destination: str | None
     month: date  # first day of the departure month
+    round_trip: bool = False
 
 
 _COLUMNS = (
@@ -232,13 +235,3 @@ def slots(
                     continue
                 out.extend(WatchSlot(w.id, o, d, t.outbound, t.inbound) for t in trips)
     return out
-
-
-def demands(watch_slots: list[WatchSlot]) -> list[Demand]:
-    """Leg demand for every slot: the outbound leg and, for round trips, the return leg."""
-    seen: set[Demand] = set()
-    for s in watch_slots:
-        seen.add(Demand(s.origin, s.destination, s.outbound_date.replace(day=1)))
-        if s.return_date is not None:
-            seen.add(Demand(s.destination, s.origin, s.return_date.replace(day=1)))
-    return sorted(seen)

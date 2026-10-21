@@ -1,7 +1,7 @@
-"""Ingestion: demands -> each source adapter -> raw store + landing tables.
+"""Ingestion: the scan plan's scheduled tasks -> each source adapter -> raw store + landing.
 
 One source failing (SourceUnavailable or any error) never stops the others; the outcome per
-source is returned so the pipeline can report it.
+source, and per scan task ("scanned" or "failed"), is returned so the pipeline can record it.
 """
 
 from __future__ import annotations
@@ -15,8 +15,8 @@ import psycopg
 from psycopg.types.json import Jsonb
 
 from flight_scanner.raw_store import RawStore
+from flight_scanner.scan_planner import ScheduledTask
 from flight_scanner.sources.base import ParsedPrices, RawPayload, SourceAdapter
-from flight_scanner.watches import Demand
 
 log = logging.getLogger(__name__)
 
@@ -43,6 +43,7 @@ class SourceOutcome:
 @dataclass
 class IngestReport:
     outcomes: list[SourceOutcome] = field(default_factory=list)
+    task_status: dict[int, str] = field(default_factory=dict)  # scan task id -> scanned|failed
 
     def as_metadata(self) -> dict:
         return {o.source: asdict(o) for o in self.outcomes}
@@ -115,29 +116,35 @@ def load_parsed(conn: psycopg.Connection, payload_id: int, parsed: ParsedPrices)
 def ingest(
     conn: psycopg.Connection,
     adapters: Sequence[SourceAdapter],
-    demands: Sequence[Demand],
+    tasks: Sequence[ScheduledTask],
     raw_store: RawStore,
-    budgets: dict[str, int] | None = None,
 ) -> IngestReport:
+    """Fetch every scheduled task's requests, in order, per source. When a source fails, its
+    current and remaining tasks are failed and the other sources carry on."""
     report = IngestReport()
     for adapter in adapters:
         outcome = SourceOutcome(adapter.name)
         report.outcomes.append(outcome)
+        mine = [t for t in tasks if t.source == adapter.name]
+        outcome.requests = sum(len(t.requests) for t in mine)
         try:
-            requests = adapter.plan(demands, (budgets or {}).get(adapter.name))
-            outcome.requests = len(requests)
-            for req in requests:
-                raw = adapter.fetch(req)
-                # the raw bytes are committed before parsing, so a parse bug never loses data
-                with conn.transaction():
-                    payload_id = store_payload(conn, raw_store, raw)
-                outcome.payloads += 1
-                parsed = adapter.parse(raw)
-                with conn.transaction():
-                    load_parsed(conn, payload_id, parsed)
-                outcome.leg_prices += len(parsed.leg_prices)
-                outcome.round_trip_prices += len(parsed.round_trip_prices)
+            for task in mine:
+                report.task_status[task.id] = "failed"
+                for req in task.requests:
+                    raw = adapter.fetch(req)
+                    # the raw bytes are committed before parsing, so a parse bug never loses data
+                    with conn.transaction():
+                        payload_id = store_payload(conn, raw_store, raw)
+                    outcome.payloads += 1
+                    parsed = adapter.parse(raw)
+                    with conn.transaction():
+                        load_parsed(conn, payload_id, parsed)
+                    outcome.leg_prices += len(parsed.leg_prices)
+                    outcome.round_trip_prices += len(parsed.round_trip_prices)
+                report.task_status[task.id] = "scanned"
         except Exception as e:  # noqa: BLE001 - isolate every source failure
             log.warning("source %s failed: %s", adapter.name, e)
             outcome.error = f"{type(e).__name__}: {e}"
+        for task in mine:
+            report.task_status.setdefault(task.id, "failed")
     return report
