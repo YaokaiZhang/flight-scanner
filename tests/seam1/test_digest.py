@@ -2,6 +2,8 @@
 
 from datetime import UTC, datetime, timedelta
 
+from flight_scanner.notify.base import RecordingNotifier
+
 # The harness starts at 2026-10-21 09:00Z (12:00 in Helsinki). Digests go out at 08:00 Helsinki,
 # which is 05:00Z while summer time lasts (until 25 Oct 2026).
 NEXT_MORNING = datetime(2026, 10, 22, 5, 0, tzinfo=UTC)
@@ -89,3 +91,19 @@ def test_switching_a_watch_to_digest_mode_is_per_watch(pipeline):
     assert {a.watch_id for a in pipeline.notifier.alerts} == {immediate.id}
     assert len(pipeline.notifier.alerts) == 2
     assert pipeline.notifier.digests == []
+
+
+def test_a_telegram_only_digest_watch_sends_one_telegram_digest_and_no_email(pipeline):
+    email = pipeline.add_notifier(RecordingNotifier("email"))
+    telegram = pipeline.add_notifier(RecordingNotifier("telegram"))
+    pipeline.create_watch({**digest_watch(), "channels": ["telegram"]})
+    scan(pipeline, pipeline.clock.now(), hel=100, tku=110)
+    scan(pipeline, NEXT_MORNING, hel=100, tku=110)
+    scan(pipeline, NEXT_MORNING + timedelta(minutes=30), hel=100, tku=110)
+
+    [digest] = telegram.digests
+    assert digest_lines(digest) == [("HEL", 100), ("TKU", 110)]
+    # Each Deal in the Digest is its own Alert, so 👍/👎 can be tied to it.
+    assert None not in [d.alert_id for d in digest.deals]
+    assert telegram.alerts == []
+    assert (email.alerts, email.digests) == ([], [])

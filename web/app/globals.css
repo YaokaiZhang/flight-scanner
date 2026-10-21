@@ -112,6 +112,25 @@ select.input {
 .btn-marker.primary { border-color: var(--ink); color: var(--ink-deep); }
 .btn-marker.primary:hover { background: var(--swash-strong); }
 .btn-marker[disabled] { opacity: 0.6; cursor: progress; }
+.btn-marker.book { margin-top: 22px; width: 100%; justify-content: center; padding-block: 11px; }
+.btn-icon {
+  display: inline-grid; place-items: center; width: 36px; height: 36px; border: 1.5px solid var(--construction);
+  color: var(--graphite); transition: transform 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+.btn-icon:hover { border-color: var(--ink); color: var(--ink-deep); transform: rotate(-2deg); }
+.btn-icon[aria-pressed="true"] { border-color: var(--ink); background: var(--swash); color: var(--ink-deep); }
+.btn-icon .icon { width: 16px; height: 16px; }
+.actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.actions .spacer { flex: 1; }
+.actions.rate { margin-top: 16px; }
+
+/* Segmented filter + page-head controls (Deals feed) */
+.controls { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+.seg { display: inline-flex; border: 1.5px solid var(--graphite); }
+.seg button { padding: 6px 12px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--graphite); }
+.seg button + button { border-left: 1px solid var(--construction); }
+.seg button[aria-pressed="true"] { background: var(--swash); color: var(--ink-deep); }
+.seg button:hover { color: var(--ink-deep); }
 
 .tag {
   display: inline-flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 500; text-transform: uppercase;
@@ -131,6 +150,7 @@ select.input {
 }
 .widget-label::before { content: ""; width: 8px; height: 8px; border: 1px solid var(--ink); border-radius: 50%; flex: none; }
 .data-point { font-size: 34px; color: var(--ink); font-weight: 300; line-height: 1.1; letter-spacing: -0.02em; margin-bottom: 6px; }
+.data-point.amber { color: var(--amber); }
 .data-point small { font-size: 12px; letter-spacing: 0; color: var(--pencil); font-weight: 400; margin-left: 4px; }
 .data-desc { font-size: 11px; color: var(--graphite); line-height: 1.7; }
 .data-desc em { font-style: normal; color: var(--ink-deep); }
@@ -162,6 +182,7 @@ select.input {
 .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
 .price { text-align: right; }
 .price b { display: block; font-size: 24px; font-weight: 300; color: var(--ink); line-height: 1.1; letter-spacing: -0.02em; }
+.price .sub { display: block; }
 .price b small { font-size: 11px; color: var(--pencil); letter-spacing: 0; font-weight: 400; margin-left: 3px; }
 .empty { padding: 48px 12px; text-align: center; color: var(--pencil); font-size: 12px; border-bottom: 1px dashed var(--construction); }
 .empty strong { display: block; color: var(--graphite); font-weight: 500; margin-bottom: 4px; }

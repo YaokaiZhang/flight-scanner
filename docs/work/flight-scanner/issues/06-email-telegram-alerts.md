@@ -6,11 +6,15 @@
 
 **Blocked by:** 01
 
-**Status:** ready-for-agent
+**Status:** resolved
 
-- [ ] Email (SMTP) and Telegram notifiers implement the notifier interface; configuration from environment.
-- [ ] Alert content: route, dates, airlines, stops, total travel time, total and per-adult price, Baseline and % below (when present), Verified/Unverified, "2 separate tickets" when applicable, booking link.
-- [ ] Per-Watch channel choice: email, Telegram or both.
-- [ ] Telegram Alerts carry 👍/👎 buttons whose callbacks are recorded against the Alert.
-- [ ] The Deals feed allows 👍/👎 and filters by Watch and status.
-- [ ] Seam-1 test asserts recorded Alert content for a Deal; seam-2 tests cover feedback via the API.
+- [x] Email (SMTP) and Telegram notifiers implement the notifier interface; configuration from environment.
+- [x] Alert content: route, dates, airlines, stops, total travel time, total and per-adult price, Baseline and % below (when present), Verified/Unverified, "2 separate tickets" when applicable, booking link.
+- [x] Per-Watch channel choice: email, Telegram or both.
+- [x] Telegram Alerts carry 👍/👎 buttons whose callbacks are recorded against the Alert.
+- [x] The Deals feed allows 👍/👎 and filters by Watch and status.
+- [x] Seam-1 test asserts recorded Alert content for a Deal; seam-2 tests cover feedback via the API.
+
+## Comments
+
+- Resolved on branch `ticket/06-email-telegram-alerts`: SMTP + Telegram notifiers (env-configured), shared Alert content with booking link, per-Watch channels, Telegram 👍/👎 via polled callbacks and Deals-feed rating, feed filters by Watch and status. Notes: flight-scanner-notes/ticket-06.md.

@@ -106,6 +106,7 @@ def build_definitions(runtime: Runtime) -> dg.Definitions:
     return dg.Definitions(
         assets=assets,
         jobs=[scan_job, rebuild_job],
+        sensors=_feedback_sensors(runtime),
         schedules=[dg.ScheduleDefinition(job=scan_job, cron_schedule="*/30 * * * *")],
         resources={
             "runtime": runtime,
@@ -116,6 +117,25 @@ def build_definitions(runtime: Runtime) -> dg.Definitions:
             ),
         },
     )
+
+
+def _feedback_sensors(runtime: Runtime) -> list[dg.SensorDefinition]:
+    """Collect 👍/👎 taps from notifiers that support it (Telegram) every 30 s; launches no runs."""
+    collectors = [n for n in runtime.notifiers if hasattr(n, "collect_feedback")]
+    if not collectors:
+        return []
+
+    @dg.sensor(
+        name="telegram_feedback",
+        minimum_interval_seconds=30,
+        default_status=dg.DefaultSensorStatus.RUNNING,
+    )
+    def telegram_feedback(context: dg.SensorEvaluationContext):
+        with connect(runtime.db, autocommit=True) as conn:
+            n = sum(c.collect_feedback(conn, runtime.clock.now()) for c in collectors)
+        return dg.SkipReason(f"recorded {n} ratings")
+
+    return [telegram_feedback]
 
 
 def _execute(

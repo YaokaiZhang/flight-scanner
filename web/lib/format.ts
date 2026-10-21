@@ -22,3 +22,12 @@ export const formatInstant = (iso: string) =>
     minute: "2-digit",
     timeZone: "Europe/Helsinki",
   }).format(new Date(iso));
+
+export const formatMinutes = (minutes: number) => {
+  const h = Math.floor(minutes / 60);
+  const m = minutes % 60;
+  return h ? `${h} h ${String(m).padStart(2, "0")} min` : `${m} min`;
+};
+
+export const formatStops = (stops: number) =>
+  stops === 0 ? "direct" : `${stops} stop${stops > 1 ? "s" : ""}`;

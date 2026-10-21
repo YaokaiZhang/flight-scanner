@@ -7,7 +7,8 @@
     h.run()                                               # real Postgres, dbt and Dagster
     h.notifier.alerts                                     # what came out
 
-Add more fake sources with `h.add_source(ReplayAdapter("other", h.clock))`.
+Add more fake sources with `h.add_source(ReplayAdapter("other", h.clock))`, and channel stand-ins
+with `h.add_notifier(RecordingNotifier("telegram"))` (gets only Watches that chose Telegram).
 """
 
 from __future__ import annotations
@@ -20,7 +21,7 @@ import dagster as dg
 from flight_scanner import watches
 from flight_scanner.clock import FakeClock
 from flight_scanner.db import DbSettings, connect
-from flight_scanner.notify.base import RecordingNotifier
+from flight_scanner.notify.base import Notifier, RecordingNotifier
 from flight_scanner.pipeline import Runtime, rebuild, run_once
 from flight_scanner.raw_store import RawStore
 from flight_scanner.reprocess import ReprocessReport
@@ -48,6 +49,10 @@ class PipelineHarness:
     def add_source(self, adapter: SourceAdapter) -> SourceAdapter:
         self.runtime.sources.append(adapter)
         return adapter
+
+    def add_notifier(self, notifier: Notifier) -> Notifier:
+        self.runtime.notifiers.append(notifier)
+        return notifier
 
     def create_watch(self, spec: watches.WatchSpec | dict) -> watches.Watch:
         if isinstance(spec, dict):

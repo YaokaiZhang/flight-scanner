@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
-import { api, ApiError, type WatchSpec } from "@/lib/api";
+import { api, ApiError, type Channel, type WatchSpec } from "@/lib/api";
 
 const iata = (s: string) => s.trim().toUpperCase();
 
@@ -24,7 +24,12 @@ export function WatchEditor({ onCreated }: { onCreated: () => void }) {
         ? { amount_eur: Number(threshold), basis: f.get("basis") === "per_adult" ? "per_adult" : "total" }
         : null,
       delivery: f.get("delivery") === "digest" ? "digest" : "immediate",
+      channels: f.getAll("channels").map(String) as Channel[],
     };
+    if (spec.channels.length === 0) {
+      setMessage({ ok: false, text: "Choose at least one Alert channel." });
+      return;
+    }
     setBusy(true);
     setMessage(null);
     try {
@@ -77,6 +82,13 @@ export function WatchEditor({ onCreated }: { onCreated: () => void }) {
           <div className="choice">
             <label><input type="radio" name="basis" value="total" defaultChecked /> Total</label>
             <label><input type="radio" name="basis" value="per_adult" /> Per adult</label>
+          </div>
+        </fieldset>
+        <fieldset className="field" style={{ border: 0 }}>
+          <legend className="field-label">Send Alerts by</legend>
+          <div className="choice">
+            <label><input type="checkbox" name="channels" value="email" defaultChecked /> Email</label>
+            <label><input type="checkbox" name="channels" value="telegram" defaultChecked /> Telegram</label>
           </div>
         </fieldset>
         <fieldset className="field" style={{ border: 0 }}>

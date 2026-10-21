@@ -25,3 +25,6 @@ models:
         data_tests: [not_null]
       - name: source
         data_tests: [not_null]
+      - name: separate_tickets
+        description: True when the trip is two independently booked one-way tickets.
+        data_tests: [not_null]
