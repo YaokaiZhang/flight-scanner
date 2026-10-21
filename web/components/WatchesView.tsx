@@ -39,7 +39,7 @@ export function WatchesView() {
               <thead>
                 <tr>
                   <th>Watch</th><th>From</th><th>To</th><th>Departure</th>
-                  <th className="num">Adults</th><th className="num">Threshold</th><th>Status</th>
+                  <th className="num">Adults</th><th className="num">Threshold</th><th>Alerts by</th><th>Status</th>
                 </tr>
               </thead>
               <tbody>
@@ -54,6 +54,9 @@ export function WatchesView() {
                       {w.price_threshold
                         ? `${formatEur(w.price_threshold.amount_eur)}${w.price_threshold.basis === "per_adult" ? " /adult" : ""}`
                         : "none"}
+                    </td>
+                    <td data-label="Alerts by">
+                      {w.channels.map((c) => (c === "email" ? "Email" : "Telegram")).join(" + ")}
                     </td>
                     <td data-label="Status">
                       <span className={`tag ${w.status === "active" ? "verified" : "off"}`}>{w.status}</span>

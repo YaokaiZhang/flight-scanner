@@ -1,8 +1,8 @@
 """The notifier interface and the channel-agnostic Alert content.
 
-`AlertMessage` is everything an Alert says; channels (email, Telegram: ticket 06) only format and
-deliver it. `send` raises on delivery failure; the pipeline then leaves the Alert unsent so the
-next run retries it.
+`AlertMessage` is everything an Alert says; channels (`notify/email.py`, `notify/telegram.py`)
+only format (`notify/content.py`) and deliver it. `send` raises on delivery failure; the
+pipeline then leaves the Alert unsent so the next run retries it.
 """
 
 from __future__ import annotations
@@ -17,6 +17,9 @@ log = logging.getLogger(__name__)
 
 @dataclass(frozen=True)
 class AlertMessage:
+    """One Alert. Optional fields are None (or False) when the pipeline doesn't know them yet;
+    channels then leave them out rather than guessing."""
+
     deal_id: int
     watch_id: int
     watch_name: str
@@ -31,6 +34,27 @@ class AlertMessage:
     baseline_tier: str | None
     source: str
     observed_at: datetime
+    booking_url: str
+    airlines: str | None = None
+    stops: int | None = None  # most stops in any one direction
+    travel_minutes: int | None = None  # all legs together
+    separate_tickets: bool = False
+    baseline_per_adult_eur: float | None = None
+    alert_id: int | None = None  # the app.alerts row this delivery is recorded as
+
+    @property
+    def pct_below_baseline(self) -> float | None:
+        """How far the per-adult price is under the Baseline, in percent (e.g. 45.0)."""
+        if self.baseline_per_adult_eur is None:
+            return None
+        return pct_below_baseline(self.price_per_adult_eur, self.baseline_per_adult_eur)
+
+
+def pct_below_baseline(price_per_adult_eur: float, baseline_per_adult_eur: float) -> float | None:
+    """Percent under the Baseline, one decimal (118 vs 214 -> 44.9); None for a zero Baseline."""
+    if baseline_per_adult_eur <= 0:
+        return None
+    return round((1 - price_per_adult_eur / baseline_per_adult_eur) * 100, 1)
 
 
 @runtime_checkable
@@ -41,11 +65,14 @@ class Notifier(Protocol):
 
 
 class RecordingNotifier:
-    """Keeps every Alert it is handed. The seam-1 output."""
+    """Keeps every Alert it is handed. The seam-1 output.
 
-    channel = "recording"
+    `channel` defaults to "recording" (gets every Alert); pass "email" or "telegram" to stand in
+    for that channel and receive only Watches that chose it.
+    """
 
-    def __init__(self) -> None:
+    def __init__(self, channel: str = "recording") -> None:
+        self.channel = channel
         self.alerts: list[AlertMessage] = []
 
     def send(self, alert: AlertMessage) -> None:

@@ -14,7 +14,7 @@ from typing import Literal, NamedTuple
 
 import psycopg
 from psycopg.types.json import Jsonb
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 from flight_scanner import places, trip_patterns
 from flight_scanner.clock import Clock
@@ -27,6 +27,9 @@ class PriceThreshold(BaseModel):
     basis: Literal["total", "per_adult"] = "total"
 
 
+Channel = Literal["email", "telegram"]
+
+
 class WatchSpec(BaseModel):
     name: str = Field(min_length=1, max_length=120)
     origins: PlaceSet
@@ -34,6 +37,13 @@ class WatchSpec(BaseModel):
     trip_pattern: TripPreset
     adults: int = Field(default=1, ge=1, le=9)
     price_threshold: PriceThreshold | None = None
+    # Where Alerts go: email, Telegram or both.
+    channels: list[Channel] = Field(default_factory=lambda: ["email", "telegram"], min_length=1)
+
+    @field_validator("channels")
+    @classmethod
+    def _distinct_channels(cls, v: list[str]) -> list[str]:
+        return sorted(set(v))
 
 
 class Watch(WatchSpec):
@@ -61,7 +71,7 @@ class Demand(NamedTuple):
 
 _COLUMNS = (
     "id, name, origins, destinations, trip_pattern, adults, price_threshold_eur, "
-    "price_threshold_basis, status, created_at, updated_at"
+    "price_threshold_basis, channels, status, created_at, updated_at"
 )
 
 
@@ -79,8 +89,8 @@ def create(conn: psycopg.Connection, spec: WatchSpec, clock: Clock) -> Watch:
     t = spec.price_threshold
     row = conn.execute(
         f"""INSERT INTO app.watches (name, origins, destinations, trip_pattern, adults,
-                price_threshold_eur, price_threshold_basis, created_at, updated_at)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING {_COLUMNS}""",
+                price_threshold_eur, price_threshold_basis, channels, created_at, updated_at)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING {_COLUMNS}""",
         (
             spec.name,
             Jsonb(spec.origins.model_dump(mode="json")),
@@ -89,6 +99,7 @@ def create(conn: psycopg.Connection, spec: WatchSpec, clock: Clock) -> Watch:
             spec.adults,
             t.amount_eur if t else None,
             t.basis if t else None,
+            spec.channels,
             now,
             now,
         ),

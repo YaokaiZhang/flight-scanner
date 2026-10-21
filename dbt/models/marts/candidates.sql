@@ -41,7 +41,10 @@ priced_slots as (
         c.price_per_adult_eur,
         c.price_per_adult_eur * w.adults as price_total_eur,
         c.source,
-        c.observed_at
+        c.observed_at,
+        c.airline,
+        c.stops,
+        c.duration_min
     from {{ source('app', 'watch_slots') }} as s
     inner join {{ source('app', 'watches') }} as w on w.id = s.watch_id
     inner join cheapest as c
@@ -64,7 +67,16 @@ select
     price_total_eur,
     source,
     observed_at,
-    cast(null as {{ dbt.type_string() }}) as baseline_tier
+    cast(null as {{ dbt.type_string() }}) as baseline_tier,
+    -- Alert details (ticket 06). One-way: one leg, so its airline, stops and duration.
+    -- Composition (ticket 04) and Baselines (ticket 05) fill the rest; until then they are
+    -- null / false and Alerts omit them.
+    airline as airlines,
+    stops,
+    duration_min as travel_minutes,
+    false as separate_tickets,
+    cast(null as {{ dbt.type_string() }}) as booking_url,
+    cast(null as {{ dbt.type_numeric() }}) as baseline_per_adult_eur
 from priced_slots
 where price_threshold_eur is not null
     and case

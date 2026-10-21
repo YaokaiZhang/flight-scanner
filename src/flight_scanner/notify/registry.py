@@ -9,9 +9,13 @@ from collections.abc import Callable
 
 from flight_scanner.config import Settings
 from flight_scanner.notify.base import LogNotifier, Notifier
+from flight_scanner.notify.email import EmailNotifier, SmtpSettings
+from flight_scanner.notify.telegram import TelegramNotifier, TelegramSettings
 
 FACTORIES: dict[str, Callable[[Settings], Notifier]] = {
     "log": lambda settings: LogNotifier(),
+    "email": lambda settings: EmailNotifier(SmtpSettings.from_env(settings.env)),
+    "telegram": lambda settings: TelegramNotifier(TelegramSettings.from_env(settings.env)),
 }
 
 
