@@ -1,0 +1,66 @@
+version: 2
+
+models:
+  - name: leg_price_history
+    description: >
+      Change-only Leg-price history in EUR per adult, with validity intervals. A row starts when a
+      source's price for (origin, destination, departure date) changes; repeated identical
+      observations only extend it (last_observed_at, observations).
+    data_tests:
+      - unique_combination:
+          arguments:
+            columns: [source, origin, destination, departure_date, valid_from]
+    columns:
+      - name: source
+        data_tests: [not_null]
+      - name: origin
+        data_tests: [not_null]
+      - name: destination
+        data_tests: [not_null]
+      - name: departure_date
+        data_tests: [not_null]
+      - name: valid_from
+        data_tests: [not_null]
+      - name: last_observed_at
+        data_tests: [not_null]
+      - name: observations
+        data_tests: [not_null]
+      - name: price_per_adult_eur
+        data_tests: [not_null]
+      - name: first_payload_id
+        data_tests:
+          - not_null
+          - relationships:
+              arguments: {to: "source('landing', 'raw_payloads')", field: id}
+  - name: round_trip_price_history
+    description: >
+      Change-only Round-trip-price history in EUR per adult, with validity intervals, per source,
+      route, departure date and return date.
+    data_tests:
+      - unique_combination:
+          arguments:
+            columns: [source, origin, destination, departure_date, return_date, valid_from]
+    columns:
+      - name: return_date
+        data_tests: [not_null]
+      - name: source
+        data_tests: [not_null]
+      - name: origin
+        data_tests: [not_null]
+      - name: destination
+        data_tests: [not_null]
+      - name: departure_date
+        data_tests: [not_null]
+      - name: valid_from
+        data_tests: [not_null]
+      - name: last_observed_at
+        data_tests: [not_null]
+      - name: observations
+        data_tests: [not_null]
+      - name: price_per_adult_eur
+        data_tests: [not_null]
+      - name: first_payload_id
+        data_tests:
+          - not_null
+          - relationships:
+              arguments: {to: "source('landing', 'raw_payloads')", field: id}

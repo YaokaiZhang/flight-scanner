@@ -9,10 +9,16 @@ sources:
         columns:
           - name: currency
             data_tests:
-              - accepted_values:
-                  arguments: {values: ["EUR"]}
-                  config: {severity: warn}  # FX conversion arrives with ticket 02
+              - relationships:  # staging drops currencies without an fx_rates row
+                  arguments: {to: "ref('fx_rates')", field: currency}
+                  config: {severity: warn}
       - name: round_trip_prices
+        columns:
+          - name: currency
+            data_tests:
+              - relationships:
+                  arguments: {to: "ref('fx_rates')", field: currency}
+                  config: {severity: warn}
   - name: app
     description: Application tables owned by Python (Watches, slots).
     tables:

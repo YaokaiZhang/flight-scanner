@@ -1,4 +1,7 @@
-"""`python -m flight_scanner migrate|scan` - operational one-offs."""
+"""`python -m flight_scanner migrate|scan|rebuild` - operational one-offs.
+
+rebuild: re-parse every raw payload of the enabled sources and rebuild staging, history and marts.
+"""
 
 import sys
 
@@ -18,6 +21,14 @@ def main(argv: list[str]) -> int:
         runtime = runtime_from_env()
         migrate(runtime.db)
         return 0 if run_once(runtime).success else 1
+    if cmd == "rebuild":
+        from flight_scanner.pipeline import rebuild
+        from flight_scanner.pipeline.workspace import runtime_from_env
+
+        runtime = runtime_from_env()
+        migrate(runtime.db)
+        print(rebuild(runtime))
+        return 0
     print(__doc__)
     return 2
 

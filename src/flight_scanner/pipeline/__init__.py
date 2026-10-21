@@ -5,7 +5,7 @@
 exactly the wiring that runs in production.
 """
 
-from flight_scanner.pipeline.definitions import build_definitions, run_once
+from flight_scanner.pipeline.definitions import build_definitions, rebuild, run_once
 from flight_scanner.pipeline.runtime import Runtime
 
-__all__ = ["Runtime", "build_definitions", "run_once"]
+__all__ = ["Runtime", "build_definitions", "rebuild", "run_once"]

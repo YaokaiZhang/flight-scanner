@@ -25,6 +25,7 @@ export type TripResolution = {
   expired: boolean;
 };
 export type PriceThreshold = { amount_eur: number; basis: "total" | "per_adult" };
+export type Delivery = "immediate" | "digest";
 
 export type WatchSpec = {
   name: string;
@@ -33,6 +34,7 @@ export type WatchSpec = {
   trip_pattern: TripPreset;
   adults: number;
   price_threshold: PriceThreshold | null;
+  delivery?: Delivery;
 };
 
 export type Watch = WatchSpec & {
@@ -40,6 +42,7 @@ export type Watch = WatchSpec & {
   origins: PlaceSet;
   destinations: PlaceSet;
   status: "active" | "paused" | "expired";
+  delivery: Delivery;
   created_at: string;
   updated_at: string;
 };
@@ -61,6 +64,35 @@ export type Deal = {
   verification: "verified" | "unverified";
   baseline_tier: string | null;
   detected_at: string;
+};
+
+export type TripDates = { departure_date: string; return_date: string };
+
+export type Route = {
+  origin: string;
+  destination: string;
+  departure_dates: string[]; // with Leg-price history
+  round_trips: TripDates[]; // with Round-trip-price history
+};
+
+export type HistoryPoint = {
+  source: string;
+  kind: "leg" | "round_trip";
+  price_per_adult_eur: number;
+  valid_from: string;
+  valid_to: string | null;
+  last_observed_at: string;
+  observations: number;
+  airline: string | null;
+  stops: number | null;
+};
+
+export type RouteHistory = {
+  origin: string;
+  destination: string;
+  departure_date: string;
+  return_date: string | null;
+  points: HistoryPoint[];
 };
 
 export class ApiError extends Error {
@@ -88,4 +120,12 @@ export const api = {
     call<TripResolution>("/trip-patterns/resolve", { method: "POST", body: JSON.stringify({ trip_pattern }) }),
   listDeals: (watchId?: number) =>
     call<Deal[]>(`/deals${watchId ? `?watch_id=${watchId}` : ""}`),
+  listRoutes: () => call<Route[]>("/routes"),
+  routeHistory: (origin: string, destination: string, departure: string, returnDate?: string) => {
+    const q = new URLSearchParams({ departure_date: departure });
+    if (returnDate) q.set("return_date", returnDate);
+    return call<RouteHistory>(
+      `/routes/${encodeURIComponent(origin)}/${encodeURIComponent(destination)}/history?${q}`,
+    );
+  },
 };

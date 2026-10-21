@@ -10,6 +10,7 @@ from psycopg_pool import ConnectionPool
 from pydantic import BaseModel
 
 from flight_scanner import trip_patterns, watches
+from flight_scanner.api import routes
 from flight_scanner.clock import Clock, SystemClock, today
 from flight_scanner.db import DbSettings
 from flight_scanner.trip_patterns import TripPreset
@@ -56,6 +57,7 @@ def create_app(db: DbSettings, clock: Clock | None = None) -> FastAPI:
             pool.close()
 
     app = FastAPI(title="Flight Scanner API", lifespan=lifespan)
+    app.include_router(routes.router)
 
     def conn(request: Request) -> Iterator[psycopg.Connection]:
         with request.app.state.pool.connection() as c:
