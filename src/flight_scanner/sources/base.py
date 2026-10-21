@@ -28,6 +28,11 @@ class SourceUnavailable(Exception):
     """The source could not be reached or refused the request (outage, quota, rate limit)."""
 
 
+class SourceBlocked(SourceUnavailable):
+    """The source turned us away (bot protection, access denied). Never worked around: the
+    source is disabled until the owner re-enables it (`python -m flight_scanner unblock`)."""
+
+
 @dataclass(frozen=True)
 class ScanRequest:
     source: str

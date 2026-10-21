@@ -1,0 +1,100 @@
+{
+ "outbound": {
+  "fares": [
+   {
+    "day": "2026-11-12",
+    "arrivalDate": null,
+    "departureDate": null,
+    "price": null,
+    "soldOut": false,
+    "unavailable": true
+   },
+   {
+    "day": "2026-11-13",
+    "arrivalDate": "2026-11-13T09:55:00",
+    "departureDate": "2026-11-13T06:30:00",
+    "price": {
+     "value": 31.99,
+     "valueMainUnit": "31",
+     "valueFractionalUnit": "99",
+     "currencyCode": "EUR",
+     "currencySymbol": "\u20ac"
+    },
+    "soldOut": false,
+    "unavailable": false
+   },
+   {
+    "day": "2026-11-14",
+    "arrivalDate": "2026-11-14T21:30:00",
+    "departureDate": "2026-11-14T18:05:00",
+    "price": {
+     "value": 19.99,
+     "valueMainUnit": "19",
+     "valueFractionalUnit": "99",
+     "currencyCode": "EUR",
+     "currencySymbol": "\u20ac"
+    },
+    "soldOut": false,
+    "unavailable": false
+   },
+   {
+    "day": "2026-11-15",
+    "arrivalDate": "2026-11-15T09:55:00",
+    "departureDate": "2026-11-15T06:30:00",
+    "price": {
+     "value": 44.5,
+     "valueMainUnit": "44",
+     "valueFractionalUnit": "50",
+     "currencyCode": "EUR",
+     "currencySymbol": "\u20ac"
+    },
+    "soldOut": false,
+    "unavailable": false
+   },
+   {
+    "day": "2026-11-16",
+    "arrivalDate": null,
+    "departureDate": null,
+    "price": null,
+    "soldOut": true,
+    "unavailable": false
+   },
+   {
+    "day": "2026-11-17",
+    "arrivalDate": null,
+    "departureDate": null,
+    "price": null,
+    "soldOut": false,
+    "unavailable": true
+   }
+  ],
+  "minFare": {
+   "day": "2026-11-14",
+   "arrivalDate": "2026-11-14T21:30:00",
+   "departureDate": "2026-11-14T18:05:00",
+   "price": {
+    "value": 19.99,
+    "valueMainUnit": "19",
+    "valueFractionalUnit": "99",
+    "currencyCode": "EUR",
+    "currencySymbol": "\u20ac"
+   },
+   "soldOut": false,
+   "unavailable": false
+  },
+  "maxFare": {
+   "day": "2026-11-15",
+   "arrivalDate": "2026-11-15T09:55:00",
+   "departureDate": "2026-11-15T06:30:00",
+   "price": {
+    "value": 44.5,
+    "valueMainUnit": "44",
+    "valueFractionalUnit": "50",
+    "currencyCode": "EUR",
+    "currencySymbol": "\u20ac"
+   },
+   "soldOut": false,
+   "unavailable": false
+  }
+ }
+}
