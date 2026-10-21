@@ -1,0 +1,18 @@
+# Dagster instance config (DAGSTER_HOME). Run/event storage in its own Postgres database.
+storage:
+  postgres:
+    postgres_db:
+      hostname: {env: POSTGRES_HOST}
+      username: {env: POSTGRES_USER}
+      password: {env: POSTGRES_PASSWORD}
+      db_name: {env: DAGSTER_PG_DB}
+      port: 5432
+
+run_coordinator:
+  module: dagster._core.run_coordinator
+  class: QueuedRunCoordinator
+  config:
+    max_concurrent_runs: 1  # scans never overlap
+
+telemetry:
+  enabled: false

@@ -1,0 +1,9 @@
+{
+  "source": "fake",
+  "currency": "EUR",
+  "prices": [
+    {"origin": "HEL", "destination": "BCN", "depart_date": "2026-11-13", "price": 141, "airline": "AY", "transfers": 0, "duration": 245},
+    {"origin": "HEL", "destination": "BCN", "depart_date": "2026-11-14", "price": 89, "airline": "VY", "transfers": 0, "duration": 250},
+    {"origin": "HEL", "destination": "BCN", "depart_date": "2026-11-15", "price": 176, "airline": "AY", "transfers": 1, "duration": 410}
+  ]
+}

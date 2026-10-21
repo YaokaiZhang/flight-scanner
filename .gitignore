@@ -1,1 +1,17 @@
+.env
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+dbt/target/
+dbt/logs/
+dbt/dbt_packages/
 logs/
+web/node_modules/
+web/.next/
+web/test-results/
+web/playwright-report/
+web/next-env.d.ts
+.e2e/
+data/

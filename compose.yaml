@@ -1,0 +1,66 @@
+# The operational stack on verda: `cp .env.example .env`, edit it, then `docker compose up -d`.
+# UI (3000), API (8000) and the Dagster UI (3001) bind to 127.0.0.1 only: reach them through an
+# SSH tunnel, e.g. `ssh -L 3000:127.0.0.1:3000 -L 3001:127.0.0.1:3001 verda`.
+
+x-python: &python
+  build:
+    context: .
+    dockerfile: docker/python.Dockerfile
+  image: flight-scanner-python
+  env_file: .env
+  environment:
+    POSTGRES_HOST: postgres
+    POSTGRES_PORT: "5432"
+  depends_on:
+    postgres:
+      condition: service_healthy
+  restart: unless-stopped
+
+services:
+  postgres:
+    image: postgres:16
+    env_file: .env
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./docker/postgres-init.sql:/docker-entrypoint-initdb.d/10-dagster.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    restart: unless-stopped
+
+  dagster-webserver:
+    <<: *python
+    command: ["dagster-webserver", "-h", "0.0.0.0", "-p", "3001", "-w", "/app/workspace.yaml"]
+    ports:
+      - "127.0.0.1:3001:3001"
+    volumes:
+      - rawdata:/data
+
+  dagster-daemon:
+    <<: *python
+    command: ["dagster-daemon", "run", "-w", "/app/workspace.yaml"]
+    volumes:
+      - rawdata:/data
+
+  api:
+    <<: *python
+    command: ["uvicorn", "flight_scanner.api.main:app", "--host", "0.0.0.0", "--port", "8000"]
+    ports:
+      - "127.0.0.1:8000:8000"
+
+  web:
+    build:
+      context: ./web
+    environment:
+      API_URL: http://api:8000
+    depends_on:
+      - api
+    ports:
+      - "127.0.0.1:3000:3000"
+    restart: unless-stopped
+
+volumes:
+  pgdata:
+  rawdata:

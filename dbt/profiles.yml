@@ -1,0 +1,14 @@
+# For running dbt by hand (`dbt build --profiles-dir dbt --project-dir dbt`). The pipeline writes
+# its own profiles.yml per database (flight_scanner/pipeline/dbt.py).
+flight_scanner:
+  target: postgres
+  outputs:
+    postgres:
+      type: postgres
+      host: "{{ env_var('POSTGRES_HOST', 'localhost') }}"
+      port: "{{ env_var('POSTGRES_PORT', '5432') | as_number }}"
+      user: "{{ env_var('POSTGRES_USER', 'flightscanner') }}"
+      password: "{{ env_var('POSTGRES_PASSWORD', '') }}"
+      dbname: "{{ env_var('POSTGRES_DB', 'flightscanner') }}"
+      schema: staging
+      threads: 4

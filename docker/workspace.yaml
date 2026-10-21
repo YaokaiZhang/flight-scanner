@@ -1,0 +1,4 @@
+load_from:
+  - python_module:
+      module_name: flight_scanner.pipeline.workspace
+      working_directory: /app

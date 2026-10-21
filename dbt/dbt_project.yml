@@ -1,0 +1,22 @@
+name: flight_scanner
+version: "0.1.0"
+config-version: 2
+profile: flight_scanner
+
+model-paths: ["models"]
+macro-paths: ["macros"]
+test-paths: ["tests"]
+
+# Shared models must stay adapter-portable (ADR-0003): no Postgres-only SQL (DISTINCT ON, ::casts,
+# now()); use window functions, cross-db macros and the `as_of()` macro for the clock.
+vars:
+  as_of: null  # the injected clock's instant, passed by the pipeline as --vars
+
+models:
+  flight_scanner:
+    staging:
+      +schema: staging
+      +materialized: view
+    marts:
+      +schema: marts
+      +materialized: table

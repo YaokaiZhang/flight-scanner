@@ -1,0 +1,49 @@
+[project]
+name = "flight-scanner"
+version = "0.1.0"
+description = "Personal flight-price scanner: cached discovery, Baselines, Deals and Alerts."
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "dagster>=1.11",
+    "dagster-webserver>=1.11",
+    "dagster-postgres>=0.27",
+    "dagster-dbt>=0.27",
+    "dbt-core>=1.10",
+    "dbt-postgres>=1.9",
+    "fastapi>=0.115",
+    "uvicorn[standard]>=0.30",
+    "psycopg[binary,pool]>=3.2",
+    "pydantic>=2.8",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8",
+    "httpx>=0.27",
+    "pytest-xdist>=3.6",
+    "ruff>=0.6",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/flight_scanner"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+addopts = "-ra"
+filterwarnings = [
+    "ignore::DeprecationWarning:dagster_dbt.*",
+    "ignore::DeprecationWarning:sqlglotrs.*",
+    "ignore:Using `httpx` with `starlette.testclient`",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]

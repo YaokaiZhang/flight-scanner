@@ -1,0 +1,20 @@
+version: 2
+
+sources:
+  - name: landing
+    description: Rows parsed by source adapters (Python), one per raw payload row.
+    tables:
+      - name: raw_payloads
+      - name: leg_prices
+        columns:
+          - name: currency
+            data_tests:
+              - accepted_values:
+                  arguments: {values: ["EUR"]}
+                  config: {severity: warn}  # FX conversion arrives with ticket 02
+      - name: round_trip_prices
+  - name: app
+    description: Application tables owned by Python (Watches, slots).
+    tables:
+      - name: watches
+      - name: watch_slots
