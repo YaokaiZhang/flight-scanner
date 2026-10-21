@@ -1,0 +1,16 @@
+version: 2
+
+seeds:
+  - name: fx_rates
+    description: >
+      EUR value of one unit of each currency a source may report. Static, approximate reference
+      rates (late 2026): Travelpayouts is asked for EUR, so these only matter when a source
+      answers in another currency. Refresh before relying on them; a currency missing here is
+      dropped from staging (and warned about by the landing source tests).
+    config:
+      column_types: {currency: text, eur_per_unit: "numeric(18, 8)"}
+    columns:
+      - name: currency
+        data_tests: [not_null, unique]
+      - name: eur_per_unit
+        data_tests: [not_null]

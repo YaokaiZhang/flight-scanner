@@ -21,8 +21,9 @@ from flight_scanner import watches
 from flight_scanner.clock import FakeClock
 from flight_scanner.db import DbSettings, connect
 from flight_scanner.notify.base import RecordingNotifier
-from flight_scanner.pipeline import Runtime, run_once
+from flight_scanner.pipeline import Runtime, rebuild, run_once
 from flight_scanner.raw_store import RawStore
+from flight_scanner.reprocess import ReprocessReport
 from flight_scanner.sources.base import SourceAdapter
 from flight_scanner.sources.replay import ReplayAdapter
 
@@ -58,3 +59,7 @@ class PipelineHarness:
         """One full scan at the clock's current instant. Raises if any step fails."""
         self.last_result = run_once(self.runtime)
         return self.last_result
+
+    def rebuild(self) -> ReprocessReport:
+        """Re-parse the raw store into landing and rebuild every dbt model (no fetching)."""
+        return rebuild(self.runtime)

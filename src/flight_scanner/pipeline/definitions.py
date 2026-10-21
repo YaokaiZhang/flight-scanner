@@ -12,6 +12,7 @@ from flight_scanner.db import connect
 from flight_scanner.ingestion import ingest
 from flight_scanner.pipeline import dbt as dbt_files
 from flight_scanner.pipeline.runtime import Runtime
+from flight_scanner.reprocess import ReprocessReport, reprocess
 
 LEG_PRICES = dg.AssetKey(["landing", "leg_prices"])
 ROUND_TRIP_PRICES = dg.AssetKey(["landing", "round_trip_prices"])
@@ -92,10 +93,12 @@ def build_definitions(runtime: Runtime) -> dg.Definitions:
 
     assets = [watch_slots, source_prices, dbt_models, deals_asset, alerts_asset]
     scan_job = dg.define_asset_job("scan", selection=dg.AssetSelection.assets(*assets))
+    # dbt only (seeds, staging, history, marts): used by `rebuild` after re-parsing the raw store
+    rebuild_job = dg.define_asset_job("rebuild", selection=dg.AssetSelection.assets(dbt_models))
     profiles = dbt_files.write_profiles(runtime.db, runtime.work_dir / "dbt-profiles")
     return dg.Definitions(
         assets=assets,
-        jobs=[scan_job],
+        jobs=[scan_job, rebuild_job],
         schedules=[dg.ScheduleDefinition(job=scan_job, cron_schedule="*/30 * * * *")],
         resources={
             "runtime": runtime,
@@ -108,14 +111,28 @@ def build_definitions(runtime: Runtime) -> dg.Definitions:
     )
 
 
-def run_once(
-    runtime: Runtime, instance: dg.DagsterInstance | None = None
+def _execute(
+    runtime: Runtime, job_name: str, instance: dg.DagsterInstance | None
 ) -> dg.ExecuteInProcessResult:
-    """Materialise the whole scan in-process (seam-1 harness, e2e stack, manual runs)."""
     defs = build_definitions(runtime)
-    job = defs.resolve_job_def("scan")
+    job = defs.resolve_job_def(job_name)
     if instance is None:
         tmp = runtime.work_dir / "dagster"
         tmp.mkdir(parents=True, exist_ok=True)
         instance = dg.DagsterInstance.ephemeral(tempdir=str(tmp))
     return job.execute_in_process(instance=instance)
+
+
+def run_once(
+    runtime: Runtime, instance: dg.DagsterInstance | None = None
+) -> dg.ExecuteInProcessResult:
+    """Materialise the whole scan in-process (seam-1 harness, e2e stack, manual runs)."""
+    return _execute(runtime, "scan", instance)
+
+
+def rebuild(runtime: Runtime, instance: dg.DagsterInstance | None = None) -> ReprocessReport:
+    """Re-parse every raw payload of the configured sources, then rebuild all dbt models."""
+    with connect(runtime.db, autocommit=True) as conn:
+        report = reprocess(conn, runtime.raw_store, {s.name: s.parse for s in runtime.sources})
+    _execute(runtime, "rebuild", instance)
+    return report

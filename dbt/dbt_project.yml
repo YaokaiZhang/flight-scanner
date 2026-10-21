@@ -5,6 +5,7 @@ profile: flight_scanner
 
 model-paths: ["models"]
 macro-paths: ["macros"]
+seed-paths: ["seeds"]
 test-paths: ["tests"]
 
 # Shared models must stay adapter-portable (ADR-0003): no Postgres-only SQL (DISTINCT ON, ::casts,
@@ -17,6 +18,13 @@ models:
     staging:
       +schema: staging
       +materialized: view
+    history:
+      +schema: history
+      +materialized: table
     marts:
       +schema: marts
       +materialized: table
+
+seeds:
+  flight_scanner:
+    +schema: staging

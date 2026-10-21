@@ -3,6 +3,10 @@ version: 2
 models:
   - name: stg_leg_prices
     description: Leg prices in EUR per adult, one row per Fare observation.
+    data_tests:
+      - unique_combination:
+          arguments:
+            columns: [payload_id, source, origin, destination, departure_date]
     columns:
       - name: payload_id
         data_tests:
@@ -23,12 +27,24 @@ models:
         data_tests: [not_null]
   - name: stg_round_trip_prices
     description: Round-trip prices in EUR per adult, one row per Fare observation.
+    data_tests:
+      - unique_combination:
+          arguments:
+            columns: [payload_id, source, origin, destination, departure_date, return_date]
     columns:
       - name: payload_id
         data_tests:
           - not_null
           - relationships:
               arguments: {to: "source('landing', 'raw_payloads')", field: id}
+      - name: source
+        data_tests: [not_null]
+      - name: observed_at
+        data_tests: [not_null]
+      - name: origin
+        data_tests: [not_null]
+      - name: destination
+        data_tests: [not_null]
       - name: departure_date
         data_tests: [not_null]
       - name: return_date

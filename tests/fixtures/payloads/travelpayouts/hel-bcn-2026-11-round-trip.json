@@ -1,0 +1,57 @@
+{
+  "success": true,
+  "data": [
+    {
+      "origin": "HEL",
+      "destination": "BCN",
+      "origin_airport": "HEL",
+      "destination_airport": "BCN",
+      "price": 198,
+      "airline": "AY",
+      "flight_number": "1651",
+      "departure_at": "2026-11-13T07:25:00+02:00",
+      "return_at": "2026-11-16T11:05:00+01:00",
+      "transfers": 0,
+      "return_transfers": 0,
+      "duration": 490,
+      "duration_to": 245,
+      "duration_back": 245,
+      "link": "/search/HEL1311BCN16111?t=AY1763011200176302670000024517632874001763302100000245HELBCNBCNHEL_6c3e&search_date=21102026&expected_price_uuid=1b7f&expected_price_currency=eur"
+    },
+    {
+      "origin": "HEL",
+      "destination": "BCN",
+      "origin_airport": "HEL",
+      "destination_airport": "BCN",
+      "price": 151,
+      "airline": "AY",
+      "flight_number": "1653",
+      "departure_at": "2026-11-14T16:10:00+02:00",
+      "return_at": "2026-11-18T19:50:00+01:00",
+      "transfers": 1,
+      "return_transfers": 0,
+      "duration": 640,
+      "duration_to": 395,
+      "duration_back": 245,
+      "link": "/search/HEL1411BCN18111?t=AY1763169400176319310000039517634922001763506900000245HELARNBCNBCNHEL_aa90&search_date=21102026&expected_price_uuid=c5d3&expected_price_currency=eur"
+    },
+    {
+      "origin": "HEL",
+      "destination": "BCN",
+      "origin_airport": "HEL",
+      "destination_airport": "BCN",
+      "price": 233,
+      "airline": "AY",
+      "flight_number": "1655",
+      "departure_at": "2026-11-14T09:40:00+02:00",
+      "return_at": "2026-11-18T19:50:00+01:00",
+      "transfers": 1,
+      "return_transfers": 1,
+      "duration": 820,
+      "duration_to": 410,
+      "duration_back": 410,
+      "link": "/search/HEL1411BCN18111?t=AY1763106000176313060000041017634922001763517500000410HELCPHBCNBCNCPHHEL_19fe&search_date=21102026&expected_price_uuid=02aa&expected_price_currency=eur"
+    }
+  ],
+  "currency": "eur"
+}

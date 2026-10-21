@@ -41,6 +41,35 @@ export type Deal = {
   detected_at: string;
 };
 
+export type TripDates = { departure_date: string; return_date: string };
+
+export type Route = {
+  origin: string;
+  destination: string;
+  departure_dates: string[]; // with Leg-price history
+  round_trips: TripDates[]; // with Round-trip-price history
+};
+
+export type HistoryPoint = {
+  source: string;
+  kind: "leg" | "round_trip";
+  price_per_adult_eur: number;
+  valid_from: string;
+  valid_to: string | null;
+  last_observed_at: string;
+  observations: number;
+  airline: string | null;
+  stops: number | null;
+};
+
+export type RouteHistory = {
+  origin: string;
+  destination: string;
+  departure_date: string;
+  return_date: string | null;
+  points: HistoryPoint[];
+};
+
 export class ApiError extends Error {
   constructor(public status: number, public detail: unknown) {
     super(`API ${status}`);
@@ -64,4 +93,12 @@ export const api = {
     call<Watch>("/watches", { method: "POST", body: JSON.stringify(spec) }),
   listDeals: (watchId?: number) =>
     call<Deal[]>(`/deals${watchId ? `?watch_id=${watchId}` : ""}`),
+  listRoutes: () => call<Route[]>("/routes"),
+  routeHistory: (origin: string, destination: string, departure: string, returnDate?: string) => {
+    const q = new URLSearchParams({ departure_date: departure });
+    if (returnDate) q.set("return_date", returnDate);
+    return call<RouteHistory>(
+      `/routes/${encodeURIComponent(origin)}/${encodeURIComponent(destination)}/history?${q}`,
+    );
+  },
 };
