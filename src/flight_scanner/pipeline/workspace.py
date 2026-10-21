@@ -5,6 +5,7 @@ import dagster as dg
 from flight_scanner.clock import SystemClock
 from flight_scanner.config import Settings
 from flight_scanner.db import migrate
+from flight_scanner.deal_context import build_researcher
 from flight_scanner.notify.registry import build_notifiers
 from flight_scanner.pipeline.definitions import build_definitions
 from flight_scanner.pipeline.runtime import Runtime
@@ -22,6 +23,7 @@ def runtime_from_env() -> Runtime:
         work_dir=settings.work_dir,
         sources=build_sources(settings, clock),
         notifiers=build_notifiers(settings),
+        researcher=build_researcher(settings),
     )
 
 

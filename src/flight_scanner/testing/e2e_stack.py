@@ -4,7 +4,8 @@ python -m flight_scanner.testing.e2e_stack serve --state-dir .e2e --port 18000
     ephemeral Postgres + migrations + the HTTP API on 127.0.0.1:<port>; Ctrl-C/SIGTERM stops all
 python -m flight_scanner.testing.e2e_stack scan --state-dir .e2e --payload-dir DIR --at ISO
     one in-process pipeline run against that database, with a fake source replaying DIR
-    (`<ORIGIN>-<DESTINATION>*.json` files) and the clock fixed at --at; prints Alerts as JSON
+    (`<ORIGIN>-<DESTINATION>*.json` files) and the clock fixed at --at; prints Alerts as JSON;
+    --deal-context TEXT turns on a fake Deal-context researcher answering TEXT for every Deal
 """
 
 from __future__ import annotations
@@ -41,8 +42,9 @@ def serve(state_dir: Path, port: int) -> None:
         pg.stop()
 
 
-def scan(state_dir: Path, payload_dir: Path, at: datetime) -> None:
+def scan(state_dir: Path, payload_dir: Path, at: datetime, deal_context: str | None = None) -> None:
     from flight_scanner.pipeline import Runtime, run_once
+    from flight_scanner.testing.fake_researcher import FakeResearcher
 
     db = DbSettings(**json.loads((state_dir / "db.json").read_text()))
     clock = FakeClock(at)
@@ -54,6 +56,7 @@ def scan(state_dir: Path, payload_dir: Path, at: datetime) -> None:
         work_dir=state_dir / "work",
         sources=[ReplayAdapter.from_dir("fake", clock, payload_dir)],
         notifiers=[notifier],
+        researcher=FakeResearcher(default=deal_context) if deal_context else None,
     )
     result = run_once(runtime)
     print(json.dumps([asdict(a) for a in notifier.alerts], default=str))
@@ -70,11 +73,12 @@ def main() -> None:
     c.add_argument("--state-dir", type=Path, required=True)
     c.add_argument("--payload-dir", type=Path, required=True)
     c.add_argument("--at", type=datetime.fromisoformat, required=True)
+    c.add_argument("--deal-context")
     a = p.parse_args()
     if a.cmd == "serve":
         serve(a.state_dir, a.port)
     else:
-        scan(a.state_dir, a.payload_dir, a.at)
+        scan(a.state_dir, a.payload_dir, a.at, a.deal_context)
 
 
 if __name__ == "__main__":

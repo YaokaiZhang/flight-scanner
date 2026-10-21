@@ -66,6 +66,7 @@ class Deal(BaseModel):
     booking_url: str
     baseline_per_adult_eur: float | None
     pct_below_baseline: float | None
+    deal_context: str | None = None  # why it might be cheap, when researched in time
     feedback: Feedback | None
 
 
