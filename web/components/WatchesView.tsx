@@ -2,7 +2,8 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { api, ApiError, type Watch } from "@/lib/api";
-import { formatDate, formatEur } from "@/lib/format";
+import { formatEur } from "@/lib/format";
+import { describePreset } from "./TripPatternFields";
 import { WatchEditor } from "./WatchEditor";
 
 function places(w: Watch, side: "origins" | "destinations") {
@@ -38,17 +39,17 @@ export function WatchesView() {
             <table>
               <thead>
                 <tr>
-                  <th>Watch</th><th>From</th><th>To</th><th>Departure</th>
+                  <th>Watch</th><th>From</th><th>To</th><th>Trip pattern</th>
                   <th className="num">Adults</th><th className="num">Threshold</th><th>Status</th>
                 </tr>
               </thead>
               <tbody>
                 {watches.map((w) => (
-                  <tr key={w.id} className={w.status === "paused" ? "paused" : undefined}>
+                  <tr key={w.id} className={w.status !== "active" ? "paused" : undefined}>
                     <td className="row-title">{w.name}</td>
                     <td data-label="From">{places(w, "origins")}</td>
                     <td data-label="To">{places(w, "destinations")}</td>
-                    <td data-label="Departure">{formatDate(w.trip_pattern.departure)} · one way</td>
+                    <td data-label="Trip pattern">{describePreset(w.trip_pattern)}</td>
                     <td data-label="Adults" className="num">{w.adults}</td>
                     <td data-label="Threshold" className="num">
                       {w.price_threshold

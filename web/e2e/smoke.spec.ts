@@ -40,3 +40,17 @@ test("create a Watch in the UI, then see its Deal in the Deals feed", async ({ p
   await expect(deal).toContainText("Unverified");
   await page.screenshot({ path: "test-results/deals-feed.png", fullPage: true });
 });
+
+test("the Watch editor shows the resolved departure window and Stay nights", async ({ page }) => {
+  await page.goto("/watches");
+  await page.getByLabel("Trip pattern").selectOption("month");
+  await page.getByLabel("Departure month").fill("2026-11");
+  await page.getByLabel("Min Stay nights").fill("3");
+  await page.getByLabel("Max Stay nights").fill("6");
+  const resolved = page.getByTestId("trip-resolution");
+  await expect(resolved).toContainText("Departs Sun 1 Nov – Mon 30 Nov");
+  await expect(resolved).toContainText("3–6 Stay nights");
+  await expect(resolved).toContainText("back by Sun 6 Dec");
+  await expect(page.getByRole("img", { name: /Departure window/ })).toBeVisible();
+  await page.screenshot({ path: "test-results/trip-pattern.png", fullPage: true });
+});

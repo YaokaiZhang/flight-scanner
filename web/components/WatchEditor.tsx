@@ -2,23 +2,30 @@
 
 import { useState, type FormEvent } from "react";
 import { api, ApiError, type WatchSpec } from "@/lib/api";
+import { EMPTY_TRIP_DRAFT, TripPatternFields, toPreset, type TripDraft } from "./TripPatternFields";
 
 const iata = (s: string) => s.trim().toUpperCase();
 
 export function WatchEditor({ onCreated }: { onCreated: () => void }) {
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<{ ok: boolean; text: string } | null>(null);
+  const [trip, setTrip] = useState<TripDraft>(EMPTY_TRIP_DRAFT);
 
   async function submit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const form = e.currentTarget;
     const f = new FormData(form);
     const threshold = String(f.get("threshold") ?? "").trim();
+    const tripPattern = toPreset(trip);
+    if (!tripPattern) {
+      setMessage({ ok: false, text: "Complete the Trip pattern." });
+      return;
+    }
     const spec: WatchSpec = {
       name: String(f.get("name") ?? "").trim(),
       origins: { include: [{ kind: "airport", code: iata(String(f.get("origin"))) }] },
       destinations: { include: [{ kind: "airport", code: iata(String(f.get("destination"))) }] },
-      trip_pattern: { preset: "one_way_fixed", departure: String(f.get("departure")) },
+      trip_pattern: tripPattern,
       adults: Number(f.get("adults")),
       price_threshold: threshold
         ? { amount_eur: Number(threshold), basis: f.get("basis") === "per_adult" ? "per_adult" : "total" }
@@ -30,6 +37,7 @@ export function WatchEditor({ onCreated }: { onCreated: () => void }) {
       const w = await api.createWatch(spec);
       setMessage({ ok: true, text: `Saved “${w.name}”.` });
       form.reset();
+      setTrip(EMPTY_TRIP_DRAFT);
       onCreated();
     } catch (err) {
       const status = err instanceof ApiError ? err.status : "network";
@@ -57,16 +65,11 @@ export function WatchEditor({ onCreated }: { onCreated: () => void }) {
             <input className="input" name="destination" required pattern="[A-Za-z]{3}" maxLength={3} placeholder="BCN" />
           </label>
         </div>
-        <div className="row2">
-          <label className="field">
-            <span>Departure (one way)</span>
-            <input className="input" name="departure" type="date" required />
-          </label>
-          <label className="field">
-            <span>Adults</span>
-            <input className="input" name="adults" type="number" min={1} max={9} defaultValue={1} required />
-          </label>
-        </div>
+        <TripPatternFields draft={trip} onChange={setTrip} />
+        <label className="field">
+          <span>Adults</span>
+          <input className="input" name="adults" type="number" min={1} max={9} defaultValue={1} required />
+        </label>
         <label className="field">
           <span>Price threshold (EUR)</span>
           <input className="input" name="threshold" type="number" min={1} step="any" placeholder="optional" />

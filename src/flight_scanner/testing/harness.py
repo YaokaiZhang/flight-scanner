@@ -54,6 +54,10 @@ class PipelineHarness:
         with connect(self.db) as conn:
             return watches.create(conn, spec, self.clock)
 
+    def get_watch(self, watch_id: int) -> watches.Watch | None:
+        with connect(self.db) as conn:
+            return watches.get(conn, watch_id)
+
     def run(self) -> dg.ExecuteInProcessResult:
         """One full scan at the clock's current instant. Raises if any step fails."""
         self.last_result = run_once(self.runtime)

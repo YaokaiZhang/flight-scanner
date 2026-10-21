@@ -12,6 +12,12 @@ function VerificationTag({ deal }: { deal: Deal }) {
   );
 }
 
+function TicketingTag({ deal }: { deal: Deal }) {
+  if (deal.ticketing === "separate_tickets") return <span className="tag plain">2 separate tickets</span>;
+  if (deal.ticketing === "single_ticket") return <span className="tag plain">Single ticket</span>;
+  return null;
+}
+
 export function DealsView() {
   const [deals, setDeals] = useState<Deal[] | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -66,7 +72,7 @@ export function DealsView() {
                         {formatDate(d.outbound_date)}
                         {d.return_date ? ` → ${formatDate(d.return_date)}` : " · one way"}
                       </div>
-                      <div className="tags"><VerificationTag deal={d} /></div>
+                      <div className="tags"><VerificationTag deal={d} /><TicketingTag deal={d} /></div>
                     </div>
                     <div className="price">
                       <b>{formatEur(d.price_per_adult_eur)}<small>/adult</small></b>
@@ -99,7 +105,7 @@ export function DealsView() {
             </section>
             <section>
               <h2 className="widget-label">Evidence</h2>
-              <div className="tags"><VerificationTag deal={selected} /></div>
+              <div className="tags"><VerificationTag deal={selected} /><TicketingTag deal={selected} /></div>
               <p className="meta">
                 Seen by {selected.source} at {formatInstant(selected.observed_at)}. Cached price, not
                 checked live.

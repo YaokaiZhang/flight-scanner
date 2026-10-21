@@ -27,6 +27,7 @@ class AlertMessage:
     adults: int
     price_total_eur: float
     price_per_adult_eur: float
+    ticketing: str  # "one_way" | "single_ticket" | "separate_tickets" (2 separate tickets)
     verification: str  # "verified" | "unverified"
     baseline_tier: str | None
     source: str

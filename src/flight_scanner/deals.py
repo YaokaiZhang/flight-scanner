@@ -21,10 +21,10 @@ def record_deals(conn: psycopg.Connection, now: datetime) -> int:
     cur = conn.execute(
         """INSERT INTO app.deals (watch_id, origin, destination, outbound_date, return_date,
                price_per_adult_eur, price_total_eur, adults, source, observed_at,
-               verification, baseline_tier, detected_at)
+               ticketing, verification, baseline_tier, detected_at)
            SELECT watch_id, origin, destination, outbound_date, return_date,
                price_per_adult_eur, price_total_eur, adults, source, observed_at,
-               'unverified', baseline_tier, %s
+               ticketing, 'unverified', baseline_tier, %s
            FROM marts.candidates
            ON CONFLICT DO NOTHING""",
         (now,),
@@ -48,6 +48,7 @@ def _message(d: dict) -> AlertMessage:
         adults=d["adults"],
         price_total_eur=float(d["price_total_eur"]),
         price_per_adult_eur=float(d["price_per_adult_eur"]),
+        ticketing=d["ticketing"],
         verification=d["verification"],
         baseline_tier=d["baseline_tier"],
         source=d["source"],

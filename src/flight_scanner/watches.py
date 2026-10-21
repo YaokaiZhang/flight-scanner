@@ -3,6 +3,7 @@
 Public interface:
   WatchSpec / Watch            - input and stored shapes (pydantic; reused by the HTTP API)
   create / get / list_all      - persistence
+  refresh_expiry(conn, today)  - mark Watches whose departure window has fully passed as expired
   slots(conn, today)           - concrete (watch, origin, destination, outbound, return) trips
   demands(slots)               - de-duplicated (origin, destination, month) for source planning
 """
@@ -38,7 +39,7 @@ class WatchSpec(BaseModel):
 
 class Watch(WatchSpec):
     id: int
-    status: Literal["active", "paused"]
+    status: Literal["active", "paused", "expired"]
     created_at: datetime
     updated_at: datetime
 
@@ -104,6 +105,16 @@ def get(conn: psycopg.Connection, watch_id: int) -> Watch | None:
 def list_all(conn: psycopg.Connection) -> list[Watch]:
     rows = conn.execute(f"SELECT {_COLUMNS} FROM app.watches ORDER BY created_at DESC, id DESC")
     return [_from_row(r) for r in rows]
+
+
+def refresh_expiry(conn: psycopg.Connection, today: date) -> None:
+    """Mark Watches whose departure window has fully passed as expired (paused ones too); an
+    expired Watch whose window is open again (its Trip pattern was edited) becomes active."""
+    for w in list_all(conn):
+        expired = trip_patterns.is_expired(trip_patterns.normalise(w.trip_pattern), today)
+        status = "expired" if expired else ("active" if w.status == "expired" else w.status)
+        if status != w.status:
+            conn.execute("UPDATE app.watches SET status = %s WHERE id = %s", (status, w.id))
 
 
 def slots(conn: psycopg.Connection, today: date) -> list[WatchSlot]:

@@ -9,10 +9,15 @@ from fastapi import Depends, FastAPI, HTTPException, Request
 from psycopg_pool import ConnectionPool
 from pydantic import BaseModel
 
-from flight_scanner import watches
-from flight_scanner.clock import Clock, SystemClock
+from flight_scanner import trip_patterns, watches
+from flight_scanner.clock import Clock, SystemClock, today
 from flight_scanner.db import DbSettings
+from flight_scanner.trip_patterns import TripPreset
 from flight_scanner.watches import Watch, WatchSpec
+
+
+class TripPatternQuery(BaseModel):
+    trip_pattern: TripPreset
 
 
 class Deal(BaseModel):
@@ -28,6 +33,7 @@ class Deal(BaseModel):
     price_total_eur: float
     source: str
     observed_at: datetime
+    ticketing: str
     verification: str
     baseline_tier: str | None
     detected_at: datetime
@@ -76,6 +82,11 @@ def create_app(db: DbSettings, clock: Clock | None = None) -> FastAPI:
         if w is None:
             raise HTTPException(404, "watch not found")
         return w
+
+    @app.post("/trip-patterns/resolve")
+    def resolve_trip_pattern(q: TripPatternQuery) -> trip_patterns.Resolution:
+        """The resolved departure window and Stay-night range of a preset, for today."""
+        return trip_patterns.resolve(q.trip_pattern, today(clock))
 
     @app.get("/deals")
     def list_deals(c: Conn, watch_id: int | None = None) -> list[Deal]:

@@ -1,0 +1,171 @@
+-- Trip composition (ADR-0001): the current cheapest price of every Watch slot.
+-- One-way slots use the outbound Leg price. Round-trip slots pair the outbound Leg price
+-- (origin -> destination on the outbound date) with the return Leg price (destination -> origin
+-- on the return date), compare the pair with any single-ticket Round-trip price for the same
+-- airports and dates, and keep the cheaper (a tie goes to the single ticket).
+-- Only Leg prices for the exact airport pair are used, so no Self-transfer within one direction
+-- is ever composed. Each source's latest observation at or before as_of counts; the cheapest
+-- source wins.
+with legs as (
+    select *
+    from {{ ref('stg_leg_prices') }}
+    where observed_at <= {{ as_of() }}
+),
+
+legs_latest as (
+    select
+        *,
+        row_number() over (
+            partition by source, origin, destination, departure_date
+            order by observed_at desc
+        ) as recency
+    from legs
+),
+
+leg_best as (
+    select
+        *,
+        row_number() over (
+            partition by origin, destination, departure_date
+            order by price_per_adult_eur, source
+        ) as price_rank
+    from legs_latest
+    where recency = 1
+),
+
+round_trips as (
+    select *
+    from {{ ref('stg_round_trip_prices') }}
+    where observed_at <= {{ as_of() }}
+),
+
+round_trips_latest as (
+    select
+        *,
+        row_number() over (
+            partition by source, origin, destination, departure_date, return_date
+            order by observed_at desc
+        ) as recency
+    from round_trips
+),
+
+round_trip_best as (
+    select
+        *,
+        row_number() over (
+            partition by origin, destination, departure_date, return_date
+            order by price_per_adult_eur, source
+        ) as price_rank
+    from round_trips_latest
+    where recency = 1
+),
+
+slots as (
+    select s.watch_id, s.origin, s.destination, s.outbound_date, s.return_date
+    from {{ source('app', 'watch_slots') }} as s
+),
+
+one_way as (
+    select
+        s.watch_id,
+        s.origin,
+        s.destination,
+        s.outbound_date,
+        s.return_date,
+        'one_way' as ticketing,
+        o.price_per_adult_eur,
+        o.source,
+        o.observed_at
+    from slots as s
+    inner join leg_best as o
+        on o.origin = s.origin
+        and o.destination = s.destination
+        and o.departure_date = s.outbound_date
+        and o.price_rank = 1
+    where s.return_date is null
+),
+
+separate_tickets as (
+    select
+        s.watch_id,
+        s.origin,
+        s.destination,
+        s.outbound_date,
+        s.return_date,
+        'separate_tickets' as ticketing,
+        o.price_per_adult_eur + r.price_per_adult_eur as price_per_adult_eur,
+        case
+            when o.source = r.source then o.source
+            else {{ dbt.concat(['o.source', "'+'", 'r.source']) }}
+        end as source,
+        case
+            when o.observed_at < r.observed_at then o.observed_at
+            else r.observed_at
+        end as observed_at
+    from slots as s
+    inner join leg_best as o
+        on o.origin = s.origin
+        and o.destination = s.destination
+        and o.departure_date = s.outbound_date
+        and o.price_rank = 1
+    inner join leg_best as r
+        on r.origin = s.destination
+        and r.destination = s.origin
+        and r.departure_date = s.return_date
+        and r.price_rank = 1
+    where s.return_date is not null
+),
+
+single_ticket as (
+    select
+        s.watch_id,
+        s.origin,
+        s.destination,
+        s.outbound_date,
+        s.return_date,
+        'single_ticket' as ticketing,
+        t.price_per_adult_eur,
+        t.source,
+        t.observed_at
+    from slots as s
+    inner join round_trip_best as t
+        on t.origin = s.origin
+        and t.destination = s.destination
+        and t.departure_date = s.outbound_date
+        and t.return_date = s.return_date
+        and t.price_rank = 1
+    where s.return_date is not null
+),
+
+options as (
+    select * from one_way
+    union all
+    select * from separate_tickets
+    union all
+    select * from single_ticket
+),
+
+ranked as (
+    select
+        *,
+        row_number() over (
+            partition by watch_id, origin, destination, outbound_date, return_date
+            order by
+                price_per_adult_eur,
+                case ticketing when 'single_ticket' then 0 else 1 end
+        ) as option_rank
+    from options
+)
+
+select
+    watch_id,
+    origin,
+    destination,
+    outbound_date,
+    return_date,
+    ticketing,
+    price_per_adult_eur,
+    source,
+    observed_at
+from ranked
+where option_rank = 1

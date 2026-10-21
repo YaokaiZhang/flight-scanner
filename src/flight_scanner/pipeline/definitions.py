@@ -23,6 +23,7 @@ def watch_slots(context: dg.AssetExecutionContext, runtime: dg.ResourceParam[Run
     """Concrete trips every active Watch wants priced, expanded for the clock's today."""
     now = runtime.clock.now()
     with connect(runtime.db, autocommit=True) as conn, conn.transaction():
+        watches.refresh_expiry(conn, today(runtime.clock))
         slots = watches.slots(conn, today(runtime.clock))
         conn.execute("DELETE FROM app.watch_slots")
         with conn.cursor() as cur:
