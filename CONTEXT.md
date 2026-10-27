@@ -34,6 +34,10 @@ _Avoid_: Filter, blacklist
 An optional absolute ceiling on a Watch, applied in addition to the Baseline test.
 _Avoid_: Budget, limit
 
+**Watch suggestion**:
+A Watch the Watch assistant proposes in chat, with a short reason why it suits the owner. Nothing is created or scanned until the owner accepts it, which creates an ordinary Watch.
+_Avoid_: Recommendation, draft Watch
+
 ### What we observe and judge
 
 **Fare observation**:

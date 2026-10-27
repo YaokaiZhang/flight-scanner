@@ -251,6 +251,17 @@ export type DataHealth = {
   checks: { active: CheckFailure[]; recent: CheckFailure[] };
 };
 
+// Watch assistant: a chat that proposes Watch specs the owner can create with one click.
+export type Proposal = {
+  id: string;
+  reason: string;
+  spec: WatchSpec;
+  places: Place[];
+  trip: TripResolution;
+  resolved: { origins: number; destinations: number };
+};
+export type ChatTurn = { chat_id: number; reply: string; proposals: Proposal[] };
+
 export class ApiError extends Error {
   constructor(public status: number, public detail: unknown) {
     super(`API ${status}`);
@@ -295,6 +306,9 @@ export const api = {
     call<Deal>(`/deals/${id}/feedback`, json("POST", { rating })),
   resolveTripPattern: (trip_pattern: TripPreset) =>
     call<TripResolution>("/trip-patterns/resolve", json("POST", { trip_pattern })),
+  agentStatus: () => call<{ enabled: boolean }>("/agent"),
+  startChat: (text: string) => call<ChatTurn>("/agent/chats", json("POST", { text })),
+  continueChat: (chatId: number, text: string) => call<ChatTurn>(`/agent/chats/${chatId}`, json("POST", { text })),
   listRoutes: () => call<Route[]>("/routes"),
   backtest: () => call<Backtest>("/backtest"),
   dataHealth: () => call<DataHealth>("/data-health"),

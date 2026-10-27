@@ -352,3 +352,88 @@ table.bars td { padding: 4px 0; border: 0; vertical-align: middle; }
 table.bars td.num { width: 28px; padding-left: 8px; color: var(--graphite); }
 table.bars .bar { display: block; height: 8px; min-width: 1px; background: var(--swash-strong); border-left: 1.5px solid var(--ink); }
 table.compact th, table.compact td { padding: 6px 8px 6px 0; }
+
+/* ---------- watch assistant ---------- */
+/* The robot: a 44px icon button in the bottom-right gutter, knocked out on paper. */
+.wa-robot {
+  position: fixed; right: 16px; bottom: 16px; z-index: 6; display: grid; place-items: center;
+  width: 44px; height: 44px; background: var(--paper); border: 1.5px solid var(--construction);
+  transition: transform 0.2s ease, border-color 0.2s ease, background-color 0.2s ease, right 0.35s var(--ease);
+}
+.wa-robot svg { width: 32px; height: 32px; overflow: visible; }
+.wa-robot:hover { border-color: var(--ink); transform: rotate(-2deg); }
+.wa-robot[aria-expanded="true"] { border-color: var(--ink); background: var(--swash); right: calc(400px + 16px); }
+.wa-robot[data-thinking] .robot-antenna { animation: wa-blink 1.4s ease-in-out infinite; }
+@keyframes wa-blink { 50% { opacity: 0.25; } }
+.inspector { padding-bottom: 64px; } /* keeps the inspector's last line clear of the robot */
+
+/* The drawer: full height on the right, ruled on its left edge, overlaying the board. */
+.wa-drawer {
+  position: fixed; top: 0; right: 0; bottom: 0; z-index: 7; width: 400px; max-width: 100vw;
+  display: flex; flex-direction: column; background: var(--paper); border-left: 1.5px solid var(--construction);
+  padding: 28px 28px 22px; animation: wa-in 0.35s var(--ease) both;
+}
+@keyframes wa-in { from { transform: translateX(24px); opacity: 0; } }
+.wa-head { display: flex; align-items: center; gap: 10px; padding-bottom: 16px; border-bottom: 1px dashed var(--construction); }
+.wa-head h2 { font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.12em; color: var(--graphite); white-space: nowrap; }
+.wa-head .spacer { flex: 1; }
+.wa-mark { width: 26px; height: 26px; flex: none; overflow: visible; }
+.wa-body { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 12px; padding-top: 4px; }
+.wa-note { font-size: 11px; color: var(--pencil); line-height: 1.7; padding: 12px 0; border-bottom: 1px dashed var(--construction); }
+.wa-empty { padding-top: 22px; display: grid; gap: 18px; }
+.wa-empty p { font-size: 11px; color: var(--pencil); line-height: 1.7; }
+.wa-empty strong { display: block; color: var(--graphite); font-weight: 500; font-size: 12px; margin-bottom: 2px; }
+.wa-starters { list-style: none; display: grid; gap: 10px; justify-items: start; }
+.wa-starters .btn-marker { white-space: normal; text-align: left; line-height: 1.5; }
+.wa-starters .btn-marker[disabled], .wa-compose .btn-marker[disabled] { cursor: not-allowed; }
+
+/* The log: owner and assistant lines in graphite, told apart by their labels, ruled apart. */
+.wa-log { list-style: none; flex: 1; min-height: 0; overflow-y: auto; margin-right: -12px; padding-right: 12px; }
+.wa-msg { padding: 16px 0; }
+.wa-msg + .wa-msg { border-top: 1px solid var(--construction); }
+.wa-msg > p { font-size: 12px; color: var(--graphite); line-height: 1.7; white-space: pre-wrap; overflow-wrap: anywhere; }
+.wa-who {
+  display: flex; align-items: center; gap: 8px; margin-bottom: 6px;
+  font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--pencil);
+}
+.wa-msg.assistant .wa-who { color: var(--graphite); }
+.wa-msg.assistant .wa-who::before { content: ""; width: 8px; height: 8px; border: 1px solid var(--ink); border-radius: 50%; flex: none; }
+.wa-thinking > p { color: var(--pencil); font-size: 11px; }
+/* A dashed ink stroke drawing in while the answer is still a guess. */
+.wa-draw { display: block; height: 0; margin-top: 10px; border-top: 1px dashed var(--ink); width: 100%; transform-origin: left; animation: wa-draw 2.4s var(--ease) infinite; }
+@keyframes wa-draw { from { transform: scaleX(0); } 70%, to { transform: scaleX(1); } }
+.wa-error { padding-top: 4px; }
+
+/* A proposal: a ruled watch sheet. Its dashed ink edge turns solid once the Watch exists. */
+.wa-sheet { margin-top: 16px; padding: 2px 0 2px 14px; border-left: 1.5px dashed var(--ink); display: grid; gap: 10px; }
+.wa-sheet.created { border-left-style: solid; }
+.wa-sheet-name { font-size: 15px; font-weight: 500; letter-spacing: -0.01em; line-height: 1.4; color: var(--graphite); }
+.wa-sheet.created .wa-sheet-name { color: var(--ink-deep); }
+.wa-sheet-route { font-size: 12px; color: var(--graphite); overflow-wrap: anywhere; }
+.wa-sheet-route .arrow { color: var(--ink-deep); font-weight: 300; margin: 0 6px; }
+.wa-facts { display: grid; grid-template-columns: 84px minmax(0, 1fr); font-size: 11px; border-top: 1.5px solid var(--graphite); }
+.wa-facts dt, .wa-facts dd { padding: 7px 0; border-bottom: 1px solid var(--construction); }
+.wa-facts dt { text-transform: uppercase; letter-spacing: 0.1em; color: var(--pencil); }
+.wa-facts dd { color: var(--graphite); line-height: 1.6; }
+.wa-facts dd b { color: var(--ink-deep); font-weight: 500; }
+.wa-reason { font-size: 11px; color: var(--pencil); line-height: 1.7; }
+.wa-sheet .actions { gap: 8px; }
+.wa-created { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; font-size: 11px; }
+
+/* Compose: an underlined textarea and the Send marker. */
+.wa-compose { display: flex; align-items: flex-end; gap: 12px; padding-top: 14px; border-top: 1px dashed var(--construction); }
+.wa-input { flex: 1; resize: none; line-height: 1.6; max-height: 160px; field-sizing: content; min-height: 3.6em; }
+.wa-input[disabled] { border-color: var(--construction); cursor: not-allowed; }
+.draft-note { margin: -6px 0 18px; }
+
+@media (max-width: 860px) {
+  .workspace { padding-bottom: 84px; }
+  .inspector { padding-bottom: 0; }
+  .wa-robot[aria-expanded="true"] { right: 16px; visibility: hidden; }
+  .wa-drawer { width: 100%; border-left: 0; padding: 16px 16px 16px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wa-draw { transform: none; }
+  .wa-robot:hover { transform: none; }
+}

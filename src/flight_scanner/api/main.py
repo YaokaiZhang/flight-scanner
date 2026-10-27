@@ -6,6 +6,7 @@ from flight_scanner.config import Settings
 from flight_scanner.data_health import VerificationBudget
 from flight_scanner.db import migrate
 from flight_scanner.sources.registry import build_verifier
+from flight_scanner.watch_agent import build_watch_agent
 
 _settings = Settings.from_env()
 migrate(_settings.db)
@@ -15,4 +16,5 @@ app = create_app(
     verification_budget=None
     if _verifier is None
     else VerificationBudget(_verifier.name, _verifier.daily_quota, _verifier.monthly_quota),
+    watch_agent=build_watch_agent(_settings),
 )

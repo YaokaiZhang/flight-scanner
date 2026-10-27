@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { api, ApiError, placeKey, type PlaceRef, type Watch } from "@/lib/api";
 import { formatEur } from "@/lib/format";
+import { takeWatchDraft, WATCH_DRAFT_EVENT, WATCHES_CHANGED_EVENT, type WatchDraft } from "@/lib/watchDraft";
 import { describePreset } from "./TripPatternFields";
 import { WatchEditor } from "./WatchEditor";
 
@@ -20,11 +21,45 @@ export function WatchesView() {
   const [watches, setWatches] = useState<Watch[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [selected, setSelected] = useState<number | null>(null);
+  // A spec handed over by the Watch assistant; `draftSeq` remounts the editor for each new one.
+  const [draft, setDraft] = useState<WatchDraft | null>(null);
+  const [draftSeq, setDraftSeq] = useState(0);
 
   const load = useCallback(() => {
     api.listWatches().then(setWatches, (e: ApiError) => setError(`Could not load Watches (${e.status ?? "network"})`));
   }, []);
   useEffect(load, [load]);
+
+  // The Watch assistant created a Watch: reload. It handed over a draft: open it in the editor.
+  useEffect(() => {
+    const pickUp = () => {
+      const value = takeWatchDraft();
+      if (!value) return;
+      setSelected(null);
+      setDraft(value);
+      setDraftSeq((n) => n + 1);
+    };
+    pickUp();
+    window.addEventListener(WATCH_DRAFT_EVENT, pickUp);
+    window.addEventListener(WATCHES_CHANGED_EVENT, load);
+    return () => {
+      window.removeEventListener(WATCH_DRAFT_EVENT, pickUp);
+      window.removeEventListener(WATCHES_CHANGED_EVENT, load);
+    };
+  }, [load]);
+
+  // Picking a Watch abandons the handed-over draft.
+  useEffect(() => {
+    if (selected !== null) setDraft(null);
+  }, [selected]);
+
+  // A fresh draft: bring the editor into view and put the cursor in its Name field.
+  useEffect(() => {
+    if (!draftSeq) return;
+    const title = document.getElementById("editor-title");
+    title?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+    title?.parentElement?.querySelector<HTMLInputElement>('input[name="name"]')?.focus({ preventScroll: true });
+  }, [draftSeq]);
 
   const current = watches?.find((w) => w.id === selected) ?? null;
 
@@ -116,9 +151,13 @@ export function WatchesView() {
       </main>
       <aside className="inspector" aria-label="Watch editor">
         <WatchEditor
-          key={current ? current.id : "new"}
+          key={current ? current.id : `new-${draftSeq}`}
           watch={current}
-          onSaved={load}
+          draft={current ? null : draft}
+          onSaved={() => {
+            if (!current) setDraft(null);
+            load();
+          }}
           onDeleted={() => {
             setSelected(null);
             load();

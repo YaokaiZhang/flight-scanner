@@ -4,7 +4,8 @@ One Messages API call per Deal with Anthropic's server-side web search tool; Cla
 fare sales, new routes and seasonality and answers with one sentence (or NONE). The answer is
 display text only: it is never parsed for prices. The API key comes from ANTHROPIC_API_KEY and is
 never stored. Requests time out after DEAL_CONTEXT_TIMEOUT and are not retried, so a slow call
-can't outlive the Alert step's own wait by much.
+can't outlive the Alert step's own wait by much. Defaults to Claude Haiku 5.5 at effort medium,
+which has no server-side fallback: a refused request simply gets no context.
 """
 
 from __future__ import annotations
@@ -15,12 +16,12 @@ import anthropic
 
 from flight_scanner.deal_context import DEAL_CONTEXT_TIMEOUT, DealFacts, clean
 
-DEFAULT_MODEL = "claude-opus-5-5"
-DEFAULT_EFFORT = "low"  # latency matters more than depth: the Alert waits at most 60 s
+DEFAULT_MODEL = "claude-haiku-5-5"
+DEFAULT_EFFORT = "medium"
 MAX_SEARCHES = 3
 MAX_CONTINUATIONS = 2  # pause_turn resumptions of a long server-tool turn
-WEB_SEARCH = {"type": "web_search_20260209", "name": "web_search", "max_uses": MAX_SEARCHES}
-FALLBACK_BETA = "server-side-fallback-2026-07-01"
+# The basic search tool: Haiku 5.5 accepts web_search_20260209 but calls it with malformed input.
+WEB_SEARCH = {"type": "web_search_20250305", "name": "web_search", "max_uses": MAX_SEARCHES}
 
 SYSTEM = """You explain flight deals for a personal fare alert. Given one cheap fare, use web \
 search to find out why it might be cheap: an airline sale or promotion, a new or seasonal route, \
@@ -87,15 +88,13 @@ class ClaudeResearcher:
         question = {"role": "user", "content": prompt(deal)}
         messages = [question]
         for _ in range(MAX_CONTINUATIONS + 1):
-            response = self._client.beta.messages.create(
+            response = self._client.messages.create(
                 model=self.settings.model,
                 max_tokens=8000,
                 system=SYSTEM,
                 messages=messages,
                 tools=[WEB_SEARCH],
                 output_config={"effort": self.settings.effort},
-                betas=[FALLBACK_BETA],
-                fallbacks="default",
             )
             if response.stop_reason != "pause_turn":
                 break

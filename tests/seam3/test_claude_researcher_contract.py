@@ -56,7 +56,7 @@ def message(content, stop_reason="end_turn"):
         "id": "msg_1",
         "type": "message",
         "role": "assistant",
-        "model": "claude-opus-5-5",
+        "model": "claude-haiku-5-5",
         "content": content,
         "stop_reason": stop_reason,
         "stop_sequence": None,
@@ -93,12 +93,13 @@ def test_asks_claude_with_web_search_and_returns_the_answer_after_the_search():
     [request] = api.requests
     assert request.url.path == "/v1/messages"
     assert request.headers["x-api-key"] == "test-key"
-    assert "server-side-fallback-2026-07-01" in request.headers["anthropic-beta"]
+    assert "anthropic-beta" not in request.headers
     body = api.body()
-    assert body["model"] == "claude-opus-5-5"
-    assert body["fallbacks"] == "default"
-    assert body["output_config"] == {"effort": "low"}
-    assert body["tools"] == [{"type": "web_search_20260209", "name": "web_search", "max_uses": 3}]
+    assert body["model"] == "claude-haiku-5-5"
+    assert "fallbacks" not in body
+    assert "thinking" not in body
+    assert body["output_config"] == {"effort": "medium"}
+    assert body["tools"] == [{"type": "web_search_20250305", "name": "web_search", "max_uses": 3}]
     question = body["messages"][0]["content"]
     assert "HEL to BCN" in question
     assert "2026-11-14 to 2026-11-17" in question
@@ -110,10 +111,10 @@ def test_asks_claude_with_web_search_and_returns_the_answer_after_the_search():
 def test_model_and_effort_are_configurable():
     api = FakeMessagesApi(message([{"type": "text", "text": ANSWER}]))
 
-    api.researcher(model="claude-sonnet-5-5", effort="medium").research(DEAL)
+    api.researcher(model="claude-sonnet-5-5", effort="low").research(DEAL)
 
     assert api.body()["model"] == "claude-sonnet-5-5"
-    assert api.body()["output_config"] == {"effort": "medium"}
+    assert api.body()["output_config"] == {"effort": "low"}
 
 
 def test_nothing_found_means_no_context():
@@ -157,4 +158,5 @@ def test_claude_deal_context_needs_an_api_key():
         Settings.from_env({"FS_DEAL_CONTEXT": "claude", "ANTHROPIC_API_KEY": "k"})
     )
     assert isinstance(researcher, ClaudeResearcher)
-    assert researcher.settings.model == "claude-opus-5-5"
+    assert researcher.settings.model == "claude-haiku-5-5"
+    assert researcher.settings.effort == "medium"

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { JetBrains_Mono, Playfair_Display } from "next/font/google";
 import { Nav } from "@/components/Nav";
+import { WatchAssistant } from "@/components/WatchAssistant";
 import "./globals.css";
 
 const mono = JetBrains_Mono({ subsets: ["latin"], weight: ["300", "400", "500"], variable: "--mono" });
@@ -23,6 +24,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <div className="sky-coordinate" style={{ bottom: 10, left: 140 }}>
           verda · localhost · via SSH tunnel
         </div>
+        <WatchAssistant />
       </body>
     </html>
   );

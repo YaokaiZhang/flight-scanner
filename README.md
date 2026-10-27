@@ -131,6 +131,7 @@ one with an explanation. In short:
 | Alerts | `FS_NOTIFIERS` (`log`, `email`, `telegram`), `SMTP_*`, `ALERT_EMAIL_*`, `TELEGRAM_*` | `log` |
 | Verification | `FS_VERIFIER=serpapi`, `SERPAPI_API_KEY` | off: Deals are alerted *Unverified* |
 | Deal context | `FS_DEAL_CONTEXT=claude`, `ANTHROPIC_API_KEY` | off |
+| Watch assistant | `FS_WATCH_AGENT=claude`, `ANTHROPIC_API_KEY` | off |
 | Ryanair / Wizz | `FS_ENABLE_RYANAIR`, `FS_ENABLE_WIZZ`, plus listing them in `FS_SOURCES` | off |
 | Databricks | `FS_LAKEHOUSE=databricks`, `DATABRICKS_*`, `FS_DATABRICKS_*` | off |
 

@@ -12,6 +12,7 @@ import {
   type Watch,
   type WatchSpec,
 } from "@/lib/api";
+import type { WatchDraft } from "@/lib/watchDraft";
 import { Icon, PlacePicker } from "./PlacePicker";
 import { EMPTY_TRIP_DRAFT, TripPatternFields, toPreset, tripDraftOf, type TripDraft } from "./TripPatternFields";
 
@@ -39,21 +40,21 @@ const EMPTY: Draft = {
   delivery: "immediate",
 };
 
-function draftOf(w: Watch): Draft {
+function draftOf(w: WatchSpec): Draft {
   return {
     name: w.name,
-    origins: w.origins,
-    destinations: w.destinations,
+    origins: { include: w.origins.include, exclude: w.origins.exclude ?? [] },
+    destinations: { include: w.destinations.include, exclude: w.destinations.exclude ?? [] },
     adults: w.adults,
     threshold: w.price_threshold ? String(w.price_threshold.amount_eur) : "",
     basis: w.price_threshold?.basis ?? "total",
-    sensitivity_pct: w.sensitivity_pct,
-    channels: w.channels,
-    delivery: w.delivery,
+    sensitivity_pct: w.sensitivity_pct ?? EMPTY.sensitivity_pct,
+    channels: w.channels.length ? w.channels : EMPTY.channels,
+    delivery: w.delivery ?? EMPTY.delivery,
   };
 }
 
-function problem(err: unknown): string {
+export function problem(err: unknown): string {
   if (!(err instanceof ApiError)) return "Could not save (network).";
   if (err.status !== 422) return `Could not save (${err.status}).`;
   const detail = (err.detail as { detail?: { msg?: string }[] } | null)?.detail;
@@ -61,24 +62,30 @@ function problem(err: unknown): string {
   return msgs.length ? `Check the fields: ${msgs.join("; ")}.` : "Check the fields: some values are not valid.";
 }
 
-/** Create a Watch (no `watch`) or edit one: Places, trip, adults, threshold, sensitivity, delivery. */
+/** Create a Watch (no `watch`) or edit one: Places, trip, adults, threshold, sensitivity, delivery.
+ *  A `draft` (e.g. a Watch assistant proposal) prefills the create form. */
 export function WatchEditor({
   watch,
+  draft: proposed,
   onSaved,
   onDeleted,
   onClose,
 }: {
   watch: Watch | null;
+  draft?: WatchDraft | null;
   onSaved: (w: Watch) => void;
   onDeleted: (id: number) => void;
   onClose: () => void;
 }) {
-  const [draft, setDraft] = useState<Draft>(watch ? draftOf(watch) : EMPTY);
-  const [names, setNames] = useState(() => new Map((watch?.places ?? []).map((p) => [placeKey(p), p])));
+  const start = watch ?? proposed?.spec ?? null;
+  const [draft, setDraft] = useState<Draft>(start ? draftOf(start) : EMPTY);
+  const [names, setNames] = useState(
+    () => new Map((watch?.places ?? proposed?.places ?? []).map((p) => [placeKey(p), p])),
+  );
   const [busy, setBusy] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [message, setMessage] = useState<{ ok: boolean; text: string } | null>(null);
-  const [trip, setTrip] = useState<TripDraft>(watch ? tripDraftOf(watch.trip_pattern) : EMPTY_TRIP_DRAFT);
+  const [trip, setTrip] = useState<TripDraft>(start ? tripDraftOf(start.trip_pattern) : EMPTY_TRIP_DRAFT);
 
   const set = <K extends keyof Draft>(k: K, v: Draft[K]) => setDraft((d) => ({ ...d, [k]: v }));
   const toggleChannel = (c: Channel, on: boolean) =>
@@ -153,6 +160,7 @@ export function WatchEditor({
   return (
     <section aria-labelledby="editor-title">
       <h2 className="widget-label" id="editor-title">{watch ? "Edit Watch" : "New Watch"}</h2>
+      {!watch && proposed && <p className="meta draft-note">Drafted by the Watch assistant. Check it, then create.</p>}
       <form className="editor" onSubmit={submit}>
         <label className="field">
           <span>Name</span>
