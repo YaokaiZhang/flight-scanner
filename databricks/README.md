@@ -29,6 +29,7 @@ recomputes every scan. If Databricks is down or over its fair-use quota, the run
    CREATE CATALOG IF NOT EXISTS flight_scanner;
    CREATE SCHEMA IF NOT EXISTS flight_scanner.bronze;
    CREATE VOLUME IF NOT EXISTS flight_scanner.bronze.exports;
+   CREATE VOLUME IF NOT EXISTS flight_scanner.bronze.raw;  -- only for FS_RAW_ARCHIVE
    ```
    (Using another catalog name: also edit the volume paths in `sql/medallion.sql`.)
 3. **Warehouse id.** SQL Warehouses -> your warehouse -> Connection details: the id is the last

@@ -14,6 +14,7 @@ CREATE SCHEMA IF NOT EXISTS bronze;
 CREATE SCHEMA IF NOT EXISTS silver;
 CREATE SCHEMA IF NOT EXISTS gold;
 CREATE VOLUME IF NOT EXISTS bronze.exports;
+CREATE VOLUME IF NOT EXISTS bronze.raw;  -- the raw archive (flight_scanner/raw_archive.py)
 
 -- staging.stg_leg_prices
 CREATE TABLE IF NOT EXISTS bronze.stg_leg_prices;

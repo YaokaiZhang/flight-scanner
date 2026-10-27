@@ -36,3 +36,5 @@ class Runtime:
     dbt_data_tests: bool = True
     # the analytical layer (ticket 12, ADR-0003): the daily `lakehouse` job; None = off
     lakehouse: Lakehouse | None = None
+    # days of raw segments kept on disk once archived (raw_store.archive; None = kept forever)
+    raw_local_days: int = 14

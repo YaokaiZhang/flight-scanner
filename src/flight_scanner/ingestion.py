@@ -76,7 +76,7 @@ def store_payload(conn: psycopg.Connection, raw_store: RawStore, raw: RawPayload
             raw.source,
             raw.fetched_at,
             Jsonb(json.loads(json.dumps(dict(raw.request.params)))),
-            str(stored.path),
+            stored.ref,
             stored.sha256,
         ),
     ).fetchone()

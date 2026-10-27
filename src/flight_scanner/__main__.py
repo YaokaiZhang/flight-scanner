@@ -1,7 +1,9 @@
-"""`python -m flight_scanner migrate|scan|rebuild|lakehouse|unblock <source>` - one-offs.
+"""`python -m flight_scanner migrate|scan|rebuild|lakehouse|pack-raw|unblock <source>` - one-offs.
 
 rebuild: re-parse every raw payload of the enabled sources and rebuild staging, history and marts.
-lakehouse: run the daily lakehouse job now (export to Databricks, write its Baselines back).
+lakehouse: run the daily lakehouse job now (export to Databricks, write its Baselines back;
+    archive finished days of the raw store when FS_RAW_ARCHIVE is set).
+pack-raw: move raw payloads stored one file each (before segments) into segments.
 unblock: re-enable a source that disabled itself after being turned away (GET /sources/blocked).
 """
 
@@ -40,6 +42,15 @@ def main(argv: list[str]) -> int:
         run = run_lakehouse(runtime)
         print(run or "off: set FS_LAKEHOUSE=databricks (see databricks/README.md)")
         return 0 if run is None or run.status != "failed" else 1
+    if cmd == "pack-raw":
+        from flight_scanner.db import connect
+        from flight_scanner.raw_store import RawStore, pack_loose
+
+        settings = Settings.from_env()
+        migrate(settings.db)
+        with connect(settings.db, autocommit=True) as conn:
+            print("packed:", pack_loose(conn, RawStore(settings.raw_dir)))
+        return 0
     if cmd == "unblock" and len(argv) == 3:
         from flight_scanner import source_health
         from flight_scanner.db import connect

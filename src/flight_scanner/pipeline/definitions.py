@@ -20,6 +20,7 @@ from flight_scanner.ingestion import ingest
 from flight_scanner.lakehouse import LakehouseRun, latest_run, run_daily
 from flight_scanner.pipeline import dbt as dbt_files
 from flight_scanner.pipeline.runtime import Runtime
+from flight_scanner.raw_archive import archive_raw
 from flight_scanner.reprocess import ReprocessReport, reprocess
 
 LEG_PRICES = dg.AssetKey(["landing", "leg_prices"])
@@ -32,6 +33,7 @@ REF_AIRPORTS = dg.AssetKey(["ref", "airports"])
 QUALITY_GATES = dg.AssetKey(["app", "quality_gates"])
 # what the lakehouse published (dbt source analytics.baseline_versions -> effective_baselines)
 LAKEHOUSE = dg.AssetKey(["analytics", "baseline_versions"])
+RAW_ARCHIVE = dg.AssetKey(["raw", "archive"])
 
 
 @dg.asset(key=REF_AIRPORTS, group_name="reference")
@@ -184,6 +186,28 @@ def lakehouse_asset(runtime: dg.ResourceParam[Runtime]):
     )
 
 
+@dg.asset(key=RAW_ARCHIVE, group_name="analytics")
+def raw_archive_asset(runtime: dg.ResourceParam[Runtime]):
+    """Daily: copy finished days of the raw store to its archive (a Databricks volume) and prune
+    local copies older than `raw_local_days` (raw_archive.py). Never on the alerting path: an
+    unavailable archive is recorded and nothing is pruned."""
+    archive = runtime.raw_store.archive
+    if archive is None:
+        return dg.MaterializeResult(metadata={"status": "off"})
+    with connect(runtime.db, autocommit=True) as conn:
+        report = archive_raw(
+            conn, runtime.raw_store, archive, runtime.clock.now(), runtime.raw_local_days
+        )
+    return dg.MaterializeResult(
+        metadata={
+            "status": report.status,
+            "uploaded": report.uploaded,
+            "pruned": report.pruned,
+            "detail": report.detail,
+        }
+    )
+
+
 BACKTEST_MODELS = "backtest_deals"
 
 
@@ -280,11 +304,12 @@ def build_definitions(runtime: Runtime) -> dg.Definitions:
     rebuild_job = dg.define_asset_job(
         "rebuild", selection=dg.AssetSelection.assets(ref_airports, dbt_models, dbt_backtest)
     )
-    # the analytical layer, once a day before the morning's scans; separate from the scan job
-    lakehouse_job = dg.define_asset_job("lakehouse", selection=[LAKEHOUSE])
+    # the analytical layer and the raw archive, once a day before the morning's scans;
+    # separate from the scan job
+    lakehouse_job = dg.define_asset_job("lakehouse", selection=[LAKEHOUSE, RAW_ARCHIVE])
     profiles = dbt_files.write_profiles(runtime.db, runtime.work_dir / "dbt-profiles")
     return dg.Definitions(
-        assets=[*assets, lakehouse_asset],
+        assets=[*assets, lakehouse_asset, raw_archive_asset],
         jobs=[scan_job, collect_job, rebuild_job, lakehouse_job],
         sensors=_feedback_sensors(runtime),
         schedules=[

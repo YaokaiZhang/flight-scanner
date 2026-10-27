@@ -85,7 +85,7 @@ def test_only_fares_seen_by_the_scan_time_count(pipeline):
     assert len(pipeline.notifier.alerts) == 1
 
 
-def test_raw_payloads_are_kept_immutably_by_source_and_date(pipeline):
+def test_raw_payloads_are_kept_by_source_and_date(pipeline):
     pipeline.create_watch(hel_bcn_watch(threshold_eur=120))
     recorded = (PAYLOADS / "hel-bcn-2026-11.json").read_bytes()
     pipeline.fake.replay(PAYLOADS / "hel-bcn-2026-11.json", route=("HEL", "BCN"))
@@ -95,7 +95,6 @@ def test_raw_payloads_are_kept_immutably_by_source_and_date(pipeline):
     [stored] = pipeline.raw_store.list("fake", date(2026, 10, 21))
     assert stored.read() == recorded
     assert "source=fake" in stored.path.parts and "date=2026-10-21" in stored.path.parts
-    assert not stored.path.stat().st_mode & 0o222  # read-only on disk
 
 
 def test_a_source_outage_does_not_stop_other_sources(pipeline):

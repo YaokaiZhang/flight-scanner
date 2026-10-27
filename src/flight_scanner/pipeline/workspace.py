@@ -10,6 +10,7 @@ from flight_scanner.lakehouse import build_lakehouse
 from flight_scanner.notify.registry import build_notifiers
 from flight_scanner.pipeline.definitions import build_definitions
 from flight_scanner.pipeline.runtime import Runtime
+from flight_scanner.raw_archive import build_raw_archive, keep_days
 from flight_scanner.raw_store import RawStore
 from flight_scanner.sources.registry import build_sources, build_verifier
 
@@ -20,7 +21,7 @@ def runtime_from_env() -> Runtime:
     return Runtime(
         clock=clock,
         db=settings.db,
-        raw_store=RawStore(settings.raw_dir),
+        raw_store=RawStore(settings.raw_dir, archive=build_raw_archive(settings)),
         work_dir=settings.work_dir,
         sources=build_sources(settings, clock),
         notifiers=build_notifiers(settings),
@@ -28,6 +29,7 @@ def runtime_from_env() -> Runtime:
         researcher=build_researcher(settings),
         verifier=build_verifier(settings, clock),
         lakehouse=build_lakehouse(settings),
+        raw_local_days=keep_days(settings),
     )
 
 
