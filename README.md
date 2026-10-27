@@ -53,6 +53,7 @@ daemon, and the UI, then waits until each one answers:
 | `scripts/start.sh status` | Show what is running |
 | `scripts/start.sh logs [service]` | Follow a service's log (`api`, `dagster-webserver`, `dagster-daemon`, `web`, `postgres`) |
 | `scripts/start.sh down` | Stop everything (data is kept) |
+| `scripts/start.sh deploy-databricks` | Redeploy the Databricks bundle now (see below) |
 
 | Service | URL |
 | --- | --- |
@@ -89,6 +90,25 @@ This is for a laptop or a shared login node. It needs PostgreSQL 16 (`initdb`, `
   shared host where the defaults are taken. Note that other users on the same host can reach
   127.0.0.1 ports, and the API has no login.
 
+### Apptainer mode (no Docker, no conda)
+
+On a host with Apptainer but without Docker (e.g. roihu), [`scripts/apptainer.sh`](scripts/apptainer.sh)
+runs local mode inside one Apptainer instance. The image
+([docker/flight-scanner.def](docker/flight-scanner.def)) brings PostgreSQL 16, Python 3.12 with uv
+and Node 22; it is built with `--fakeroot` on first start.
+
+| Command | What it does |
+| --- | --- |
+| `scripts/apptainer.sh` or `start` | Build the image if missing, start the instance and the stack |
+| `scripts/apptainer.sh restart` | Shut down, then start |
+| `scripts/apptainer.sh shutdown` | Stop the services (Postgres cleanly), then the instance |
+| `scripts/apptainer.sh status` / `logs [service]` / `scan` / `deploy-databricks` | As for `start.sh`, inside the instance |
+| `scripts/apptainer.sh build` | Rebuild the image |
+
+State, ports and `.env` work as in local mode. The image goes to `FS_SIF` (default
+`$FS_STATE_DIR/flight-scanner.sif`), the instance is named `FS_INSTANCE` (default `flight-scanner`)
+and the container's venv is `$FS_STATE_DIR/venv`, apart from any host `.venv`.
+
 ### Trying it without API keys
 
 The `fake` source replays saved payloads, so you can see the full pipeline with no accounts:
@@ -123,6 +143,12 @@ it with `python -m flight_scanner unblock ryanair` (or `wizz`).
 
 The Databricks analytical layer needs a one-time setup, described in
 [databricks/README.md](databricks/README.md).
+After that, with `FS_LAKEHOUSE=databricks`, `scripts/start.sh up` redeploys the bundle by itself
+whenever `dbt/` or `databricks/` changed since the last deploy, before starting the services.
+It uses the `databricks` CLI on `PATH`, or downloads the latest release into
+`$FS_STATE_DIR/bin` the first time. It fills an empty `FS_DATABRICKS_JOB_ID` in `.env` with the
+deployed job's id. A failed deploy only prints a warning, with the log in
+`$FS_STATE_DIR/logs/databricks-deploy.log`, and the next `up` tries again.
 
 ## One-off commands
 

@@ -1,13 +1,13 @@
 # Analytical layer on Databricks Free Edition (ADR-0003)
 
-The operational loop on verda never waits for Databricks. Once a day the Dagster job
+The operational loop never waits for Databricks. Once a day the Dagster job
 `lakehouse` (04:15 Helsinki; by hand: `python -m flight_scanner lakehouse`):
 
 1. exports history and staging (plus the app/reference tables the shared dbt models read) as
    Parquet, one file per table: `flight_scanner.lakehouse.export.EXPORT_TABLES`;
 2. uploads them to the Unity Catalog volume `/Volumes/<catalog>/bronze/exports/<export_date>/`;
 3. runs the `flight-scanner-analytics` job: `sql/medallion.sql` loads **bronze** (every export,
-   append-only) and **silver** (the latest export, named as on verda), then dbt builds the
+   append-only) and **silver** (the latest export), then dbt builds the
    shared models tagged `lakehouse` (`baseline_observations`, `baselines`, `backtest_deals`)
    into **gold** at the run's `as_of`;
 4. reads `gold.baselines` and `gold.backtest_deals` back through the SQL warehouse and writes them
@@ -16,7 +16,7 @@ The operational loop on verda never waits for Databricks. Once a day the Dagster
    `analytics.lakehouse_runs`.
 
 Detection uses `marts.effective_baselines`: per tier and key, the latest published version while
-it is at most 7 days old (dbt var `published_baseline_max_age_days`), else the Baselines verda
+it is at most 7 days old (dbt var `published_baseline_max_age_days`), else the Baselines
 recomputes every scan. If Databricks is down or over its fair-use quota, the run is recorded as
 `unavailable` / `over_quota` and nothing else changes.
 
@@ -33,21 +33,24 @@ recomputes every scan. If Databricks is down or over its fair-use quota, the run
    (Using another catalog name: also edit the volume paths in `sql/medallion.sql`.)
 3. **Warehouse id.** SQL Warehouses -> your warehouse -> Connection details: the id is the last
    part of the HTTP path (`/sql/1.0/warehouses/<id>`).
-4. **Deploy the job.** Install the Databricks CLI, `databricks auth login --host <workspace URL>`,
-   then from this folder: `databricks bundle deploy -t free --var warehouse_id=<id>`.
-   Note the job id it prints (or Workflows -> flight-scanner-analytics -> Job details).
+4. **Deploy the job.** `scripts/start.sh` does this for you once steps 5 and 6 are done: `up`
+   deploys the bundle (and redeploys it whenever `dbt/` or this folder changes), downloading
+   the Databricks CLI if none is on PATH, and writes the job id into an empty
+   `FS_DATABRICKS_JOB_ID`. `scripts/start.sh deploy-databricks` forces a deploy. By hand: install
+   the CLI, then from this folder `databricks bundle deploy -t free --var warehouse_id=<id>`,
+   and note the job id (Jobs & Pipelines -> flight-scanner-analytics -> Job details).
 5. **Token.** Settings -> Developer -> Access tokens -> Generate new token (give it a lifetime
    and renew it before it expires). It needs to write the volume, run the job and use the
    warehouse; the token of the workspace owner can.
-6. **verda.** In `.env` on verda:
+6. **env.** In `.env`:
    ```
    FS_LAKEHOUSE=databricks
    DATABRICKS_HOST=<workspace URL, e.g. dbc-1234abcd-5678.cloud.databricks.com>
    DATABRICKS_TOKEN=<token>
-   FS_DATABRICKS_JOB_ID=<job id>
+   FS_DATABRICKS_JOB_ID=<job id; left empty, start.sh fills it in>
    FS_DATABRICKS_WAREHOUSE_ID=<warehouse id>
    ```
-   Restart the stack; run `docker compose exec dagster python -m flight_scanner lakehouse` once
+   Restart the stack; run `docker compose exec dagster-daemon python -m flight_scanner lakehouse` once
    and check it prints `status='published'`.
 
 Running the shared models against the workspace by hand: set `DATABRICKS_HOST`,
