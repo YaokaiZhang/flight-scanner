@@ -78,11 +78,12 @@ def test_email_alert_is_sent_over_smtp_with_full_deal_details(smtp, round_trip_a
     [(sender, recipients, raw)] = inbox.messages
     assert (sender, recipients) == ("scanner@example.test", ["owner@example.test"])
     msg = message_from_bytes(raw, policy=policy.default)
-    assert msg["Subject"] == "HEL→HRG 14 Nov – 19 Nov: €118/adult · Verified"
+    assert msg["Subject"] == "Helsinki Vantaa → Hurghada 14 Nov – 19 Nov: €118/adult · Verified"
     text = msg.get_body(("plain",)).get_content()
     assert text.splitlines() == [
         "Sun in November",
-        "HEL → HRG · Sat 14 Nov 2026 → Thu 19 Nov 2026 · 5 nights",
+        "Helsinki Vantaa Airport (HEL), Finland → Hurghada International Airport (HRG), Egypt",
+        "Sat 14 Nov 2026 → Thu 19 Nov 2026 · 5 nights",
         "€118 per adult · €236 total for 2 adults",
         "44.9% below Baseline €214 (route)",
         "airBaltic, Ryanair · 1 stop · 15 h 25 min",
@@ -121,5 +122,8 @@ def test_an_email_digest_is_one_message_listing_every_deal(smtp, round_trip_aler
     msg = message_from_bytes(raw, policy=policy.default)
     assert msg["Subject"] == "Daily Digest · Sun in November: 2 Deals"
     text = msg.get_body(("plain",)).get_content()
-    assert "1. HEL→HRG 14 Nov" in text and "2. HEL→LPA 14 Nov" in text
+    assert (
+        "1. Helsinki Vantaa → Hurghada 14 Nov" in text
+        and "2. Helsinki Vantaa → Gran Canaria 14 Nov" in text
+    )
     assert text.count("Book: https://example.test/book") == 2

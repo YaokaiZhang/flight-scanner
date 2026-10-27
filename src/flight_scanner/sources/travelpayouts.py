@@ -36,6 +36,7 @@ from flight_scanner.sources.base import (
     LegPrice,
     ParsedPrices,
     RawPayload,
+    RequestRejected,
     RoundTripPrice,
     ScanRequest,
     SourceUnavailable,
@@ -150,6 +151,8 @@ class TravelpayoutsAdapter:
                 resp, problem, retryable = None, f"{type(e).__name__}: {e}", True
             if problem is None:
                 break
+            if resp is not None and resp.status == 400:  # this request is invalid, not an outage
+                raise RequestRejected(f"travelpayouts: {_api_error(resp.body) or problem}")
             if not retryable or attempt >= self._max_retries:
                 raise SourceUnavailable(f"travelpayouts: {problem} after {attempt + 1} attempt(s)")
             self._sleep(self._backoff(attempt, resp))
@@ -243,3 +246,13 @@ def _int(value) -> int | None:
 def _max_int(*values) -> int | None:
     ints = [_int(v) for v in values if _int(v) is not None]
     return max(ints) if ints else None
+
+
+def _api_error(body: bytes) -> str | None:
+    """The `error` message of a JSON error answer, if there is one."""
+    try:
+        doc = json.loads(body)
+    except ValueError:
+        return None
+    error = doc.get("error") if isinstance(doc, dict) else None
+    return error if isinstance(error, str) and error else None

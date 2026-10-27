@@ -11,6 +11,7 @@ An adapter turns demand into prices in three steps, each separately replayable:
 `parse` must be a pure function of the raw payload so history can be rebuilt from the raw store.
 Adapters own their rate limiting, backoff and quota accounting inside `fetch`, and raise
 `SourceUnavailable` when the source cannot be reached; ingestion isolates that failure.
+`RequestRejected` fails only the one request's scan task.
 Prices come out in the source's currency and passenger count; dbt staging normalises them.
 """
 
@@ -27,6 +28,11 @@ from flight_scanner.watches import Demand
 
 class SourceUnavailable(Exception):
     """The source could not be reached or refused the request (outage, quota, rate limit)."""
+
+
+class RequestRejected(SourceUnavailable):
+    """The source refused this one request as invalid (say, an airport it cannot price) while
+    working fine otherwise: only that scan task fails; the source carries on and stays healthy."""
 
 
 class SourceBlocked(SourceUnavailable):

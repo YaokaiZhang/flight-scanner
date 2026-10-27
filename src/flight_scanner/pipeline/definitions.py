@@ -288,9 +288,16 @@ def build_definitions(runtime: Runtime) -> dg.Definitions:
         jobs=[scan_job, collect_job, rebuild_job, lakehouse_job],
         sensors=_feedback_sensors(runtime),
         schedules=[
-            dg.ScheduleDefinition(job=scan_job, cron_schedule="*/30 * * * *"),
             dg.ScheduleDefinition(
-                job=lakehouse_job, cron_schedule="15 4 * * *", execution_timezone="Europe/Helsinki"
+                job=scan_job,
+                cron_schedule="*/30 * * * *",
+                default_status=dg.DefaultScheduleStatus.RUNNING,
+            ),
+            dg.ScheduleDefinition(
+                job=lakehouse_job,
+                cron_schedule="15 4 * * *",
+                execution_timezone="Europe/Helsinki",
+                default_status=dg.DefaultScheduleStatus.RUNNING,
             ),
         ],
         resources={

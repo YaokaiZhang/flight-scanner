@@ -160,9 +160,11 @@ def _sources(
         for r in conn.execute(
             """SELECT source,
                       max(finished_at) FILTER (WHERE status = 'scanned') AS success_at,
-                      max(finished_at) FILTER (WHERE status = 'failed') AS failure_at,
+                      max(finished_at) FILTER (WHERE status = 'failed'
+                          AND error NOT LIKE 'RequestRejected:%%') AS failure_at,
                       (array_agg(error ORDER BY finished_at DESC, id DESC)
-                          FILTER (WHERE status = 'failed'))[1] AS error
+                          FILTER (WHERE status = 'failed'
+                              AND error NOT LIKE 'RequestRejected:%%'))[1] AS error
                FROM app.scan_tasks
                WHERE finished_at <= %(now)s
                GROUP BY source""",

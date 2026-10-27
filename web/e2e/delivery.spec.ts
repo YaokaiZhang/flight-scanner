@@ -8,7 +8,7 @@ test("a Watch created with Daily Digest is stored in Digest mode", async ({ page
   await page.getByRole("option", { name: /Helsinki Vantaa Airport/ }).click();
   await page.getByRole("combobox", { name: "To" }).fill("lis");
   await page.getByRole("option", { name: /LIS/ }).first().click();
-  await page.getByLabel("Departure (one way)").fill("2026-11-20");
+  await page.getByLabel("Departure date").fill("2026-11-20");
   await page.getByLabel("Daily Digest").check();
   await page.getByRole("button", { name: "Create Watch" }).click();
   await expect(page.getByRole("status")).toContainText("Saved");

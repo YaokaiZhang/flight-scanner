@@ -3,6 +3,8 @@
 `subject(alert)` is the one-line summary (email subject, Telegram headline); `lines(alert)` the
 body, one fact per line, leaving out what isn't known (no Baseline yet, airline unknown, ...);
 `html_lines` the same with the headline and booking link marked up (escaped, Telegram-safe HTML).
+Airports are named from the bundled reference data: the headline says "Milan Malpensa", the body
+"Milan Malpensa International Airport (MXP), Italy"; an unknown code is shown as is.
 A Digest (`digest_subject`, `digest_text`, `digest_html`) is its Deals' Alerts, numbered, in one
 message.
 """
@@ -14,6 +16,7 @@ from html import escape
 from urllib.parse import quote
 
 from flight_scanner.notify.base import AlertMessage, DigestMessage
+from flight_scanner.places.reference import default_reference
 
 
 def booking_link(origin: str, destination: str, outbound: date, inbound: date | None) -> str:
@@ -25,6 +28,30 @@ def booking_link(origin: str, destination: str, outbound: date, inbound: date | 
 
 def eur(amount: float) -> str:
     return f"€{amount:,.0f}" if amount == int(amount) else f"€{amount:,.2f}"
+
+
+def _airport(code: str):
+    return default_reference().airports.get(code)
+
+
+def short_place(code: str) -> str:
+    """The airport's name without the trailing "(International) Airport": "Helsinki Vantaa"."""
+    a = _airport(code)
+    if a is None:
+        return code
+    for suffix in (" International Airport", " Airport"):
+        if a.name.endswith(suffix) and len(a.name) > len(suffix):
+            return a.name[: -len(suffix)]
+    return a.name
+
+
+def full_place(code: str) -> str:
+    """Airport name, code and country: "Helsinki Vantaa Airport (HEL), Finland"."""
+    a = _airport(code)
+    if a is None:
+        return code
+    country = default_reference().countries.get(a.country)
+    return f"{a.name} ({code})" + (f", {country[0]}" if country else "")
 
 
 def _day(d: date) -> str:
@@ -46,22 +73,23 @@ def _status(a: AlertMessage) -> str:
 
 def subject(a: AlertMessage) -> str:
     return (
-        f"{a.origin}→{a.destination} {a.outbound_date.strftime('%-d %b')}"
+        f"{short_place(a.origin)} → {short_place(a.destination)} "
+        f"{a.outbound_date.strftime('%-d %b')}"
         f"{' – ' + a.return_date.strftime('%-d %b') if a.return_date else ''}: "
         f"{eur(a.price_per_adult_eur)}/adult · {_status(a)}"
     )
 
 
 def lines(a: AlertMessage) -> list[str]:
-    out = [a.watch_name]
+    out = [a.watch_name, f"{full_place(a.origin)} → {full_place(a.destination)}"]
     if a.return_date:
         nights = (a.return_date - a.outbound_date).days
         out.append(
-            f"{a.origin} → {a.destination} · {_day(a.outbound_date)} → {_day(a.return_date)}"
+            f"{_day(a.outbound_date)} → {_day(a.return_date)}"
             f" · {nights} night{'s' if nights != 1 else ''}"
         )
     else:
-        out.append(f"{a.origin} → {a.destination} · {_day(a.outbound_date)} · one way")
+        out.append(f"{_day(a.outbound_date)} · one way")
     price = f"{eur(a.price_per_adult_eur)} per adult"
     if a.adults > 1:
         price += f" · {eur(a.price_total_eur)} total for {a.adults} adults"

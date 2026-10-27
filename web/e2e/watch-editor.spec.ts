@@ -25,19 +25,20 @@ test("build a Region-minus-country Watch, then edit, pause and delete it", async
   await editor.locator(".tree li summary", { hasText: "Europe" }).first().click();
   await expect(editor.locator(".tree li.x", { hasText: "Sweden" })).toBeVisible();
 
-  await editor.getByLabel("Departure (one way)").fill("2026-11-14");
+  await editor.getByLabel("Departure date").fill("2026-11-14");
   await editor.getByRole("button", { name: "Create Watch" }).click();
   await expect(editor.getByRole("status")).toContainText("Saved");
 
   const row = page.getByRole("row").filter({ hasText: "Sun, not Sweden" });
   await expect(row).toContainText("Europe − Sweden");
-  await row.getByRole("button", { name: "Sun, not Sweden" }).click();
+  await row.getByRole("button", { name: "Edit Sun, not Sweden" }).click();
   await expect(editor.getByRole("heading", { name: "Edit Watch" })).toBeVisible();
 
   await editor.getByLabel("Name").fill("Sun, still not Sweden");
   await editor.getByRole("button", { name: "More adults" }).click();
   await editor.getByRole("button", { name: "Save Watch" }).click();
   const edited = page.getByRole("row").filter({ hasText: "Sun, still not Sweden" });
+  await expect(edited.getByRole("button", { name: "Edit Sun, still not Sweden" })).toHaveText("Editing");
   await expect(edited.getByRole("cell").nth(3)).toHaveText("2"); // Adults column
 
   await editor.getByRole("button", { name: "Pause" }).click();

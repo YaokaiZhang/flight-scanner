@@ -28,6 +28,11 @@ export function WatchesView() {
 
   const current = watches?.find((w) => w.id === selected) ?? null;
 
+  // Bring the editor into view (it sits below the table on narrow screens) when a Watch is picked.
+  useEffect(() => {
+    if (selected !== null) document.getElementById("editor-title")?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+  }, [selected]);
+
   return (
     <>
       <main className="main-canvas" id="main" tabIndex={-1}>
@@ -55,6 +60,7 @@ export function WatchesView() {
                 <tr>
                   <th>Watch</th><th>Where</th><th>Trip pattern</th>
                   <th className="num">Adults</th><th className="num">Threshold</th><th>Alerts by</th><th>Status</th>
+                  <th><span className="sr-only">Edit</span></th>
                 </tr>
               </thead>
               <tbody>
@@ -63,6 +69,7 @@ export function WatchesView() {
                     key={w.id}
                     className={`selectable${w.status !== "active" ? " paused" : ""}`}
                     aria-selected={w.id === selected}
+                    onClick={() => setSelected(w.id)}
                   >
                     <td className="row-title">
                       <button type="button" onClick={() => setSelected(w.id)}>{w.name}</button>
@@ -86,6 +93,19 @@ export function WatchesView() {
                     </td>
                     <td data-label="Status">
                       <span className={`tag ${w.status === "active" ? "verified" : "off"}`}>{w.status}</span>
+                    </td>
+                    <td className="row-edit">
+                      <button
+                        className="btn-marker"
+                        type="button"
+                        aria-label={`Edit ${w.name}`}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelected(w.id);
+                        }}
+                      >
+                        {w.id === selected ? "Editing" : "Edit"}
+                      </button>
                     </td>
                   </tr>
                 ))}

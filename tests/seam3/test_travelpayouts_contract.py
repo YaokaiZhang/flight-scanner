@@ -14,7 +14,7 @@ from urllib.parse import parse_qs, urlsplit
 import pytest
 
 from flight_scanner.clock import FakeClock
-from flight_scanner.sources.base import RawPayload, ScanRequest, SourceUnavailable
+from flight_scanner.sources.base import RawPayload, RequestRejected, ScanRequest, SourceUnavailable
 from flight_scanner.sources.travelpayouts import HttpResponse, TravelpayoutsAdapter
 from flight_scanner.watches import Demand
 
@@ -250,6 +250,19 @@ def test_a_bad_token_fails_at_once_without_retrying():
     req = a.plan([Demand("HEL", "BCN", NOV)])[0]
 
     with pytest.raises(SourceUnavailable, match="401"):
+        a.fetch(req)
+    assert len(transport.calls) == 1
+
+
+def test_a_bad_request_rejects_only_that_request():
+    """HTTP 400 names one request's problem (an airport Travelpayouts cannot price), not an
+    outage: it is not retried and the API's own message is kept."""
+    body = b'{"error":"bad request: airport BZI: not flightable","data":null,"success":false}'
+    transport = ScriptedTransport(HttpResponse(400, {}, body))
+    a, _ = adapter(transport)
+    req = a.plan([Demand("BZI", "HEL", NOV)])[0]
+
+    with pytest.raises(RequestRejected, match="airport BZI: not flightable"):
         a.fetch(req)
     assert len(transport.calls) == 1
 

@@ -97,6 +97,25 @@ def test_sources_show_freshness_last_success_failures_and_blocks(db, pipeline):
     assert wizz["blocked"]["reason"] == "wizz: turned away (HTTP 403)"
 
 
+def test_a_rejected_request_fails_only_its_task_and_the_source_stays_ok(db, pipeline):
+    pipeline.create_watch(watch(["MAD", "BCN"]))
+    pipeline.fake.reject(route=("HEL", "MAD"), reason="airport MAD: not flightable")
+    pipeline.fake.replay(payload(("BCN", 150)), route=("HEL", "BCN"))
+    pipeline.run()
+
+    with connect(db) as conn:
+        tasks = {
+            r["destination"]: r
+            for r in conn.execute("SELECT destination, status, error FROM app.scan_tasks")
+        }
+    assert tasks["BCN"]["status"] == "scanned"
+    assert tasks["MAD"]["status"] == "failed"
+    assert "not flightable" in tasks["MAD"]["error"]
+    [fake] = health(db, pipeline)["sources"]
+    assert fake["status"] == "ok"
+    assert (fake["last_failure_at"], fake["last_error"]) == (None, None)
+
+
 def test_coverage_gaps_are_demanded_route_months_without_recent_prices(db, pipeline):
     pipeline.create_watch(watch(["BCN", "LIS"]))
     pipeline.create_watch(

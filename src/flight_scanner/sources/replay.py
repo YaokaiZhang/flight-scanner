@@ -4,6 +4,7 @@
     fake.replay(Path("hel-bcn.json"), route=("HEL", "BCN"))          # from now on
     fake.replay(other_bytes, route=("HEL", "BCN"), at=later)          # replaces it from `later`
     fake.fail(at=t0, until=t1)                                        # outage window
+    fake.reject(route=("HEL", "XXX"), reason="airport XXX: not flightable")  # invalid request
 
 `fetch` returns the latest scripted payload at or before `clock.now()` for the request's route
 (or any route when scripted with `route=None`); with nothing scripted it returns an empty payload.
@@ -29,6 +30,7 @@ from flight_scanner.sources.base import (
     LegPrice,
     ParsedPrices,
     RawPayload,
+    RequestRejected,
     RoundTripPrice,
     ScanRequest,
     SourceUnavailable,
@@ -44,6 +46,7 @@ class _Entry:
     route: tuple[str, str] | None
     body: bytes | None  # None: outage
     until: datetime | None = None
+    rejected: str | None = None  # the reason the source rejects requests for this route
 
 
 class ReplayAdapter:
@@ -73,6 +76,11 @@ class ReplayAdapter:
 
     def fail(self, at: datetime | None = None, until: datetime | None = None) -> None:
         self._script.append(_Entry(at if at is not None else self._clock.now(), None, None, until))
+
+    def reject(self, route: tuple[str, str], reason: str, at: datetime | None = None) -> None:
+        self._script.append(
+            _Entry(at if at is not None else self._clock.now(), route, None, rejected=reason)
+        )
 
     @classmethod
     def from_dir(cls, name: str, clock: Clock, directory: Path) -> ReplayAdapter:
@@ -108,6 +116,9 @@ class ReplayAdapter:
         else:
             routes = sorted({e.route for e in self._script if e.route and e.route[0] == origin})
         entries = [self._latest(r, now) for r in routes or [(origin, None)]]
+        rejected = [e.rejected for e in entries if e is not None and e.rejected]
+        if rejected:
+            raise RequestRejected(f"{self.name}: {rejected[0]}")
         if any(e is not None and e.body is None for e in entries):
             raise SourceUnavailable(f"{self.name}: scripted outage")
         bodies = [e.body for e in entries if e is not None]

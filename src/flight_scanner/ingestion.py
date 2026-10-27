@@ -1,6 +1,7 @@
 """Ingestion: the scan plan's scheduled tasks -> each source adapter -> raw store + landing.
 
-One source failing (SourceUnavailable or any error) never stops the others; the outcome per
+One source failing (SourceUnavailable or any error) never stops the others, and a request the
+source rejects (`RequestRejected`) fails only its own scan task; the outcome per
 source, and per scan task ("scanned" or "failed", prices landed, error), is returned so the
 pipeline can record it (the data-quality checks read what each task landed).
 A source that was turned away (`SourceBlocked`) is flagged `blocked`; the pipeline then disables
@@ -19,7 +20,13 @@ from psycopg.types.json import Jsonb
 
 from flight_scanner.raw_store import RawStore
 from flight_scanner.scan_planner import ScheduledTask
-from flight_scanner.sources.base import ParsedPrices, RawPayload, SourceAdapter, SourceBlocked
+from flight_scanner.sources.base import (
+    ParsedPrices,
+    RawPayload,
+    RequestRejected,
+    SourceAdapter,
+    SourceBlocked,
+)
 
 log = logging.getLogger(__name__)
 
@@ -153,7 +160,8 @@ def ingest(
     raw_store: RawStore,
 ) -> IngestReport:
     """Fetch every scheduled task's requests, in order, per source. When a source fails, its
-    current and remaining tasks are failed and the other sources carry on."""
+    current and remaining tasks are failed and the other sources carry on; when it rejects one
+    request, only that task fails."""
     report = IngestReport()
     for adapter in adapters:
         outcome = SourceOutcome(adapter.name)
@@ -164,20 +172,25 @@ def ingest(
             for task in mine:
                 report.task_status[task.id] = "failed"
                 report.task_rows[task.id] = 0
-                for req in task.requests:
-                    raw = adapter.fetch(req)
-                    # the raw bytes are committed before parsing, so a parse bug never loses data
-                    with conn.transaction():
-                        payload_id = store_payload(conn, raw_store, raw)
-                    outcome.payloads += 1
-                    parsed = adapter.parse(raw)
-                    with conn.transaction():
-                        load_parsed(conn, payload_id, parsed)
-                    outcome.leg_prices += len(parsed.leg_prices)
-                    outcome.round_trip_prices += len(parsed.round_trip_prices)
-                    report.task_rows[task.id] += len(parsed.leg_prices) + len(
-                        parsed.round_trip_prices
-                    )
+                try:
+                    for req in task.requests:
+                        raw = adapter.fetch(req)
+                        # raw bytes are committed before parsing, so a parse bug never loses data
+                        with conn.transaction():
+                            payload_id = store_payload(conn, raw_store, raw)
+                        outcome.payloads += 1
+                        parsed = adapter.parse(raw)
+                        with conn.transaction():
+                            load_parsed(conn, payload_id, parsed)
+                        outcome.leg_prices += len(parsed.leg_prices)
+                        outcome.round_trip_prices += len(parsed.round_trip_prices)
+                        report.task_rows[task.id] += len(parsed.leg_prices) + len(
+                            parsed.round_trip_prices
+                        )
+                except RequestRejected as e:
+                    log.info("source %s rejected a request: %s", adapter.name, e)
+                    report.task_errors[task.id] = f"{type(e).__name__}: {e}"
+                    continue
                 report.task_status[task.id] = "scanned"
         except Exception as e:  # noqa: BLE001 - isolate every source failure
             log.warning("source %s failed: %s", adapter.name, e)
@@ -186,5 +199,5 @@ def ingest(
         for task in mine:
             report.task_status.setdefault(task.id, "failed")
             if report.task_status[task.id] == "failed":
-                report.task_errors[task.id] = outcome.error or "failed"
+                report.task_errors.setdefault(task.id, outcome.error or "failed")
     return report

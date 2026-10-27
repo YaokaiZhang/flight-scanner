@@ -9,13 +9,25 @@ import { formatDate } from "@/lib/format";
 
 type PresetName = TripPreset["preset"];
 
-const PRESETS: { value: PresetName; label: string }[] = [
-  { value: "month", label: "N–M nights departing within a month" },
-  { value: "fixed_dates", label: "Fixed dates" },
-  { value: "fixed_departure", label: "Fixed departure, N–M nights" },
-  { value: "around_date", label: "Target date ± K days, N–M nights" },
-  { value: "rolling", label: "N–M nights within a rolling window" },
-  { value: "one_way_fixed", label: "One-way" },
+const PRESETS: { value: PresetName; label: string; hint: string }[] = [
+  { value: "fixed_dates", label: "Exact dates", hint: "Out and back on the dates you pick." },
+  { value: "one_way_fixed", label: "One way", hint: "A single flight on the date you pick." },
+  {
+    value: "fixed_departure",
+    label: "Exact departure, flexible return",
+    hint: "Leave on one date and come back after any stay length in your range.",
+  },
+  {
+    value: "around_date",
+    label: "Around a date",
+    hint: "Leave within a few days either side of a date, for any stay length in your range.",
+  },
+  { value: "month", label: "Sometime in a month", hint: "Leave on any day of the month, for any stay length in your range." },
+  {
+    value: "rolling",
+    label: "Anytime soon",
+    hint: "Leave any day from today up to a number of days ahead; the window moves forward each day.",
+  },
 ];
 
 /** Every input the section can show, as typed; a preset is built from the ones it needs. */
@@ -99,19 +111,19 @@ export function describePreset(p: TripPreset): string {
   const by = "return_by" in p && p.return_by ? ` · back by ${formatDate(p.return_by)}` : "";
   switch (p.preset) {
     case "one_way_fixed":
-      return `${formatDate(p.departure)} · one way`;
+      return `One way on ${formatDate(p.departure)}`;
     case "fixed_dates":
       return `${formatDate(p.departure)} → ${formatDate(p.return_date)}`;
     case "month": {
       const m = new Date(`${p.month}-01T00:00:00Z`).toLocaleString("en-GB", { month: "short", year: "numeric", timeZone: "UTC" });
-      return `${n} departing in ${m}${by}`;
+      return `${n}, leaving sometime in ${m}${by}`;
     }
     case "rolling":
-      return `${n} within the next ${p.within_days} days${by}`;
+      return `${n}, leaving within the next ${p.within_days} days${by}`;
     case "fixed_departure":
-      return `${formatDate(p.departure)} for ${n}${by}`;
+      return `Leave ${formatDate(p.departure)}, stay ${n}${by}`;
     case "around_date":
-      return `${n} departing ${formatDate(p.target)} ± ${p.flex_days}${by}`;
+      return `${n}, leaving ${formatDate(p.target)} give or take ${p.flex_days} ${p.flex_days === 1 ? "day" : "days"}${by}`;
   }
   return "";
 }
@@ -176,8 +188,8 @@ function Resolved({ preset }: { preset: TripPreset | null }) {
   if (!r) return <p className="trip-summary">Resolving…</p>;
   const nights = r.stay_nights
     ? r.stay_nights.min === r.stay_nights.max
-      ? `${r.stay_nights.min} Stay nights`
-      : `${r.stay_nights.min}–${r.stay_nights.max} Stay nights`
+      ? `${r.stay_nights.min} nights`
+      : `${r.stay_nights.min}–${r.stay_nights.max} nights`
     : "one way";
   return (
     <div className="trip-resolved" data-testid="trip-resolution">
@@ -185,7 +197,7 @@ function Resolved({ preset }: { preset: TripPreset | null }) {
       <p className="trip-summary">
         Departs <b>{formatDate(r.departure_start)}</b>
         {r.departure_end !== r.departure_start && <> – <b>{formatDate(r.departure_end)}</b></>}
-        {r.rolling && " (rolling, from today)"} · <b>{nights}</b>
+        {r.rolling && " (moves forward daily)"} · <b>{nights}</b>
         {r.latest_return && <> · back by <b>{formatDate(r.latest_return)}</b></>}
         {" · "}
         {r.trip_count} {r.trip_count === 1 ? "trip" : "trips"}
@@ -209,18 +221,19 @@ export function TripPatternFields({ draft, onChange }: { draft: TripDraft; onCha
           {PRESETS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
         </select>
       </label>
+      <p className="trip-summary">{PRESETS.find((o) => o.value === p)?.hint}</p>
 
       {p === "one_way_fixed" && (
         <label className="field">
-          <span>Departure (one way)</span>
+          <span>Departure date</span>
           <input className="input" type="date" required value={draft.departure} onChange={set("departure")} />
         </label>
       )}
       {p === "fixed_dates" && (
         <div className="row2">
-          <label className="field"><span>Departure</span>
+          <label className="field"><span>Departure date</span>
             <input className="input" type="date" required value={draft.departure} onChange={set("departure")} /></label>
-          <label className="field"><span>Return</span>
+          <label className="field"><span>Return date</span>
             <input className="input" type="date" required min={draft.departure || undefined} value={draft.return_date} onChange={set("return_date")} /></label>
         </div>
       )}
@@ -229,30 +242,30 @@ export function TripPatternFields({ draft, onChange }: { draft: TripDraft; onCha
           <input className="input" type="month" required placeholder="2026-11" value={draft.month} onChange={set("month")} /></label>
       )}
       {p === "rolling" && (
-        <label className="field"><span>Departing within the next (days)</span>
+        <label className="field"><span>Leave within the next … days</span>
           <input className="input" type="number" min={0} max={365} required value={draft.within_days} onChange={set("within_days")} /></label>
       )}
       {p === "fixed_departure" && (
-        <label className="field"><span>Departure</span>
+        <label className="field"><span>Departure date</span>
           <input className="input" type="date" required value={draft.departure} onChange={set("departure")} /></label>
       )}
       {p === "around_date" && (
         <div className="row2">
-          <label className="field"><span>Target date</span>
+          <label className="field"><span>Around this date</span>
             <input className="input" type="date" required value={draft.target} onChange={set("target")} /></label>
-          <label className="field"><span>± days</span>
+          <label className="field"><span>Give or take (days)</span>
             <input className="input" type="number" min={0} max={30} required value={draft.flex_days} onChange={set("flex_days")} /></label>
         </div>
       )}
       {roundTripRange && (
         <>
           <div className="row2">
-            <label className="field"><span>Min Stay nights</span>
+            <label className="field"><span>Shortest stay (nights)</span>
               <input className="input" type="number" min={0} max={60} required value={draft.min_nights} onChange={set("min_nights")} /></label>
-            <label className="field"><span>Max Stay nights</span>
+            <label className="field"><span>Longest stay (nights)</span>
               <input className="input" type="number" min={Number(draft.min_nights) || 0} max={60} required value={draft.max_nights} onChange={set("max_nights")} /></label>
           </div>
-          <label className="field"><span>Latest return (optional)</span>
+          <label className="field"><span>Be back by (optional)</span>
             <input className="input" type="date" value={draft.return_by} onChange={set("return_by")} /></label>
         </>
       )}

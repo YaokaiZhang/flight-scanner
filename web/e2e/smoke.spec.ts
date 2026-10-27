@@ -30,12 +30,12 @@ test("create a Watch in the UI, then see its Deal in the Deals feed", async ({ p
   await page.getByRole("combobox", { name: "To" }).fill("bcn");
   await page.getByRole("option", { name: /BCN/ }).first().click();
   await expect(page.getByText("Resolves to 1 airport")).toHaveCount(2);
-  await page.getByLabel("Departure (one way)").fill("2026-11-14");
+  await page.getByLabel("Departure date").fill("2026-11-14");
   await page.getByLabel("Price threshold (EUR)").fill("120");
   await page.getByLabel("Email").uncheck(); // Telegram only
   await page.getByRole("button", { name: "Create Watch" }).click();
   await expect(page.getByRole("status")).toContainText("Saved");
-  await expect(page.getByRole("cell", { name: "Barcelona weekend" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Barcelona weekend", exact: true })).toBeVisible();
   await expect(page.getByRole("cell", { name: "Telegram", exact: true })).toBeVisible();
 
   runPipeline("2026-10-21T09:00:00+00:00"); // the fake source reports HEL→BCN 14 Nov at €89
@@ -70,11 +70,11 @@ test("the Watch editor shows the resolved departure window and Stay nights", asy
   await page.goto("/watches");
   await page.getByLabel("Trip pattern").selectOption("month");
   await page.getByLabel("Departure month").fill("2026-11");
-  await page.getByLabel("Min Stay nights").fill("3");
-  await page.getByLabel("Max Stay nights").fill("6");
+  await page.getByLabel("Shortest stay (nights)").fill("3");
+  await page.getByLabel("Longest stay (nights)").fill("6");
   const resolved = page.getByTestId("trip-resolution");
   await expect(resolved).toContainText("Departs Sun 1 Nov – Mon 30 Nov");
-  await expect(resolved).toContainText("3–6 Stay nights");
+  await expect(resolved).toContainText("3–6 nights");
   await expect(resolved).toContainText("back by Sun 6 Dec");
   await expect(page.getByRole("img", { name: /Departure window/ })).toBeVisible();
   await page.screenshot({ path: "test-results/trip-pattern.png", fullPage: true });

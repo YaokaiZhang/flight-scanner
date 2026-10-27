@@ -37,9 +37,10 @@ def test_telegram_alert_carries_deal_details_a_booking_link_and_rating_buttons(
     assert sent["chat_id"] == str(telegram.chat_id)
     assert sent["parse_mode"] == "HTML"
     assert sent["text"].splitlines() == [
-        "<b>HEL→HRG 14 Nov – 19 Nov: €118/adult · Verified</b>",
+        "<b>Helsinki Vantaa → Hurghada 14 Nov – 19 Nov: €118/adult · Verified</b>",
         "Sun in November",
-        "HEL → HRG · Sat 14 Nov 2026 → Thu 19 Nov 2026 · 5 nights",
+        "Helsinki Vantaa Airport (HEL), Finland → Hurghada International Airport (HRG), Egypt",
+        "Sat 14 Nov 2026 → Thu 19 Nov 2026 · 5 nights",
         "€118 per adult · €236 total for 2 adults",
         "44.9% below Baseline €214 (route)",
         "airBaltic, Ryanair · 1 stop · 15 h 25 min",
@@ -86,7 +87,10 @@ def test_a_telegram_digest_is_one_message_with_rating_buttons_per_deal(
 
     [sent] = telegram.calls_to("sendMessage")
     assert sent["text"].startswith("<b>Daily Digest · Sun in November: 2 Deals</b>")
-    assert "1. HEL→HRG 14 Nov" in sent["text"] and "2. HEL→LPA 14 Nov" in sent["text"]
+    assert (
+        "1. Helsinki Vantaa → Hurghada 14 Nov" in sent["text"]
+        and "2. Helsinki Vantaa → Gran Canaria 14 Nov" in sent["text"]
+    )
     assert sent["reply_markup"]["inline_keyboard"] == [
         [
             {"text": "1 👍", "callback_data": "rate:41:up"},

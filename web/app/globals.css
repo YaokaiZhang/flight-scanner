@@ -255,7 +255,10 @@ input[type="range"] { width: 100%; accent-color: var(--ink); }
 .actions .spacer { flex: 1; }
 .btn-marker.danger { border: 0; color: var(--red); padding: 8px 4px; }
 .btn-marker.danger:hover { background: none; transform: none; text-decoration: underline; color: var(--red); }
+tr.selectable { cursor: pointer; }
+tr.selectable:hover td { background: var(--swash); }
 tr.selectable[aria-selected="true"] td { background: var(--swash); }
+td.row-edit { text-align: right; }
 tr.selectable[aria-selected="true"] .row-title { color: var(--ink-deep); }
 .row-title button { font-weight: inherit; text-align: left; }
 .row-title button:hover { color: var(--ink-deep); }
@@ -316,6 +319,7 @@ tr.selectable[aria-selected="true"] .row-title { color: var(--ink-deep); }
   .table-wrap td::before { content: attr(data-label); display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--pencil); }
   .table-wrap td.row-title { grid-column: 1 / -1; }
   .table-wrap td.row-title::before { content: none; }
+  .table-wrap td.row-edit { grid-column: 1 / -1; }
 }
 
 @media (prefers-reduced-motion: reduce) {
