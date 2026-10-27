@@ -31,7 +31,10 @@ test("the data-health page shows sources, coverage gaps and a gate after an empt
     file,
     JSON.stringify({
       currency: "EUR",
-      prices: [{ origin: "HEL", destination: "TLL", depart_date: departure, price: 40 }],
+      // five prices a scan: HEL is a normally populated origin
+      prices: ["TLL", "BLL", "ARN", "OSL", "CPH"].map((destination) => ({
+        origin: "HEL", destination, depart_date: departure, price: 40,
+      })),
     }),
   );
   const watch = await request.post("/api/watches", {

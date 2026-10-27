@@ -30,7 +30,7 @@ sources ──► landing (raw payloads + parsed rows) ──► dbt: staging �
   models (`staging`, `marts`, `analytics`). Migrations apply automatically on startup.
 - **FastAPI** (`flight_scanner.api`) serves Watches, Places, Deals, routes and price history,
   data health and the backtest.
-- **Next.js** (`web/`) is the UI: Watches, Deals, Routes, Data health and Backtest. It proxies the
+- **Next.js** (`web/`) is the UI: Watches, Deals, Routes and Data health. It proxies the
   API under `/api`, so only one port has to be reachable.
 - Architecture decisions are in [docs/adr/](docs/adr/): Round trips composed from Leg prices,
   free cached-first sources with budgeted Verification, and the operational loop on one server

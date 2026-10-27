@@ -1,7 +1,8 @@
 # No `from __future__ import annotations`: FastAPI resolves these type hints at runtime.
 """Route history for the route explorer: reads the dbt `history` and Baseline layers only.
 
-GET /routes                                   routes with any price history, and their dates
+GET /routes                                   routes with any price history, their dates, and the
+                                              city, airport and country of each end (for searching)
 GET /routes/{origin}/{destination}/history    change-only price history for one departure date,
                                               plus the trip's current Baseline band (or null)
     ?departure_date=YYYY-MM-DD                Leg prices for that departure
@@ -38,6 +39,12 @@ class TripDates(BaseModel):
 class Route(BaseModel):
     origin: str
     destination: str
+    origin_city: str | None = None  # the airport's city (or its own name); null if unknown
+    origin_airport: str | None = None  # the airport's name
+    origin_country: str | None = None
+    destination_city: str | None = None
+    destination_airport: str | None = None
+    destination_country: str | None = None
     departure_dates: list[date]  # with Leg-price history
     round_trips: list[TripDates]  # with Round-trip-price history
 
@@ -82,14 +89,37 @@ def _built(c: psycopg.Connection, table: str) -> bool:
     return c.execute("SELECT to_regclass(%s) AS t", (table,)).fetchone()["t"] is not None
 
 
+def _where(request: Request, code: str) -> tuple[str | None, str | None, str | None]:
+    """(city, airport, country) names of an airport from the Place reference data."""
+    ref = request.app.state.reference
+    a = ref.airports.get(code)
+    if a is None:
+        return None, None, None
+    city = ref.cities[a.city][0] if a.city in ref.cities else a.name
+    country = ref.countries[a.country][0] if a.country in ref.countries else None
+    return city, a.name, country
+
+
 @router.get("/routes")
-def list_routes(c: Conn) -> list[Route]:
+def list_routes(c: Conn, request: Request) -> list[Route]:
     routes: dict[tuple[str, str], Route] = {}
 
     def route(o: str, d: str) -> Route:
-        return routes.setdefault(
-            (o, d), Route(origin=o, destination=d, departure_dates=[], round_trips=[])
-        )
+        if (o, d) not in routes:
+            (oc, oa, ok), (dc, da, dk) = _where(request, o), _where(request, d)
+            routes[o, d] = Route(
+                origin=o,
+                destination=d,
+                origin_city=oc,
+                origin_airport=oa,
+                origin_country=ok,
+                destination_city=dc,
+                destination_airport=da,
+                destination_country=dk,
+                departure_dates=[],
+                round_trips=[],
+            )
+        return routes[o, d]
 
     if _built(c, LEG):
         for r in c.execute(

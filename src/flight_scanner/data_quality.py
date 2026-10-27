@@ -6,8 +6,10 @@ current price or a Candidate, while other sources (and other origins of the same
 on. A gate lifts at the first evaluation in which its check passes again.
 
   zero_rows    slice (source, origin): the source's latest scan of an origin landed no prices,
-               although a scan of it within NORMAL_WINDOW landed some (an empty answer from a
-               normally populated origin is a broken source or parser, not "no fares")
+               although its scans within NORMAL_WINDOW typically (median) landed at least
+               TYPICAL_ROWS (an empty answer from a normally populated origin is a broken source
+               or parser, not "no fares"; a sparse origin that sometimes has a fare or two and
+               sometimes none is just sparse)
   price_jump   slice (source, every origin): the median ratio of the prices of the source's
                latest scan to the same trips' median over the JUMP_WINDOW before it is beyond
                PRICE_JUMP either way, over at least JUMP_MIN_TRIPS trips (a currency or parsing
@@ -32,6 +34,7 @@ from datetime import UTC, datetime, timedelta
 import psycopg
 
 NORMAL_WINDOW = timedelta(days=7)
+TYPICAL_ROWS = 5  # in live scans, origins with a median below 5 prices go empty now and then
 PRICE_JUMP = 0.4  # median ratio below 0.6 or above 1 / 0.6
 JUMP_WINDOW = timedelta(days=7)
 JUMP_MIN_TRIPS = 5
@@ -39,7 +42,8 @@ STALE_AFTER = timedelta(hours=6)
 KEEP_FAILURES_FOR = timedelta(days=30)
 
 CHECKS = {
-    "zero_rows": "An origin that normally has prices: the source's latest scan of it landed none",
+    "zero_rows": f"An origin that normally has prices (a median of at least {TYPICAL_ROWS} per "
+    "scan): the source's latest scan of it landed none",
     "price_jump": f"Source-wide price level moved more than {PRICE_JUMP:.0%} against the last "
     f"{JUMP_WINDOW.days} days",
     "stale_data": f"The source has no Fare observation newer than "
@@ -77,16 +81,18 @@ def _zero_rows(conn: psycopg.Connection, sources: list[str], now: datetime) -> l
                SELECT DISTINCT ON (source, origin) source, origin, planned_at, landed
                FROM scans ORDER BY source, origin, planned_at DESC)
            SELECT l.source, l.origin, l.planned_at,
-                  max(s.planned_at) AS populated_at,
-                  (array_agg(s.landed ORDER BY s.planned_at DESC))[1] AS populated_rows
+                  max(s.planned_at) FILTER (WHERE s.landed > 0) AS populated_at,
+                  (array_agg(s.landed ORDER BY s.planned_at DESC)
+                      FILTER (WHERE s.landed > 0))[1] AS populated_rows,
+                  percentile_cont(0.5) WITHIN GROUP (ORDER BY s.landed) AS typical
            FROM latest l
            JOIN scans s ON s.source = l.source AND s.origin = l.origin
                 AND s.planned_at < l.planned_at AND s.planned_at >= l.planned_at - %(window)s
-                AND s.landed > 0
            WHERE l.landed = 0
            GROUP BY l.source, l.origin, l.planned_at
+           HAVING percentile_cont(0.5) WITHIN GROUP (ORDER BY s.landed) >= %(typical)s
            ORDER BY l.source, l.origin""",
-        {"sources": sources, "now": now, "window": NORMAL_WINDOW},
+        {"sources": sources, "now": now, "window": NORMAL_WINDOW, "typical": TYPICAL_ROWS},
     ).fetchall()
     return [
         Gate(
@@ -94,7 +100,8 @@ def _zero_rows(conn: psycopg.Connection, sources: list[str], now: datetime) -> l
             r["source"],
             r["origin"],
             f"{r['source']} returned no prices for {r['origin']} at {_fmt(r['planned_at'])}; "
-            f"it had {r['populated_rows']} at {_fmt(r['populated_at'])}",
+            f"it had {r['populated_rows']} at {_fmt(r['populated_at'])} "
+            f"(typically {r['typical']:g} per scan)",
             now,
         )
         for r in rows

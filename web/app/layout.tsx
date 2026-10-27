@@ -21,9 +21,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <Nav />
           {children}
         </div>
-        <div className="sky-coordinate" style={{ bottom: 10, left: 140 }}>
-          verda · localhost · via SSH tunnel
-        </div>
         <WatchAssistant />
       </body>
     </html>

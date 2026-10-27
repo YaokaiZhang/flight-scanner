@@ -1,12 +1,13 @@
 "use client";
 
 // Watch assistant: a hand-drawn robot at the bottom-right of every page that opens a side chat.
+// The robot can be dragged anywhere on screen; where it was left is remembered in this browser.
 // The assistant answers in plain text and may propose Watches, each drawn as a ruled "watch
 // sheet" that can be created with one click or opened in the Watch editor.
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useCallback, useEffect, useId, useRef, useState, type KeyboardEvent } from "react";
+import { useCallback, useEffect, useId, useRef, useState, type CSSProperties, type KeyboardEvent, type PointerEvent } from "react";
 import { api, ApiError, placeKey, type ChatTurn, type Place, type PlaceRef, type Proposal, type WatchSpec } from "@/lib/api";
 import { formatDate, formatEur } from "@/lib/format";
 import { announceWatchesChanged, offerWatchDraft } from "@/lib/watchDraft";
@@ -22,6 +23,9 @@ type Entry =
 type Saved = { chatId: number | null; log: Entry[] };
 
 const STORE_KEY = "fs:watch-assistant";
+const SPOT_KEY = "fs:robot-spot";
+const DRAG_SLOP = 4; // px of travel before a press becomes a drag rather than a click
+const EDGE = 8; // px the robot keeps from the viewport edges
 const STARTERS = [
   "Suggest a Watch from the Deals you've seen",
   "Long weekends somewhere warm this winter",
@@ -49,6 +53,34 @@ function save(s: Saved) {
   }
 }
 
+/** Where the robot sits, as distances from the viewport's right and bottom edges. */
+type Spot = { right: number; bottom: number };
+
+function loadSpot(): Spot | null {
+  try {
+    const s = JSON.parse(localStorage.getItem(SPOT_KEY) ?? "null");
+    return s && typeof s.right === "number" && typeof s.bottom === "number" ? s : null;
+  } catch {
+    return null;
+  }
+}
+
+function saveSpot(s: Spot) {
+  try {
+    localStorage.setItem(SPOT_KEY, JSON.stringify(s));
+  } catch {
+    // storage unavailable: the robot just returns to its corner next time
+  }
+}
+
+function clampSpot(s: Spot, size: number): Spot {
+  const { clientWidth: w, clientHeight: h } = document.documentElement;
+  return {
+    right: Math.round(Math.min(Math.max(s.right, EDGE), w - size - EDGE)),
+    bottom: Math.round(Math.min(Math.max(s.bottom, EDGE), h - size - EDGE)),
+  };
+}
+
 function failure(err: unknown): string {
   if (!(err instanceof ApiError)) return "Could not reach the assistant (network).";
   const detail = (err.detail as { detail?: unknown } | null)?.detail;
@@ -57,11 +89,12 @@ function failure(err: unknown): string {
 }
 
 /** The robot, in the felt-tip hand of the "fs" logo: ink strokes, a graphite antenna lead to an
- *  ink dot inside a dashed construction circle, and a dashed flight path underneath. */
+ *  ink dot, and a dashed flight path underneath that ends in a small plane. */
 function RobotMark({ className }: { className?: string }) {
   return (
     <svg className={className} viewBox="0 0 64 64" fill="none" aria-hidden="true">
       <path d="M5 57 Q31 64 59 52" stroke="var(--graphite)" strokeWidth="0.8" strokeDasharray="1.5 3" strokeLinecap="round" />
+      <path d="M6 0 C6 -0.7 5.2 -1 4.4 -1 L1.4 -1 L-1.6 -5.6 L-3 -5.6 L-1.2 -1 L-4 -1 L-5.4 -2.8 L-6.4 -2.8 L-5.6 0 L-6.4 2.8 L-5.4 2.8 L-4 1 L-1.2 1 L-3 5.6 L-1.6 5.6 L1.4 1 L4.4 1 C5.2 1 6 0.7 6 0 Z" transform="translate(57 52.8) rotate(-23) scale(0.8)" fill="var(--ink)" />
       <path
         d="M17.5 27 C17 22 19 19.8 24 19.6 L40.5 19 C45.5 18.8 47.6 21 47.6 25.6 L48 41 C48.2 46 46 48.2 41.2 48.3 L24 48.6 C19.4 48.7 17.4 46.4 17.3 42 Z"
         stroke="var(--ink)"
@@ -75,7 +108,6 @@ function RobotMark({ className }: { className?: string }) {
       <circle className="robot-eye" cx="38.6" cy="31.2" r="3" fill="var(--ink)" />
       <path d="M27.4 39.6 C30 42.2 35 42.3 38 39.4" stroke="var(--ink)" strokeWidth="2.6" strokeLinecap="round" />
       <path d="M32.6 19.2 C32.2 15 33.6 11.6 36.4 8.6" stroke="var(--graphite)" strokeWidth="1.2" strokeLinecap="round" />
-      <circle cx="38" cy="7.2" r="6.4" stroke="var(--graphite)" strokeWidth="0.6" strokeDasharray="2 2" />
       <circle className="robot-antenna" cx="38" cy="7.2" r="2.4" fill="var(--ink)" />
     </svg>
   );
@@ -184,6 +216,10 @@ export function WatchAssistant() {
   const [text, setText] = useState("");
   const [waiting, setWaiting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [spot, setSpot] = useState<Spot | null>(null);
+  const [dragging, setDragging] = useState(false);
+  const drag = useRef<{ x: number; y: number; from: Spot; to: Spot | null } | null>(null);
+  const dragged = useRef(false); // swallows the click that ends a drag
   const robotRef = useRef<HTMLButtonElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
@@ -195,6 +231,7 @@ export function WatchAssistant() {
   // Restore the conversation after a reload (client only, so the server render stays empty).
   useEffect(() => {
     setChat(load());
+    setSpot(loadSpot());
     setRestored(true);
   }, []);
   useEffect(() => {
@@ -321,6 +358,34 @@ export function WatchAssistant() {
     }
   }
 
+  function onPointerDown(e: PointerEvent<HTMLButtonElement>) {
+    if (e.button !== 0) return;
+    const box = e.currentTarget.getBoundingClientRect();
+    const { clientWidth: w, clientHeight: h } = document.documentElement;
+    drag.current = { x: e.clientX, y: e.clientY, from: { right: w - box.right, bottom: h - box.bottom }, to: null };
+    e.currentTarget.setPointerCapture(e.pointerId);
+  }
+
+  function onPointerMove(e: PointerEvent<HTMLButtonElement>) {
+    const d = drag.current;
+    if (!d) return;
+    const dx = e.clientX - d.x;
+    const dy = e.clientY - d.y;
+    if (!d.to && Math.hypot(dx, dy) < DRAG_SLOP) return;
+    if (!d.to) setDragging(true);
+    d.to = clampSpot({ right: d.from.right - dx, bottom: d.from.bottom - dy }, e.currentTarget.offsetWidth);
+    setSpot(d.to);
+  }
+
+  function onPointerEnd() {
+    const d = drag.current;
+    drag.current = null;
+    if (!d?.to) return;
+    dragged.current = true;
+    setDragging(false);
+    saveSpot(d.to);
+  }
+
   const off = enabled === false;
 
   return (
@@ -331,8 +396,22 @@ export function WatchAssistant() {
         type="button"
         aria-label="Watch assistant"
         aria-expanded={open}
+        title="Watch assistant (drag to move)"
         data-thinking={waiting || undefined}
-        onClick={() => (open ? close() : setOpen(true))}
+        data-dragging={dragging || undefined}
+        style={spot ? ({ "--wa-right": `${spot.right}px`, "--wa-bottom": `${spot.bottom}px` } as CSSProperties) : undefined}
+        onPointerDown={onPointerDown}
+        onPointerMove={onPointerMove}
+        onPointerUp={onPointerEnd}
+        onPointerCancel={onPointerEnd}
+        onClick={() => {
+          if (dragged.current) {
+            dragged.current = false;
+            return;
+          }
+          if (open) close();
+          else setOpen(true);
+        }}
       >
         <RobotMark />
       </button>

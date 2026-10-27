@@ -48,6 +48,11 @@ const age = (minutes: number | null) => (minutes === null ? "never" : `${formatM
 const slice = (c: CheckFailure) => `${c.source} · ${c.origin ?? "all origins"}`;
 
 function SourceRow({ s }: { s: SourceHealth }) {
+  // a failure followed by a successful scan is history, not the source's state
+  const resolved =
+    s.last_failure_at !== null &&
+    s.last_success_at !== null &&
+    Date.parse(s.last_success_at) > Date.parse(s.last_failure_at);
   return (
     <tr>
       <td className="row-title">
@@ -67,7 +72,11 @@ function SourceRow({ s }: { s: SourceHealth }) {
         {s.blocked ? (
           <div className="sub">blocked: {s.blocked.reason}</div>
         ) : (
-          s.last_error && <div className="sub">{s.last_error}</div>
+          s.last_error && (
+            <div className="sub">
+              {resolved && <span className="tag plain">resolved</span>} {s.last_error}
+            </div>
+          )
         )}
       </td>
     </tr>
@@ -148,6 +157,8 @@ export function DataHealthView() {
   }, []);
 
   const troubled = data?.sources.filter((s) => s.status !== "ok").length ?? 0;
+  // `gaps` lists at most the first 200; the count is every uncovered route-month
+  const gapCount = data ? data.coverage.route_months - data.coverage.covered : 0;
   const backlog = data?.backlog.sources.reduce((n, s) => n + s.backlog, 0) ?? 0;
 
   return (
@@ -161,8 +172,8 @@ export function DataHealthView() {
                 <>
                   <b>{data.sources.length - troubled}</b> of {data.sources.length} source
                   {data.sources.length === 1 ? "" : "s"} healthy · <b>{data.checks.active.length}</b> gate
-                  {data.checks.active.length === 1 ? "" : "s"} in force · <b>{data.coverage.gaps.length}</b> coverage gap
-                  {data.coverage.gaps.length === 1 ? "" : "s"} · as of {formatInstant(data.checked_at)}
+                  {data.checks.active.length === 1 ? "" : "s"} in force · <b>{gapCount}</b> coverage gap
+                  {gapCount === 1 ? "" : "s"} · as of {formatInstant(data.checked_at)}
                 </>
               ) : (
                 "Can the scanner be trusted right now?"
@@ -208,7 +219,9 @@ export function DataHealthView() {
               </div>
             )}
 
-            <h2 className="section-head">Coverage gaps</h2>
+            <h2 className="section-head">
+              Coverage gaps{gapCount > data.coverage.gaps.length ? ` · first ${data.coverage.gaps.length} of ${gapCount}` : ""}
+            </h2>
             {data.coverage.gaps.length === 0 ? (
               <div className="empty">
                 <strong>No gaps</strong>

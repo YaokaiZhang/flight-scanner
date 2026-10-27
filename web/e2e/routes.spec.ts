@@ -37,8 +37,10 @@ test("the route explorer charts a route's price history for a departure date", a
   runPipeline("2026-10-20T06:30:00+00:00"); // same fare again: still one price level
 
   await page.goto("/routes");
-  await page.getByLabel("Route").selectOption("HEL-BCN");
-  await page.getByLabel("Departs").selectOption("2026-11-14");
+  await page.getByRole("combobox", { name: "Route" }).fill("helsinki barcelona");
+  await page.getByRole("option", { name: /Helsinki HEL → Barcelona BCN/ }).click();
+  await expect(page.getByText("Showing")).toContainText("Helsinki HEL → Barcelona BCN");
+  await page.getByRole("group", { name: "Departs" }).getByRole("button", { name: "Sat 14 Nov" }).click();
 
   await expect(page.getByRole("img", { name: /HEL to BCN.*1 price level/ })).toBeVisible();
   const changes = page.getByRole("table", { name: "Price changes" }).getByRole("row");
@@ -70,8 +72,10 @@ test("the route explorer draws the Baseline band behind the price history", asyn
   runPipeline("2026-10-20T07:00:00+00:00", dir);
 
   await page.goto("/routes");
-  await page.getByLabel("Route").selectOption("HEL-MAD");
-  await page.getByLabel("Departs").selectOption("2026-12-10");
+  await page.getByRole("combobox", { name: "Route" }).fill("helsinki madrid");
+  await page.getByRole("option", { name: /Helsinki HEL → Madrid MAD/ }).click();
+  await expect(page.getByText("Showing")).toContainText("Helsinki HEL → Madrid MAD");
+  await page.getByRole("group", { name: "Departs" }).getByRole("button", { name: "Thu 10 Dec" }).click();
 
   await expect(page.getByRole("img", { name: /HEL to MAD.*provisional Baseline €100/ })).toBeVisible();
   await expect(page.getByText("PROVISIONAL BASELINE €100")).toBeVisible();

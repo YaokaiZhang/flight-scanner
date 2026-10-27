@@ -209,7 +209,8 @@ def test_verification_budget_used_today_and_this_month_with_outcomes(db, pipelin
 
 def test_check_failures_are_listed_while_active_and_kept_as_recent(db, pipeline):
     pipeline.create_watch(watch(["BCN"]))
-    pipeline.fake.replay(payload(("BCN", 150)), route=("HEL", "BCN"))
+    busy = payload(*((d, 150) for d in ["BCN", "MAD", "LIS", "FCO", "ATH"]))  # five a scan
+    pipeline.fake.replay(busy, route=("HEL", "BCN"))
     pipeline.run()
     pipeline.clock.advance(minutes=30)
     pipeline.fake.replay(payload(), route=("HEL", "BCN"))
@@ -224,7 +225,7 @@ def test_check_failures_are_listed_while_active_and_kept_as_recent(db, pipeline)
     assert (fake["status"], fake["gated_by"]) == ("gated", ["zero_rows"])
 
     pipeline.clock.advance(minutes=30)
-    pipeline.fake.replay(payload(("BCN", 150)), route=("HEL", "BCN"))
+    pipeline.fake.replay(busy, route=("HEL", "BCN"))
     pipeline.run()
 
     checks = health(db, pipeline)["checks"]

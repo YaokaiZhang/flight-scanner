@@ -35,10 +35,15 @@ def check(result, name: str):
     return evaluation
 
 
+def busy_hel(bcn: float) -> dict:
+    """HEL as a normally populated origin: five prices a scan (BCN plus four dearer ones)."""
+    return payload(("HEL", "BCN", bcn), *(("HEL", d, 300) for d in SOUTH[1:]))
+
+
 def test_a_zero_row_scan_blocks_detection_for_that_origin_only(pipeline):
     pipeline.create_watch(one_way("From Helsinki", "HEL", ["BCN"]))
     pipeline.create_watch(one_way("From Tallinn", "TLL", ["BCN"]))
-    pipeline.fake.replay(payload(("HEL", "BCN", 89)), route=("HEL", "BCN"))
+    pipeline.fake.replay(busy_hel(89), route=("HEL", "BCN"))
     pipeline.fake.replay(payload(("TLL", "BCN", 150)), route=("TLL", "BCN"))
     pipeline.collect()  # prices only: HEL -> BCN at 89 is known but not judged yet
 
@@ -55,11 +60,24 @@ def test_a_zero_row_scan_blocks_detection_for_that_origin_only(pipeline):
     assert check(result, "price_jump").passed and check(result, "stale_data").passed
 
     pipeline.clock.advance(minutes=30)
-    pipeline.fake.replay(payload(("HEL", "BCN", 89)), route=("HEL", "BCN"))
+    pipeline.fake.replay(busy_hel(89), route=("HEL", "BCN"))
     result = pipeline.run()  # HEL answers again: the gate lifts
 
     assert check(result, "zero_rows").passed
     assert sorted(a.origin for a in pipeline.notifier.alerts) == ["HEL", "TLL"]
+
+
+def test_a_sparse_origin_that_goes_empty_is_not_gated(pipeline):
+    # TLL usually has a single fare: an empty answer is "no fares", not a broken source
+    pipeline.create_watch(one_way("From Tallinn", "TLL", ["BCN"]))
+    pipeline.fake.replay(payload(("TLL", "BCN", 150)), route=("TLL", "BCN"))
+    pipeline.collect()
+
+    pipeline.clock.advance(minutes=30)
+    pipeline.fake.replay(payload(), route=("TLL", "BCN"))
+    result = pipeline.run()
+
+    assert check(result, "zero_rows").passed
 
 
 def test_a_source_wide_price_jump_blocks_that_source_only(pipeline):

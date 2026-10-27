@@ -125,6 +125,9 @@ def test_routes_with_history_can_be_listed(pipeline, travelpayouts, api):
     [route] = routes
     assert (route["origin"], route["destination"]) == ("HEL", "BCN")
     assert route["departure_dates"] == ["2026-11-13", "2026-11-14", "2026-11-15"]
+    assert (route["origin_city"], route["destination_city"]) == ("Helsinki", "Barcelona")
+    assert (route["origin_country"], route["destination_country"]) == ("Finland", "Spain")
+    assert route["origin_airport"] and route["destination_airport"]
 
 
 def test_history_is_rebuilt_from_raw_payloads_alone(pipeline, travelpayouts, api):

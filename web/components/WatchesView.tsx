@@ -134,9 +134,10 @@ export function WatchesView() {
                         className="btn-marker"
                         type="button"
                         aria-label={`Edit ${w.name}`}
+                        aria-pressed={w.id === selected}
                         onClick={(e) => {
                           e.stopPropagation();
-                          setSelected(w.id);
+                          setSelected(w.id === selected ? null : w.id); // a second click leaves edit mode
                         }}
                       >
                         {w.id === selected ? "Editing" : "Edit"}
