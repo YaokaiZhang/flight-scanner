@@ -10,6 +10,10 @@ Rules:
 - A due round is sent once per channel to each notifier whose channel the Watch chose
   (email/Telegram; other channels such as log get every Deal); an Alert row (deal, channel,
   round) records it. Watches in Digest mode get their rounds batched by `digests.send_digests`.
+- Route quiet: an immediate Alert round is skipped (for good) when, within ROUTE_QUIET before it
+  became due, another Deal of the same Watch and route (other dates) was alerted on that channel
+  at a price it doesn't beat by REALERT_DROP. Due rounds go out cheapest first, so a scan finding
+  one route on many dates alerts only its cheapest trip.
 - A round whose Verification failed is never sent. A Verified Deal's Alert carries the live price
   (for the Watch's adults) instead of the cached estimate.
 """
@@ -17,7 +21,7 @@ Rules:
 from __future__ import annotations
 
 from collections.abc import Sequence
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 from decimal import Decimal
 
 import psycopg
@@ -32,6 +36,7 @@ CHANNEL_FILTER = "(%(ch)s <> ALL(%(chosen)s) OR %(ch)s = ANY(w.channels))"
 
 REALERT_DROP = Decimal("0.10")  # a further drop of 10% from the last alerted price alerts again
 REAPPEARANCE_GAP = timedelta(hours=24)  # a fare gone this long alerts again when it returns
+ROUTE_QUIET = timedelta(days=7)  # other dates on an alerted route stay quiet this long
 
 _DEDUP_KEY = "(watch_id, origin, destination, outbound_date, coalesce(return_date, '0001-01-01'))"
 # A further Alert round is due for an existing Deal (old row `d`) seen again as `excluded`.
@@ -143,6 +148,32 @@ def _message(d: dict, alert_id: int | None = None) -> AlertMessage:
     )
 
 
+def _route_quiet(conn: psycopg.Connection, d: dict, channel: str) -> bool:
+    """Another date on this Deal's route was alerted lately at a price it doesn't clearly beat."""
+    return (
+        conn.execute(
+            """SELECT 1 FROM app.alerts a JOIN app.deals o ON o.id = a.deal_id
+               WHERE o.watch_id = %(watch)s AND o.origin = %(origin)s
+                 AND o.destination = %(destination)s AND o.id <> %(deal)s
+                 AND a.channel = %(ch)s AND a.sent_at > %(since)s
+                 AND %(price)s > a.price_total_eur * (1 - %(drop)s)
+               LIMIT 1""",
+            {
+                "watch": d["watch_id"],
+                "origin": d["origin"],
+                "destination": d["destination"],
+                "deal": d["id"],
+                "ch": channel,
+                # in UTC: across a clock change, "7 days" of wall-clock time isn't 168 hours
+                "since": d["alert_due_at"].astimezone(UTC) - ROUTE_QUIET,
+                "price": d["price_total_eur"],
+                "drop": REALERT_DROP,
+            },
+        ).fetchone()
+        is not None
+    )
+
+
 def send_alerts(conn: psycopg.Connection, notifiers: Sequence[Notifier], now: datetime) -> int:
     """Send each due Alert round once per channel; one failing channel doesn't block the others.
 
@@ -161,10 +192,12 @@ def send_alerts(conn: psycopg.Connection, notifiers: Sequence[Notifier], now: da
                  AND NOT EXISTS (SELECT 1 FROM app.alerts a
                                  WHERE a.deal_id = d.id AND a.channel = %(ch)s
                                    AND a.alert_round = d.alert_round)
-               ORDER BY d.id""",
+               ORDER BY d.price_total_eur, d.id""",
             {"ch": n.channel, "chosen": list(WATCH_CHANNELS)},
         ).fetchall()
         for d in pending:
+            if _route_quiet(conn, d, n.channel):
+                continue
             try:
                 with conn.transaction():
                     alert_id = conn.execute(

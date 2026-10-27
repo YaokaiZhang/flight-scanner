@@ -86,7 +86,7 @@ _Avoid_: Reason, enrichment
 ### Telling the owner
 
 **Alert**:
-A notification to the owner about a Deal, sent once per Watch, route and dates, and again only if the price drops further by a set margin or the fare reappears after disappearing for a day.
+A notification to the owner about a Deal, sent once per Watch, route and dates, and again only if the price drops further by a set margin or the fare reappears after disappearing for a day. Other dates on a route alerted in the past week stay quiet unless they beat that alert's price by the same margin.
 _Avoid_: Notification (the delivery mechanism), message
 
 **Digest**:

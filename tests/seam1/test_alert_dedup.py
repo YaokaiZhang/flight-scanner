@@ -74,3 +74,56 @@ def test_a_fare_back_within_24_hours_is_not_alerted_again(pipeline):
     scan_at(pipeline, 100, after=timedelta(hours=2))  # present again, so the absence ended
 
     assert alerted_prices(pipeline) == [100]
+
+
+NOVEMBER_3_6_NIGHTS = {"preset": "month", "month": "2026-11", "stay_nights": {"min": 3, "max": 6}}
+
+
+def month_watch() -> dict:
+    return {
+        "name": "Barcelona in November",
+        "origins": {"include": [{"kind": "airport", "code": "HEL"}]},
+        "destinations": {"include": [{"kind": "airport", "code": "BCN"}]},
+        "trip_pattern": NOVEMBER_3_6_NIGHTS,
+        "price_threshold": {"amount_eur": 100, "basis": "total"},
+    }
+
+
+def returns_on_4_nov(*returns: tuple[str, float]) -> dict:
+    """HEL->BCN on 4 Nov at 40 EUR and BCN->HEL on each (day, price): one trip per return day."""
+    legs = [{"origin": "HEL", "destination": "BCN", "depart_date": "2026-11-04", "price": 40}]
+    legs += [
+        {"origin": "BCN", "destination": "HEL", "depart_date": day, "price": price}
+        for day, price in returns
+    ]
+    return {"currency": "EUR", "prices": legs}
+
+
+def scan_dates(pipeline, *returns: tuple[str, float], after: timedelta = timedelta(0)) -> None:
+    pipeline.clock.advance(after)
+    pipeline.fake.replay(returns_on_4_nov(*returns))
+    pipeline.run()
+
+
+def test_a_route_alerts_once_for_its_cheapest_dates_not_once_per_date(pipeline):
+    pipeline.create_watch(month_watch())
+    scan_dates(pipeline, ("2026-11-07", 50), ("2026-11-08", 37), ("2026-11-09", 34))
+
+    assert alerted_prices(pipeline) == [74]
+
+
+def test_other_dates_on_an_alerted_route_alert_only_when_ten_percent_cheaper(pipeline):
+    pipeline.create_watch(month_watch())
+    scan_dates(pipeline, ("2026-11-09", 34))  # 74
+    scan_dates(pipeline, ("2026-11-09", 34), ("2026-11-07", 28), after=timedelta(hours=6))  # 68
+    scan_dates(pipeline, ("2026-11-09", 34), ("2026-11-08", 26), after=timedelta(hours=6))  # 66
+
+    assert alerted_prices(pipeline) == [74, 66]
+
+
+def test_a_route_quiet_for_a_week_alerts_new_dates_again(pipeline):
+    pipeline.create_watch(month_watch())
+    scan_dates(pipeline, ("2026-11-09", 34))  # 74
+    scan_dates(pipeline, ("2026-11-09", 34), ("2026-11-07", 34), after=timedelta(days=7))
+
+    assert alerted_prices(pipeline) == [74, 74]

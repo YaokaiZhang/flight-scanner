@@ -5,6 +5,8 @@ The pipeline clock starts at 2026-10-21 09:00Z (Helsinki today is 21 Oct 2026).
 
 from datetime import UTC, date, datetime
 
+from flight_scanner.db import connect
+
 
 def leg(origin: str, destination: str, day: str, price: float, airline: str = "XX") -> dict:
     return {
@@ -41,8 +43,11 @@ def watch(trip_pattern: dict, threshold_eur: float = 100, origin: str = "HEL", d
     }
 
 
-def trips(alerts) -> set[tuple[date, date | None]]:
-    return {(a.outbound_date, a.return_date) for a in alerts}
+def deal_trips(pipeline) -> set[tuple[date, date | None]]:
+    """Every trip found as a Deal (one route alerts only its cheapest trip, so ask the Deals)."""
+    with connect(pipeline.db) as conn:
+        rows = conn.execute("SELECT outbound_date, return_date FROM app.deals").fetchall()
+    return {(r["outbound_date"], r["return_date"]) for r in rows}
 
 
 MONTH_NOV_3_6 = {"preset": "month", "month": "2026-11", "stay_nights": {"min": 3, "max": 6}}
@@ -169,7 +174,7 @@ def test_fixed_departure_with_a_range_of_stay_nights(pipeline):
 
     pipeline.run()
 
-    assert trips(pipeline.notifier.alerts) == {
+    assert deal_trips(pipeline) == {
         (date(2026, 11, 22), date(2026, 11, 25)),
         (date(2026, 11, 22), date(2026, 11, 26)),
         (date(2026, 11, 22), date(2026, 11, 27)),
@@ -196,7 +201,7 @@ def test_target_date_plus_minus_k_days(pipeline):
 
     pipeline.run()
 
-    assert trips(pipeline.notifier.alerts) == {
+    assert deal_trips(pipeline) == {
         (date(2026, 11, d), date(2026, 11, d + 3)) for d in range(20, 25)
     }
 
@@ -212,7 +217,7 @@ def test_month_preset_covers_every_departure_day_and_stay_length(pipeline):
 
     pipeline.run()
 
-    found = trips(pipeline.notifier.alerts)
+    found = deal_trips(pipeline)
     assert {t[0] for t in found} == {date(2026, 11, d) for d in range(1, 31)}
     assert {nights(t) for t in found} == {3, 4, 5, 6}
     assert len(found) == 30 * 4
@@ -230,7 +235,7 @@ def test_latest_return_date_cuts_trips_that_end_too_late(pipeline):
 
     pipeline.run()
 
-    found = trips(pipeline.notifier.alerts)
+    found = deal_trips(pipeline)
     assert max(t[1] for t in found) == date(2026, 11, 30)
     assert found == {
         (date(2026, 11, 24), date(2026, 11, 27)),
@@ -262,11 +267,11 @@ def test_rolling_window_slides_daily_with_the_clock(pipeline):
     )
 
     pipeline.run()
-    assert trips(pipeline.notifier.alerts) == {(date(2026, 12, 20), date(2026, 12, 24))}
+    assert deal_trips(pipeline) == {(date(2026, 12, 20), date(2026, 12, 24))}
 
     pipeline.clock.advance(days=1)
     pipeline.run()
-    assert trips(pipeline.notifier.alerts) == {
+    assert deal_trips(pipeline) == {
         (date(2026, 12, 20), date(2026, 12, 24)),
         (date(2026, 12, 21), date(2026, 12, 24)),
     }
