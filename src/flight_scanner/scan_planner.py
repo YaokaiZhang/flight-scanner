@@ -183,7 +183,8 @@ def baseline_gap(conn: psycopg.Connection, now: datetime) -> dict[RouteMonth, fl
     """Gap of each Watch slot's current price (marts.trip_prices, last run) to its Deal price:
     the Baseline it would be judged against (route, else country, else the trip's Price insight,
     else provisional tier; marts.effective_baselines / marts.price_insights) less the Watch's
-    sensitivity. Slots without any Baseline are unknown."""
+    sensitivity, or the Price threshold when nearer on a Watch that takes either. Slots without
+    any Baseline are unknown."""
     if not all(
         _exists(conn, t) for t in ("marts.trip_prices", "marts.effective_baselines", "ref.airports")
     ):
@@ -201,7 +202,10 @@ def baseline_gap(conn: psycopg.Connection, now: datetime) -> dict[RouteMonth, fl
     rows = conn.execute(
         f"""WITH slots AS (
                SELECT p.origin, p.destination, p.outbound_date, p.return_date,
-                      p.price_per_adult_eur, w.sensitivity_pct,
+                      p.price_per_adult_eur, w.sensitivity_pct, w.price_threshold_match,
+                      p.price_per_adult_eur / (CASE WHEN w.price_threshold_basis = 'per_adult'
+                           THEN w.price_threshold_eur
+                           ELSE w.price_threshold_eur / w.adults END) - 1 AS tgap,
                       coalesce(oa.city, p.origin) AS origin_city, da.country,
                       CAST(date_trunc('month', p.outbound_date) AS date) AS month,
                       CASE WHEN p.return_date IS NULL THEN 'one_way'
@@ -216,8 +220,9 @@ def baseline_gap(conn: psycopg.Connection, now: datetime) -> dict[RouteMonth, fl
                LEFT JOIN ref.airports da ON da.code = p.destination
                WHERE w.status = 'active')
            SELECT s.origin, s.destination, s.outbound_date, s.return_date,
-                  s.price_per_adult_eur / (b.median_per_adult_eur * (100 - s.sensitivity_pct)
-                      / 100.0) - 1 AS gap
+                  -- an "either" Watch is as close as the nearer of its two tests
+                  CASE WHEN s.price_threshold_match = 'either' THEN least(bgap, s.tgap)
+                       ELSE bgap END AS gap
            FROM slots s
            JOIN LATERAL (
                SELECT CASE b.tier WHEN 'route' THEN 1 WHEN 'country' THEN 2 ELSE 4 END AS rank,
@@ -229,7 +234,10 @@ def baseline_gap(conn: psycopg.Connection, now: datetime) -> dict[RouteMonth, fl
                       OR (b.tier = 'country' AND b.destination = s.country))
                {insights}
                ORDER BY rank
-               LIMIT 1) b ON true"""
+               LIMIT 1) b ON true
+           CROSS JOIN LATERAL (
+               SELECT s.price_per_adult_eur / (b.median_per_adult_eur
+                   * (100 - s.sensitivity_pct) / 100.0) - 1 AS bgap) g"""
     )
     return _gaps_by_route_month(rows)
 

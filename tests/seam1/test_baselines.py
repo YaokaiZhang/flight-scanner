@@ -21,7 +21,13 @@ def payload(legs: list[dict]) -> dict:
     return {"currency": "EUR", "prices": legs}
 
 
-def watch(trip_pattern: dict, dest: str = "BCN", threshold_eur: float | None = None, **kw) -> dict:
+def watch(
+    trip_pattern: dict,
+    dest: str = "BCN",
+    threshold_eur: float | None = None,
+    match: str = "both",
+    **kw,
+) -> dict:
     spec = {
         "name": "Trip",
         "origins": {"include": [{"kind": "airport", "code": "HEL"}]},
@@ -30,7 +36,7 @@ def watch(trip_pattern: dict, dest: str = "BCN", threshold_eur: float | None = N
         **kw,
     }
     if threshold_eur is not None:
-        spec["price_threshold"] = {"amount_eur": threshold_eur, "basis": "total"}
+        spec["price_threshold"] = {"amount_eur": threshold_eur, "basis": "total", "match": match}
     return spec
 
 
@@ -137,6 +143,33 @@ def test_both_the_baseline_test_and_the_price_threshold_must_pass(pipeline):
     [alert] = pipeline.notifier.alerts
     assert alert.watch_id == below_both.id
     assert alert.baseline_tier == "route"
+
+
+def test_either_the_baseline_test_or_the_price_threshold_is_enough_when_the_watch_says_so(
+    pipeline,
+):
+    baseline_only = pipeline.create_watch(watch(ONE_WAY_20_NOV, threshold_eur=40, match="either"))
+    one_way_18_nov = {"preset": "one_way_fixed", "departure": "2026-11-18"}
+    threshold_only = pipeline.create_watch(watch(one_way_18_nov, threshold_eur=200, match="either"))
+    one_way_19_nov = {"preset": "one_way_fixed", "departure": "2026-11-19"}
+    pipeline.create_watch(watch(one_way_19_nov, threshold_eur=80, match="either"))  # neither
+    collect_daily(pipeline, 8, normal_hel_bcn)
+
+    pipeline.clock.set(START + timedelta(days=8))
+    pipeline.fake.replay(
+        payload(
+            [
+                leg("HEL", "BCN", "2026-11-20", 50),
+                leg("HEL", "BCN", "2026-11-18", 90),
+                leg("HEL", "BCN", "2026-11-19", 95),
+            ]
+        )
+    )
+    pipeline.run()
+
+    assert sorted(a.watch_id for a in pipeline.notifier.alerts) == sorted(
+        [baseline_only.id, threshold_only.id]
+    )
 
 
 def test_the_watch_sensitivity_sets_how_far_below_the_baseline_a_deal_must_be(pipeline):

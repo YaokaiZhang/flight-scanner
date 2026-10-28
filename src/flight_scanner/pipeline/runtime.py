@@ -34,6 +34,9 @@ class Runtime:
     verifier: VerificationSource | None = None
     # run dbt's data tests in every dbt build; the seam-1 harness turns them off for speed
     dbt_data_tests: bool = True
+    # where dbt's parse state is kept between builds (None: work_dir); Runtimes on databases of
+    # the same name and server can share one, so a new one skips dbt's full parse (seam-1 tests)
+    dbt_parse_dir: Path | None = None
     # the analytical layer (ticket 12, ADR-0003): the daily `lakehouse` job; None = off
     lakehouse: Lakehouse | None = None
     # days of raw segments kept on disk once archived (raw_store.archive; None = kept forever)

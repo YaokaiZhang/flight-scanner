@@ -31,7 +31,7 @@ A Place removed from a Watch's resolved destination (or origin) set, e.g. Europe
 _Avoid_: Filter, blacklist
 
 **Price threshold**:
-An optional absolute ceiling on a Watch, applied in addition to the Baseline test.
+An optional absolute ceiling on a Watch. By default it applies in addition to the Baseline test; the Watch can instead take either test as enough.
 _Avoid_: Budget, limit
 
 **Watch suggestion**:
@@ -76,7 +76,7 @@ A live price check of a Candidate for the Watch's passenger count, done in round
 _Avoid_: Confirmation, recheck
 
 **Deal**:
-A trip at least a set percentage below its Baseline and, if the Watch has one, under its Price threshold. Either Verified or Unverified.
+A trip at least a set percentage below its Baseline and, if the Watch has one, under its Price threshold (or either one, when the Watch says so). Either Verified or Unverified.
 _Avoid_: Bargain, cheap flight, hit
 
 **Deal context**:

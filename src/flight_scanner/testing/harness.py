@@ -18,6 +18,7 @@ Turn on the analytical layer with `databricks = h.use_databricks()` (the real Da
 answered by `FakeDatabricks`; `databricks.over_quota()`, `.go_down()`) and run its daily job with
 `h.run_lakehouse()` (returns the recorded `LakehouseRun`).
 dbt's data tests are skipped for speed; `h.run_dbt_data_tests()` runs them like production does.
+Pass a `dbt_parse_dir` shared by harnesses on the same database name to skip dbt's full parse.
 """
 
 from __future__ import annotations
@@ -46,7 +47,9 @@ from flight_scanner.testing.fake_serpapi import FakeGoogleFlights
 
 
 class PipelineHarness:
-    def __init__(self, db: DbSettings, work_dir: Path, start: datetime):
+    def __init__(
+        self, db: DbSettings, work_dir: Path, start: datetime, dbt_parse_dir: Path | None = None
+    ):
         self.db = db
         self.clock = FakeClock(start)
         self.fake = ReplayAdapter("fake", self.clock)
@@ -60,6 +63,7 @@ class PipelineHarness:
             sources=[self.fake],
             notifiers=[self.notifier],
             dbt_data_tests=False,  # speed: production runs them every scan; see run_dbt_data_tests
+            dbt_parse_dir=dbt_parse_dir,
         )
         self.last_result: dg.ExecuteInProcessResult | None = None
 

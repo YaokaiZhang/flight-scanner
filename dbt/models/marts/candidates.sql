@@ -7,6 +7,8 @@
 --   Provisional Baseline only: the Price threshold decides when the Watch has one (a low-
 --   confidence estimate never vetoes it); otherwise the sensitivity test against it does.
 --   No Baseline at all: only a Price threshold can make a Candidate.
+--   A Watch whose threshold match is "either" instead takes a trip that passes either test,
+--   against any Baseline tier.
 -- Each Candidate carries the Baseline version (tier, method, computed_at, support) it was judged
 -- against; record_deals copies these columns into app.deals as they are. Verification
 -- (flight_scanner.verification) repeats this test on the live price.
@@ -26,6 +28,7 @@ priced_slots as (
         w.adults,
         w.price_threshold_eur,
         w.price_threshold_basis,
+        w.price_threshold_match,
         w.sensitivity_pct,
         p.price_per_adult_eur,
         p.price_per_adult_eur * w.adults as price_total_eur,
@@ -145,6 +148,7 @@ select
     baseline_observation_days
 from tested
 where case
+    when price_threshold_match = 'either' then under_threshold or coalesce(below_baseline, false)
     when baseline_tier in ('route', 'country', 'price_insight')
         then below_baseline and (price_threshold_eur is null or under_threshold)
     -- a low-confidence provisional Baseline never vetoes a Price threshold

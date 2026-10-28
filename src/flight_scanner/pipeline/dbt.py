@@ -109,7 +109,7 @@ def build(
     args = ["build"]
     if not runtime.dbt_data_tests:
         args += ["--exclude-resource-type", "test", "--exclude-resource-type", "unit_test"]
-    target = new_target_path(runtime.work_dir)
+    target = new_target_path(runtime.dbt_parse_dir or runtime.work_dir)
     with clock_env(runtime.clock.now()):
         invocation = dbt.cli(args, context=context, target_path=target)
     yield from invocation.stream()

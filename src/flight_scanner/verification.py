@@ -93,6 +93,8 @@ def deal_test(
     below = baseline_per_adult is not None and price_per_adult <= baseline_per_adult * (
         100 - watch["sensitivity_pct"]
     ) / Decimal(100)
+    if watch["price_threshold_match"] == "either":
+        return under or below
     if tier in ("route", "country", "price_insight"):
         return below and (threshold is None or under)
     if tier == "provisional" and threshold is None:
@@ -116,7 +118,7 @@ def remaining_budget(conn: psycopg.Connection, verifier: VerificationSource, now
 
 
 _DUE = """SELECT d.*, w.adults AS watch_adults, w.price_threshold_eur, w.price_threshold_basis,
-                 w.sensitivity_pct, w.delivery
+                 w.price_threshold_match, w.sensitivity_pct, w.delivery
           FROM app.deals d JOIN app.watches w ON w.id = d.watch_id
           WHERE w.status = 'active' AND d.absent_since IS NULL
             AND d.verification_round IS DISTINCT FROM d.alert_round"""

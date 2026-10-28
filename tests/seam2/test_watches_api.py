@@ -35,7 +35,7 @@ def test_create_then_read_a_watch(api):
     assert got["destinations"]["include"] == [{"kind": "airport", "code": "BCN"}]
     assert got["trip_pattern"] == {"preset": "one_way_fixed", "departure": "2026-11-14"}
     assert got["adults"] == 1
-    assert got["price_threshold"] == {"amount_eur": 120.0, "basis": "total"}
+    assert got["price_threshold"] == {"amount_eur": 120.0, "basis": "total", "match": "both"}
 
 
 def test_list_watches_returns_every_watch_newest_first(api):
@@ -153,10 +153,16 @@ def test_edit_a_watch(api):
     got = api.get(f"/watches/{w['id']}").json()
     assert got["name"] == "Sun, not Sweden"
     assert got["adults"] == 2
-    assert got["price_threshold"] == {"amount_eur": 90.0, "basis": "per_adult"}
+    assert got["price_threshold"] == {"amount_eur": 90.0, "basis": "per_adult", "match": "both"}
     assert got["destinations"]["exclude"] == [{"kind": "country", "code": "SE"}]
     assert got["status"] == "active"
     assert got["created_at"] == w["created_at"]
+
+
+def test_a_threshold_can_be_enough_on_its_own(api):
+    either = {"amount_eur": 80.0, "basis": "per_adult", "match": "either"}
+    w = api.post("/watches", json={**HEL_BCN, "price_threshold": either}).json()
+    assert api.get(f"/watches/{w['id']}").json()["price_threshold"] == either
 
 
 def test_edit_round_trips_channels_delivery_and_sensitivity(api):

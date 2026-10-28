@@ -9,6 +9,7 @@ import {
   type Delivery,
   type Place,
   type PlaceSet,
+  type ThresholdMatch,
   type Watch,
   type WatchSpec,
 } from "@/lib/api";
@@ -23,6 +24,7 @@ type Draft = {
   adults: number;
   threshold: string;
   basis: "total" | "per_adult";
+  match: ThresholdMatch;
   sensitivity_pct: number;
   channels: Channel[];
   delivery: Delivery;
@@ -35,6 +37,7 @@ const EMPTY: Draft = {
   adults: 1,
   threshold: "",
   basis: "total",
+  match: "both",
   sensitivity_pct: 30,
   channels: ["email", "telegram"],
   delivery: "immediate",
@@ -48,6 +51,7 @@ function draftOf(w: WatchSpec): Draft {
     adults: w.adults,
     threshold: w.price_threshold ? String(w.price_threshold.amount_eur) : "",
     basis: w.price_threshold?.basis ?? "total",
+    match: w.price_threshold?.match ?? "both",
     sensitivity_pct: w.sensitivity_pct ?? EMPTY.sensitivity_pct,
     channels: w.channels.length ? w.channels : EMPTY.channels,
     delivery: w.delivery ?? EMPTY.delivery,
@@ -126,7 +130,7 @@ export function WatchEditor({
       destinations: draft.destinations,
       trip_pattern: tripPattern,
       adults: draft.adults,
-      price_threshold: threshold ? { amount_eur: Number(threshold), basis: draft.basis } : null,
+      price_threshold: threshold ? { amount_eur: Number(threshold), basis: draft.basis, match: draft.match } : null,
       sensitivity_pct: draft.sensitivity_pct,
       channels: draft.channels,
       delivery: draft.delivery,
@@ -231,6 +235,17 @@ export function WatchEditor({
             </label>
           </div>
         </fieldset>
+        {draft.threshold.trim() && (
+          <div className="join">
+            <div className="seg" role="group" aria-label="Threshold and Baseline">
+              {(["both", "either"] as const).map((m) => (
+                <button key={m} type="button" aria-pressed={draft.match === m} onClick={() => set("match", m)}>
+                  {m === "both" ? "and" : "or"}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
         <label className="field">
           <span>Sensitivity · {draft.sensitivity_pct}% below Baseline</span>
           <input

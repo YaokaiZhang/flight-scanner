@@ -41,8 +41,8 @@ def payload(*legs: tuple[str, float]) -> dict:
 
 
 @pytest.fixture
-def pipeline(db, tmp_path) -> PipelineHarness:
-    return PipelineHarness(db, tmp_path, start=START)
+def pipeline(db, tmp_path, dbt_parse_dir) -> PipelineHarness:
+    return PipelineHarness(db, tmp_path, start=START, dbt_parse_dir=dbt_parse_dir)
 
 
 def health(db, pipeline, budget: VerificationBudget | None = None) -> dict:

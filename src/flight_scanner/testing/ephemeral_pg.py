@@ -83,8 +83,12 @@ class EphemeralPostgres:
         migrate(self.settings(name))
         return name
 
-    def clone(self, template: str) -> DbSettings:
-        name = f"t_{uuid.uuid4().hex[:12]}"
+    def clone(self, template: str, name: str | None = None) -> DbSettings:
+        """A copy of `template`; a given `name` replaces any database already under it."""
+        if name is None:
+            name = f"t_{uuid.uuid4().hex[:12]}"
+        else:
+            self._admin(f'DROP DATABASE IF EXISTS "{name}" WITH (FORCE)')
         self._admin(f'CREATE DATABASE "{name}" TEMPLATE "{template}"')
         return self.settings(name)
 

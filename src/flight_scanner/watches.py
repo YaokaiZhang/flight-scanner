@@ -29,6 +29,8 @@ from flight_scanner.trip_patterns import TripPreset
 class PriceThreshold(BaseModel):
     amount_eur: float = Field(gt=0)
     basis: Literal["total", "per_adult"] = "total"
+    # "both": a Deal is under the threshold and below the Baseline; "either": one is enough.
+    match: Literal["both", "either"] = "both"
 
 
 Channel = Literal["email", "telegram"]
@@ -89,7 +91,8 @@ class Demand(NamedTuple):
 
 _COLUMNS = (
     "id, name, origins, destinations, trip_pattern, adults, price_threshold_eur, "
-    "price_threshold_basis, sensitivity_pct, channels, status, delivery, created_at, updated_at"
+    "price_threshold_basis, price_threshold_match, sensitivity_pct, channels, status, delivery, "
+    "created_at, updated_at"
 )
 
 
@@ -97,7 +100,9 @@ def _from_row(row: dict) -> Watch:
     threshold = None
     if row["price_threshold_eur"] is not None:
         threshold = PriceThreshold(
-            amount_eur=float(row["price_threshold_eur"]), basis=row["price_threshold_basis"]
+            amount_eur=float(row["price_threshold_eur"]),
+            basis=row["price_threshold_basis"],
+            match=row["price_threshold_match"],
         )
     return Watch(**{**row, "price_threshold": threshold})
 
@@ -141,6 +146,7 @@ def _values(spec: WatchSpec) -> dict:
         "adults": spec.adults,
         "price_threshold_eur": t.amount_eur if t else None,
         "price_threshold_basis": t.basis if t else None,
+        "price_threshold_match": t.match if t else None,
         "sensitivity_pct": spec.sensitivity_pct,
         "channels": spec.channels,
         "delivery": spec.delivery,

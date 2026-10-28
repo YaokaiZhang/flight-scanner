@@ -122,6 +122,7 @@ export function WatchesView() {
                       {w.price_threshold
                         ? `${formatEur(w.price_threshold.amount_eur)}${w.price_threshold.basis === "per_adult" ? " /adult" : ""}`
                         : "none"}
+                      {w.price_threshold?.match === "either" && <div className="sub">or {w.sensitivity_pct}% below</div>}
                     </td>
                     <td data-label="Alerts by">
                       {w.channels.map((c) => (c === "email" ? "Email" : "Telegram")).join(" + ")}
