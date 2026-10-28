@@ -201,16 +201,3 @@ web/              Next.js UI and Playwright tests
 docker/           images and Dagster config for Compose
 docs/             PRD, ADRs, design notes, spec and tickets
 ```
-
-## What is not verified yet
-
-These parts are built from public documentation and tested against fakes, and have not been
-fully checked against the real service:
-
-- **Ryanair and Wizz:** the response formats of their fare-calendar endpoints are unconfirmed,
-  and Wizz is likely to block automated requests.
-- **SerpApi:** prices are assumed to be totals for the whole party.
-- **Databricks:** the daily job has run end to end on Databricks Free Edition, and for the same
-  export its Baselines and backtest matched the Postgres ones exactly (see
-  [databricks/README.md](databricks/README.md#what-has-been-verified)). How the free tier reports
-  a spent quota is still a guess.
