@@ -6,10 +6,6 @@ prices from free, cached sources, learns what each trip normally costs (its **Ba
 sends an **Alert** by email or Telegram when a fare is well below that: a **Deal**. It doesn't
 just fire when a fare drops under a fixed number.
 
-The vocabulary (Watch, Place, Trip pattern, Baseline, Candidate, Deal, Verification, Alert,
-Digest) is defined in [CONTEXT.md](CONTEXT.md). The product brief is [docs/PRD.md](docs/PRD.md) and
-the v1 spec and its tickets are in [docs/work/flight-scanner/](docs/work/flight-scanner/spec.md).
-
 ## How it works
 
 ```
@@ -34,7 +30,7 @@ sources ──► landing (raw payloads + parsed rows) ──► dbt: staging �
   API under `/api`, so only one port has to be reachable.
 - Architecture decisions are in [docs/adr/](docs/adr/): Round trips composed from Leg prices,
   free cached-first sources with budgeted Verification, and the operational loop on one server
-  with the analytical layer on Databricks Free Edition.
+  with the analytical layer on Databricks.
 
 ## Quick start
 
