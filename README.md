@@ -6,6 +6,10 @@ prices from free, cached sources, learns what each trip normally costs (its **Ba
 sends an **Alert** by email or Telegram when a fare is well below that: a **Deal**. It doesn't
 just fire when a fare drops under a fixed number.
 
+
+https://github.com/user-attachments/assets/d684eaf4-2547-41fe-8dd7-73c0410162aa
+
+
 ## How it works
 
 ```
