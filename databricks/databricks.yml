@@ -5,7 +5,7 @@
 #   1. bronze_silver: databricks/sql/medallion.sql on the SQL warehouse
 #   2. gold: the shared dbt models tagged `lakehouse` (baseline_observations, baselines,
 #      backtest_deals) at the run's as_of, on the same warehouse
-# Unverified: written from the documented bundle schema; never deployed (no workspace here).
+# Deployed and run on Free Edition: see "What has been verified" in README.md.
 bundle:
   name: flight_scanner
 
@@ -43,7 +43,8 @@ resources:
           sql_task:
             warehouse_id: ${var.warehouse_id}
             file:
-              path: ${workspace.file_path}/sql/medallion.sql
+              # sync reaches ../dbt, so files are uploaded relative to the repo root
+              path: ${workspace.file_path}/databricks/sql/medallion.sql
               source: WORKSPACE
             parameters:
               catalog: ${var.catalog}

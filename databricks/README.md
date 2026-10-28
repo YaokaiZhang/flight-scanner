@@ -58,7 +58,20 @@ Running the shared models against the workspace by hand: set `DATABRICKS_HOST`,
 `DATABRICKS_HTTP_PATH` and `DATABRICKS_TOKEN`, then
 `dbt build --project-dir dbt --profiles-dir dbt --target databricks --select tag:lakehouse --vars '{as_of: "2026-11-11T03:00:00+00:00"}'`.
 
-## What is verified without a workspace
+## What has been verified
+
+On a real Free Edition workspace, on 28 Oct 2026 (run 2 in `analytics.lakehouse_runs`):
+
+- `scripts/start.sh deploy-databricks` deploys the bundle and records the job id in `.env`.
+- The daily job runs end to end: the Parquet export and upload (201,428 rows), COPY INTO bronze,
+  silver, the dbt task building gold with dbt-databricks on serverless compute, and the read-back
+  through the SQL warehouse. It published 45 Baselines and 2 backtest Deals to Postgres.
+- Spark and Postgres agree. The same export, rebuilt by the shared models on a scratch Postgres
+  database (the `FakeDatabricks` path), gave the same 45 `gold.baselines` rows (medians, MADs and
+  counts) and the same `gold.backtest_deals` rows.
+- The raw archive (`FS_RAW_ARCHIVE=databricks`) writes to the `bronze.raw` volume.
+
+Without a workspace, the tests cover:
 
 - The adapter's REST contract (`tests/seam3/test_databricks_contract.py`, documented shapes).
 - Every dbt model compiles with dbt-databricks and parses as Databricks SQL, with no
@@ -66,6 +79,5 @@ Running the shared models against the workspace by hand: set `DATABRICKS_HOST`,
 - The whole job end to end against `FakeDatabricks`, which runs the uploaded Parquet through the
   same shared models on a scratch Postgres database (`tests/seam1/test_lakehouse.py`).
 
-Not verified: a real deployment (bundle schema, COPY INTO, the dbt task's environment), how Free
-Edition reports a spent quota (assumed: HTTP 429 or a message mentioning a quota), and results on
-Spark SQL (decimal precision, timestamp handling) matching Postgres.
+Not verified: how Free Edition reports a spent quota (assumed: HTTP 429 or a message mentioning
+a quota).
