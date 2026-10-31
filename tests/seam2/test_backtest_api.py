@@ -159,8 +159,8 @@ def test_precision_distribution_and_feedback_by_outcome_for_a_watch(api, pipelin
     assert result["deals"] == 2
     assert (result["outcomes"]["real_dip"], result["outcomes"]["stayed_low"]) == (1, 1)
     assert result["precision"] == 0.5
-    # 2 Alerts over 11 days and an hour
-    assert (result["alerts"], result["weeks"], result["alerts_per_week"]) == (2, 1.6, 1.27)
+    # 1 Alert over 11 days and an hour: a route alerts once, for its cheapest dates
+    assert (result["alerts"], result["weeks"], result["alerts_per_week"]) == (1, 1.6, 0.63)
     assert result["pct_below_baseline"]["median"] == 42.5
     assert result["pct_below_baseline"]["buckets"] == [
         {"from_pct": 0, "to_pct": 20, "deals": 0},
