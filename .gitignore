@@ -16,3 +16,4 @@ web/next-env.d.ts
 .e2e/
 /data/
 .local/
+.impeccable/
