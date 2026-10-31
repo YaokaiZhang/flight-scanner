@@ -1,5 +1,7 @@
 # Flight Scanner
 
+[![CI](https://github.com/YaokaiZhang/flight-scanner/actions/workflows/ci.yml/badge.svg)](https://github.com/YaokaiZhang/flight-scanner/actions/workflows/ci.yml)
+
 A personal, self-hosted flight-price scanner. You describe trips you'd take as **Watches**
 ("Helsinki or Tallinn to anywhere in Europe except Sweden, 3–6 nights in November"). It collects
 prices from free, cached sources, learns what each trip normally costs (its **Baseline**) and
