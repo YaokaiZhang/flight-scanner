@@ -161,7 +161,7 @@ export type Rating = "up" | "down";
 export type DealStatus = "verified" | "unverified" | "failed";
 
 // Data health (ticket 10): GET /data-health
-export type SourceStatus = "ok" | "no_data" | "gated" | "failing" | "blocked";
+export type SourceStatus = "ok" | "no_data" | "stalled" | "gated" | "failing" | "blocked";
 export type SourceHealth = {
   source: string;
   status: SourceStatus;

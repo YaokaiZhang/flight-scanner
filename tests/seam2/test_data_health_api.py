@@ -97,6 +97,18 @@ def test_sources_show_freshness_last_success_failures_and_blocks(db, pipeline):
     assert wizz["blocked"]["reason"] == "wizz: turned away (HTTP 403)"
 
 
+def test_a_source_stalls_when_nothing_lands_for_two_hours(db, pipeline):
+    pipeline.create_watch(watch(["BCN"]))
+    pipeline.fake.replay(payload(("BCN", 150)), route=("HEL", "BCN"))
+    pipeline.run()
+
+    pipeline.clock.advance(hours=2)
+    assert health(db, pipeline)["sources"][0]["status"] == "ok"
+
+    pipeline.clock.advance(minutes=1)
+    assert health(db, pipeline)["sources"][0]["status"] == "stalled"
+
+
 def test_a_rejected_request_fails_only_its_task_and_the_source_stays_ok(db, pipeline):
     pipeline.create_watch(watch(["MAD", "BCN"]))
     pipeline.fake.reject(route=("HEL", "MAD"), reason="airport MAD: not flightable")

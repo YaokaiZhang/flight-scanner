@@ -15,6 +15,7 @@ import { formatInstant, formatMinutes } from "@/lib/format";
 const STATUS_LABEL: Record<SourceStatus, string> = {
   ok: "Healthy",
   no_data: "No data",
+  stalled: "Stalled",
   gated: "Gated",
   failing: "Failing",
   blocked: "Blocked",
@@ -23,6 +24,7 @@ const STATUS_LABEL: Record<SourceStatus, string> = {
 const STATUS_TAG: Record<SourceStatus, string> = {
   ok: "verified",
   no_data: "off",
+  stalled: "fail",
   gated: "unverified",
   failing: "fail",
   blocked: "fail",

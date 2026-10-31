@@ -4,7 +4,8 @@
 
 - sources       per scan source: newest Fare observation (freshness), last scanned / failed task
                 and its error, a block (`source_health`) and the data-quality checks gating it.
-                status: blocked > failing (the last executed task failed) > gated > no_data > ok
+                status: blocked > failing (the last executed task failed) > stalled (nothing landed
+                for STALE_AFTER: scans stopped running) > gated > no_data > ok
 - coverage      the route-months current Watch slots demand (outbound leg, and the return leg of
                 round trips) and those with no Fare observation of a departure in that month
                 within COVERAGE_WINDOW (the gaps)
@@ -31,12 +32,13 @@ from flight_scanner import data_quality, source_health
 from flight_scanner.clock import OWNER_TZ
 
 COVERAGE_WINDOW = timedelta(days=7)
+STALE_AFTER = timedelta(hours=2)  # scans start every 30 min; the longest healthy one took 52
 RECENT_CHECKS = timedelta(days=7)
 BUDGET_REASONS = ("over the per-run budget", "over the daily quota")
 SKIPPED_LIMIT = 200
 GAPS_LIMIT = 200
 
-SourceStatus = Literal["ok", "no_data", "gated", "failing", "blocked"]
+SourceStatus = Literal["ok", "no_data", "stalled", "gated", "failing", "blocked"]
 
 
 @dataclass(frozen=True)
@@ -180,10 +182,13 @@ def _sources(
         block = blocks.get(name)
         gated_by = sorted({g.check_name for g in gates if g.source == name})
         newest = observed.get(name)
+        landed = max((at for at in (success, newest) if at is not None), default=None)
         if block is not None:
             status: SourceStatus = "blocked"
         elif failure is not None and (success is None or failure >= success):
             status = "failing"
+        elif landed is not None and now - landed > STALE_AFTER:
+            status = "stalled"
         elif gated_by:
             status = "gated"
         elif newest is None:
