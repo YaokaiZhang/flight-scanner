@@ -1,0 +1,55 @@
+name: dbt docs
+
+on:
+  push:
+    branches: [main]
+    paths: ["dbt/**", "src/flight_scanner/migrations/**", "scripts/dbt-docs.sh", ".github/workflows/docs.yml"]
+  pull_request:
+    paths: ["dbt/**", "src/flight_scanner/migrations/**", "scripts/dbt-docs.sh", ".github/workflows/docs.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: flightscanner
+          POSTGRES_PASSWORD: docs-only
+          POSTGRES_DB: flightscanner
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U flightscanner"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - run: scripts/dbt-docs.sh _site
+        env:
+          POSTGRES_HOST: localhost
+          POSTGRES_PORT: "5432"
+          POSTGRES_USER: flightscanner
+          POSTGRES_PASSWORD: docs-only
+          POSTGRES_DB: flightscanner
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    needs: build
+    runs-on: ubuntu-24.04
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

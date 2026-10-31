@@ -17,3 +17,4 @@ web/next-env.d.ts
 /data/
 .local/
 .impeccable/
+_site/

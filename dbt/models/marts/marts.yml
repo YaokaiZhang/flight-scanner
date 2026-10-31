@@ -20,16 +20,20 @@ models:
       - name: outbound_date
         data_tests: [not_null]
       - name: ticketing
+        description: How the price is booked, which decides the price composition (ADR-0001).
         data_tests:
           - not_null
           - accepted_values:
               arguments:
                 values: [one_way, single_ticket, separate_tickets]
       - name: price_per_adult_eur
+        description: Cheapest current price for one adult, in EUR.
         data_tests: [not_null]
       - name: source
+        description: The source that reported the price.
         data_tests: [not_null]
       - name: observed_at
+        description: When the price was observed; cached sources may be older than the scan.
         data_tests: [not_null]
   - name: candidates
     description: >
@@ -58,6 +62,7 @@ models:
               arguments:
                 values: [one_way, single_ticket, separate_tickets]
       - name: price_total_eur
+        description: Price for all the Watch's adults, in EUR.
         data_tests: [not_null]
       - name: source
         data_tests: [not_null]

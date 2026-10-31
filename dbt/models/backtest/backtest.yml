@@ -13,8 +13,16 @@ models:
       - name: price_per_adult_eur
         data_tests: [not_null]
       - name: later_observation_days
+        description: Days with a price for this trip after the day the Deal was detected.
         data_tests: [not_null]
+      - name: pct_below_baseline
+        description: How far the Deal price was under its Baseline, in percent.
       - name: outcome
+        description: >
+          real_dip: a later price climbed back at least backtest_recovery_share of the way to the
+          Baseline. stayed_low: it never did, over enough later days. pending: too few later days
+          so far. inconclusive: departed before enough later days. unjudged: no Baseline to dip
+          below.
         data_tests:
           - not_null
           - accepted_values:

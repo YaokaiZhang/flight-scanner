@@ -61,10 +61,13 @@ models:
       - name: method
         data_tests: [not_null]
       - name: median_per_adult_eur
+        description: What this kind of trip normally costs per adult, in EUR.
         data_tests: [not_null]
       - name: mad_eur
+        description: Median absolute deviation, the spread around the median.
         data_tests: [not_null]
       - name: observations
+        description: Daily-minimum trip prices behind this Baseline.
         data_tests: [not_null]
       - name: observation_days
         data_tests: [not_null]
