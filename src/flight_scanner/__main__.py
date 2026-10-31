@@ -1,10 +1,12 @@
-"""`python -m flight_scanner migrate|scan|rebuild|lakehouse|pack-raw|unblock <source>` - one-offs.
+"""`python -m flight_scanner migrate|scan|rebuild|lakehouse|pack-raw|unblock <source>|
+fail-orphaned-runs` - one-offs.
 
 rebuild: re-parse every raw payload of the enabled sources and rebuild staging, history and marts.
 lakehouse: run the daily lakehouse job now (export to Databricks, write its Baselines back;
     archive finished days of the raw store when FS_RAW_ARCHIVE is set).
 pack-raw: move raw payloads stored one file each (before segments) into segments.
 unblock: re-enable a source that disabled itself after being turned away (GET /sources/blocked).
+fail-orphaned-runs: before the Dagster daemon starts, fail the runs a restart left in progress.
 """
 
 import sys
@@ -60,6 +62,14 @@ def main(argv: list[str]) -> int:
         with connect(settings.db) as conn:
             done = source_health.unblock(conn, argv[2])
         print(f"{argv[2]}: {'re-enabled' if done else 'was not blocked'}")
+        return 0
+    if cmd == "fail-orphaned-runs":
+        from dagster import DagsterInstance
+
+        from flight_scanner.pipeline.orphans import fail_orphaned_runs
+
+        with DagsterInstance.get() as instance:
+            print("failed:", fail_orphaned_runs(instance) or "nothing")
         return 0
     print(__doc__)
     return 2

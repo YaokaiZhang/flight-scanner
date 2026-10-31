@@ -14,5 +14,12 @@ run_coordinator:
   config:
     max_concurrent_runs: 1  # scans never overlap
 
+# Frees the run slot when a run outlives this, e.g. its worker crashed while the daemon stayed up;
+# the default run launcher cannot detect a dead worker directly. Restarts are handled sooner, by
+# fail-orphaned-runs. The longest healthy scan so far took 52 min.
+run_monitoring:
+  enabled: true
+  max_runtime_seconds: 7200
+
 telemetry:
   enabled: false

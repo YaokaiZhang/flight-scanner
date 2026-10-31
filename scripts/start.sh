@@ -263,6 +263,9 @@ run_coordinator:
   class: QueuedRunCoordinator
   config:
     max_concurrent_runs: 1
+run_monitoring:
+  enabled: true
+  max_runtime_seconds: 7200
 telemetry:
   enabled: false
 EOF
@@ -275,6 +278,9 @@ EOF
     say "building the UI (next build)"
     (cd web && npm run build >"$LOGS/web-build.log" 2>&1) || die "UI build failed: $LOGS/web-build.log"
   fi
+
+  # Runs the last daemon left in progress would hold the only run slot until they time out.
+  pid_alive dagster-daemon || python -m flight_scanner fail-orphaned-runs
 
   say "starting services"
   start_bg api uvicorn flight_scanner.api.main:app --host 127.0.0.1 --port "$API_PORT"

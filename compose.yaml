@@ -40,7 +40,10 @@ services:
 
   dagster-daemon:
     <<: *python
-    command: ["dagster-daemon", "run", "-w", "/app/workspace.yaml"]
+    command:
+      - sh
+      - -c
+      - python -m flight_scanner fail-orphaned-runs && exec dagster-daemon run -w /app/workspace.yaml
     volumes:
       - rawdata:/data
 
