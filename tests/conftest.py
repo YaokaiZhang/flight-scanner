@@ -1,10 +1,28 @@
+import os
+import shutil
+import tempfile
 from collections.abc import Iterator
 from pathlib import Path
 
 import pytest
 
 from flight_scanner.db import DbSettings
+from flight_scanner.testing.dbt_server import DbtServer
 from flight_scanner.testing.ephemeral_pg import EphemeralPostgres
+
+
+@pytest.fixture(scope="session", autouse=True)
+def dbt_server() -> Iterator[None]:
+    """Every dbt invocation in the session goes through a server that has dbt imported already."""
+    directory = Path(tempfile.mkdtemp(prefix="fsdbt-", dir=os.environ.get("FS_PG_TMP", "/tmp")))
+    server = DbtServer.start(directory)
+    os.environ["FS_DBT_EXECUTABLE"] = server.executable
+    try:
+        yield
+    finally:
+        del os.environ["FS_DBT_EXECUTABLE"]
+        server.stop()
+        shutil.rmtree(directory, ignore_errors=True)
 
 
 @pytest.fixture(scope="session")

@@ -37,8 +37,9 @@ _env_lock = threading.Lock()
 
 
 def dbt_executable() -> str:
-    """The dbt next to this interpreter (the venv's), so PATH does not matter."""
-    return str(Path(sys.executable).with_name("dbt"))
+    """The dbt next to this interpreter (the venv's), so PATH does not matter; tests override it
+    (`FS_DBT_EXECUTABLE`, see testing/dbt_server.py)."""
+    return os.environ.get("FS_DBT_EXECUTABLE") or str(Path(sys.executable).with_name("dbt"))
 
 
 class DbtCli(DbtCliResource):

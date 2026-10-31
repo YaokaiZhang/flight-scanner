@@ -170,7 +170,7 @@ python -m flight_scanner unblock <source>   # re-enable a blocked airline adapte
 ```sh
 uv sync                                  # Python 3.12 deps, including dev tools
 uv run ruff check .
-uv run pytest tests -n 4                 # about 9 minutes on 4 cores; each test session starts its own Postgres
+scripts/test.sh                          # the whole suite, in parallel (arguments go to pytest)
 cd web && npm ci && npm run typecheck && npm run build
 cd web && npx playwright install chromium && npm run test:e2e
 ```
