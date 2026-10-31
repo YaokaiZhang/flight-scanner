@@ -215,6 +215,20 @@ def _sources(
     return out
 
 
+def stalled_sources(conn: psycopg.Connection, sources: list[str], now: datetime) -> list[str]:
+    """Those of `sources` with nothing landed for STALE_AFTER, while some Watch wants prices. A
+    source that keeps failing counts too; a blocked one was turned off and is reported as such."""
+    if conn.execute("SELECT 1 FROM app.watch_slots LIMIT 1").fetchone() is None:
+        return []
+    stalled = []
+    for s in _sources(conn, now, _verification_sources(conn, None), []):
+        landed = [at for at in (s.last_success_at, s.last_observation_at) if at is not None]
+        if s.source in sources and s.blocked is None and landed:
+            if now - max(landed) > STALE_AFTER:
+                stalled.append(s.source)
+    return stalled
+
+
 def _coverage(conn: psycopg.Connection, now: datetime, verifiers: set[str]) -> Coverage:
     rows = conn.execute(
         """WITH demand AS (

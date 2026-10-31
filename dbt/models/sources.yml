@@ -7,7 +7,17 @@ sources:
     description: Rows parsed by source adapters (Python), one per raw payload row.
     tables:
       - name: raw_payloads
+        description: Every source answer as received; the parsed rows point back to it.
       - name: leg_prices
+        description: One-way prices as a source reported them, one row per Fare observation.
+        config: &fresh
+          loaded_at_field: observed_at
+          # Scans start every 30 minutes and the longest healthy one took 52. The Verification
+          # source only checks Candidates, so its rows say nothing about scans.
+          freshness:
+            warn_after: {count: 2, period: hour}
+            error_after: {count: 6, period: hour}
+            filter: source <> 'serpapi'
         columns:
           - name: currency
             data_tests:
@@ -15,6 +25,8 @@ sources:
                   arguments: {to: "ref('fx_rates')", field: currency}
                   config: {severity: warn}
       - name: round_trip_prices
+        description: Single-ticket round-trip prices as a source reported them.
+        config: *fresh
         columns:
           - name: currency
             data_tests:

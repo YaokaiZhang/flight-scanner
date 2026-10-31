@@ -1,13 +1,17 @@
 # No `from __future__ import annotations`: Dagster inspects real type hints
 # (context, ResourceParam).
 
+import json
+
 import dagster as dg
 from dagster_dbt import DbtCliResource, dbt_assets, get_asset_key_for_model
 
 from flight_scanner import (
+    data_health,
     data_quality,
     deals,
     digests,
+    pipeline_alerts,
     scan_planner,
     source_health,
     verification,
@@ -31,6 +35,7 @@ DEAL_CONTEXT = dg.AssetKey(["app", "deal_context"])
 VERIFICATION = dg.AssetKey(["app", "verification"])
 REF_AIRPORTS = dg.AssetKey(["ref", "airports"])
 QUALITY_GATES = dg.AssetKey(["app", "quality_gates"])
+LANDING_FRESHNESS = dg.AssetKey(["landing", "freshness"])
 # what the lakehouse published (dbt source analytics.baseline_versions -> effective_baselines)
 LAKEHOUSE = dg.AssetKey(["analytics", "baseline_versions"])
 RAW_ARCHIVE = dg.AssetKey(["raw", "archive"])
@@ -164,6 +169,41 @@ def quality_gates(runtime: dg.ResourceParam[Runtime]):
     return dg.MaterializeResult(metadata={"gates": len(gates)}, check_results=checks)
 
 
+@dg.asset(
+    key=LANDING_FRESHNESS,
+    deps=[LEG_PRICES, ROUND_TRIP_PRICES],
+    group_name="ingestion",
+    check_specs=[
+        dg.AssetCheckSpec(
+            "landing_is_fresh",
+            asset=LANDING_FRESHNESS,
+            description="Landing tables received prices recently (freshness in dbt's sources.yml)",
+        )
+    ],
+)
+def landing_freshness(dbt: DbtCliResource, runtime: dg.ResourceParam[Runtime]):
+    """dbt's source freshness over what the scan landed. Stale tables never stop the run
+    (severity WARN); a stalled pipeline reaches the owner through `pipeline_stall_alert`."""
+    if not runtime.dbt_data_tests:
+        return dg.MaterializeResult(
+            metadata={"status": "skipped"},
+            check_results=[dg.AssetCheckResult(check_name="landing_is_fresh", passed=True)],
+        )
+    tables = dbt_files.source_freshness(dbt, runtime)
+    report = [{"table": t.table, "status": t.status, "newest": t.max_loaded_at} for t in tables]
+    return dg.MaterializeResult(
+        metadata={"tables": len(tables)},
+        check_results=[
+            dg.AssetCheckResult(
+                check_name="landing_is_fresh",
+                passed=bool(tables) and all(t.status == "pass" for t in tables),
+                severity=dg.AssetCheckSeverity.WARN,
+                metadata={"tables": dg.MetadataValue.json(report)},
+            )
+        ],
+    )
+
+
 @dg.asset(key=LAKEHOUSE, group_name="analytics")
 def lakehouse_asset(runtime: dg.ResourceParam[Runtime]):
     """Daily (ADR-0003): export history and staging as Parquet to the lakehouse (Databricks),
@@ -286,6 +326,7 @@ def build_definitions(runtime: Runtime) -> dg.Definitions:
         scan_plan,
         source_prices,
         quality_gates,
+        landing_freshness,
         dbt_models,
         deals_asset,
         verification_asset,
@@ -311,7 +352,7 @@ def build_definitions(runtime: Runtime) -> dg.Definitions:
     return dg.Definitions(
         assets=[*assets, lakehouse_asset, raw_archive_asset],
         jobs=[scan_job, collect_job, rebuild_job, lakehouse_job],
-        sensors=_feedback_sensors(runtime),
+        sensors=[*_feedback_sensors(runtime), *_pipeline_alert_sensors(runtime)],
         schedules=[
             dg.ScheduleDefinition(
                 job=scan_job,
@@ -353,6 +394,45 @@ def _feedback_sensors(runtime: Runtime) -> list[dg.SensorDefinition]:
         return dg.SkipReason(f"recorded {n} ratings")
 
     return [telegram_feedback]
+
+
+def _pipeline_alert_sensors(runtime: Runtime) -> list[dg.SensorDefinition]:
+    """Tell the owner when a run fails, and when prices stop landing for any reason. A stuck run
+    never fails, so only the second catches a stuck queue. Both need the daemon to be running."""
+
+    @dg.run_failure_sensor(
+        name="pipeline_failure_alert",
+        minimum_interval_seconds=60,
+        default_status=dg.DefaultSensorStatus.RUNNING,
+    )
+    def pipeline_failure_alert(context: dg.RunFailureSensorContext):
+        run = context.dagster_run
+        with connect(runtime.db, autocommit=True) as conn:
+            pipeline_alerts.run_failed(
+                conn,
+                runtime.notifiers,
+                run.job_name,
+                run.run_id,
+                context.failure_event.message or "",
+                runtime.clock.now(),
+            )
+
+    @dg.sensor(
+        name="pipeline_stall_alert",
+        minimum_interval_seconds=300,
+        default_status=dg.DefaultSensorStatus.RUNNING,
+    )
+    def pipeline_stall_alert(context: dg.SensorEvaluationContext):
+        previous = json.loads(context.cursor or "[]")
+        with connect(runtime.db, autocommit=True) as conn:
+            stalled = data_health.stalled_sources(
+                conn, [s.name for s in runtime.sources], runtime.clock.now()
+            )
+        pipeline_alerts.stall_changed(runtime.notifiers, previous, stalled)
+        context.update_cursor(json.dumps(stalled))
+        return dg.SkipReason(f"stalled: {', '.join(stalled) or 'none'}")
+
+    return [pipeline_failure_alert, pipeline_stall_alert]
 
 
 def _execute(

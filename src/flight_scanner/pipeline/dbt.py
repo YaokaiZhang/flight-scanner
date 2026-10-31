@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import fcntl
 import functools
+import json
 import os
 import re
 import shutil
@@ -13,6 +14,7 @@ import threading
 import uuid
 from collections.abc import Iterator
 from contextlib import contextmanager
+from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
@@ -115,6 +117,32 @@ def build(
         invocation = dbt.cli(args, context=context, target_path=target)
     yield from invocation.stream()
     finish_target_path(target)
+
+
+@dataclass(frozen=True)
+class SourceFreshness:
+    table: str
+    status: str  # pass | warn | error | runtime error
+    max_loaded_at: str | None
+
+
+def source_freshness(dbt: DbtCliResource, runtime: Runtime) -> list[SourceFreshness]:
+    """`dbt source freshness` of the landing tables. It compares with the database's own clock,
+    not the injected one. Raises when dbt reports nothing; stale tables are only reported."""
+    target = new_target_path(runtime.dbt_parse_dir or runtime.work_dir)
+    args = ["source", "freshness", "--select", "source:landing", "--target-path", str(target)]
+    args += ["--project-dir", dbt.project_dir, "--profiles-dir", dbt.profiles_dir]
+    with clock_env(runtime.clock.now()):
+        done = subprocess.run([dbt.dbt_executable, *args], capture_output=True, text=True)
+    report = target / "sources.json"
+    if not report.exists():
+        raise RuntimeError(f"dbt source freshness reported nothing: {done.stdout[-500:]}")
+    results = json.loads(report.read_text())["results"]
+    finish_target_path(target)
+    return [
+        SourceFreshness(r["unique_id"].rsplit(".", 1)[1], r["status"], r.get("max_loaded_at"))
+        for r in results
+    ]
 
 
 @contextmanager

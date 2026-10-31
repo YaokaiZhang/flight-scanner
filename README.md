@@ -34,6 +34,11 @@ sources ──► landing (raw payloads + parsed rows) ──► dbt: staging �
   data health and the backtest.
 - **Next.js** (`web/`) is the UI: Watches, Deals, Routes and Data health. It proxies the
   API under `/api`, so only one port has to be reachable.
+- **Data docs:** [dbt docs with lineage](https://yaokaizhang.github.io/flight-scanner/) are
+  published from `main`.
+- **Pipeline monitoring:** dbt source freshness runs in every scan as a Dagster asset check. The
+  owner's notifiers hear when a run fails (at most every 6 hours per job) and when a source lands
+  nothing for 2 hours, which also catches a stuck queue. Both sensors need the Dagster daemon.
 - Architecture decisions are in [docs/adr/](docs/adr/): Round trips composed from Leg prices,
   free cached-first sources with budgeted Verification, and the operational loop on one server
   with the analytical layer on Databricks.

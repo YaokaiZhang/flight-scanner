@@ -19,6 +19,7 @@ import urllib.error
 import urllib.request
 from dataclasses import dataclass
 from datetime import datetime
+from html import escape
 
 import psycopg
 from psycopg.types.json import Jsonb
@@ -104,6 +105,9 @@ class TelegramNotifier:
     def send_digest(self, digest: DigestMessage) -> None:
         rows = [_rating_buttons(a, f"{i} ") for i, a in enumerate(digest.deals, 1)]
         self._send_html(content.digest_html(digest), [r for r in rows if r])
+
+    def send_ops(self, text: str) -> None:
+        self._send_html(escape(text), [])
 
     def _send_html(self, html: str, keyboard: list[list[dict]]) -> None:
         body: dict = {

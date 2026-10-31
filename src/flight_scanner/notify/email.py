@@ -98,6 +98,14 @@ class EmailNotifier:
     def send_digest(self, digest: DigestMessage) -> None:
         self._deliver(compose_digest(digest, self.settings.sender, self.settings.recipients))
 
+    def send_ops(self, text: str) -> None:
+        msg = EmailMessage()
+        msg["Subject"] = text.split(".")[0]
+        msg["From"] = self.settings.sender
+        msg["To"] = ", ".join(self.settings.recipients)
+        msg.set_content(text)
+        self._deliver(msg)
+
     def _deliver(self, msg: EmailMessage) -> None:
         s = self.settings
         if s.security == "ssl":

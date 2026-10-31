@@ -84,6 +84,13 @@ class DigestNotifier(Notifier, Protocol):
     def send_digest(self, digest: DigestMessage) -> None: ...
 
 
+@runtime_checkable
+class OpsNotifier(Notifier, Protocol):
+    """A channel that can also tell the owner about the pipeline itself (`pipeline_alerts`)."""
+
+    def send_ops(self, text: str) -> None: ...
+
+
 def deliver_digest(notifier: Notifier, digest: DigestMessage) -> None:
     """One message if the channel supports Digests, else one Alert per Deal. Raises on failure."""
     if isinstance(notifier, DigestNotifier):
@@ -104,9 +111,13 @@ class RecordingNotifier:
         self.channel = channel
         self.alerts: list[AlertMessage] = []
         self.digests: list[DigestMessage] = []
+        self.ops: list[str] = []
 
     def send(self, alert: AlertMessage) -> None:
         self.alerts.append(alert)
+
+    def send_ops(self, text: str) -> None:
+        self.ops.append(text)
 
     def send_digest(self, digest: DigestMessage) -> None:
         self.digests.append(digest)
@@ -116,6 +127,9 @@ class LogNotifier:
     """Writes Alerts to the log; the default until real channels are configured."""
 
     channel = "log"
+
+    def send_ops(self, text: str) -> None:
+        log.warning("PIPELINE %s", text)
 
     def send(self, alert: AlertMessage) -> None:
         log.warning(
