@@ -203,6 +203,34 @@ def test_http_429_means_over_quota(export):
     assert e.value.reason == "over_quota"
 
 
+def test_runs_disabled_temporarily_mean_unavailable(export):
+    transport = ScriptedTransport(
+        *happy_script()[:3],
+        ok(
+            {
+                "error_code": "FEATURE_DISABLED",
+                "message": "Triggering new runs for organization 1 is currently disabled "
+                "temporarily.",
+            },
+            status=404,
+        ),
+    )
+
+    with pytest.raises(LakehouseUnavailable) as e:
+        lakehouse(transport).run(export)
+    assert e.value.reason == "unavailable"
+
+
+def test_a_feature_disabled_for_good_is_an_error(export):
+    transport = ScriptedTransport(
+        *happy_script()[:3],
+        ok({"error_code": "FEATURE_DISABLED", "message": "Jobs are not enabled."}, status=404),
+    )
+
+    with pytest.raises(LakehouseError, match="FEATURE_DISABLED"):
+        lakehouse(transport).run(export)
+
+
 def test_a_run_that_failed_on_the_quota_means_over_quota(export):
     script = happy_script()[:4] + [
         terminated("FAILED", "Workspace exceeded its fair-use quota for today")

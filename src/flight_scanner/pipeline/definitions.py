@@ -4,6 +4,7 @@
 import json
 
 import dagster as dg
+from dagster._core.storage.dagster_run import NOT_FINISHED_STATUSES
 from dagster_dbt import DbtCliResource, dbt_assets, get_asset_key_for_model
 
 from flight_scanner import (
@@ -21,7 +22,7 @@ from flight_scanner.clock import today
 from flight_scanner.db import connect
 from flight_scanner.deal_context import add_deal_context
 from flight_scanner.ingestion import ingest
-from flight_scanner.lakehouse import LakehouseRun, latest_run, run_daily
+from flight_scanner.lakehouse import LakehouseRun, latest_run, retry_key, run_daily
 from flight_scanner.pipeline import dbt as dbt_files
 from flight_scanner.pipeline.runtime import Runtime
 from flight_scanner.raw_archive import archive_raw
@@ -352,7 +353,11 @@ def build_definitions(runtime: Runtime) -> dg.Definitions:
     return dg.Definitions(
         assets=[*assets, lakehouse_asset, raw_archive_asset],
         jobs=[scan_job, collect_job, rebuild_job, lakehouse_job],
-        sensors=[*_feedback_sensors(runtime), *_pipeline_alert_sensors(runtime)],
+        sensors=[
+            *_feedback_sensors(runtime),
+            *_pipeline_alert_sensors(runtime),
+            *_lakehouse_retry_sensors(runtime, lakehouse_job),
+        ],
         schedules=[
             dg.ScheduleDefinition(
                 job=scan_job,
@@ -434,6 +439,32 @@ def _pipeline_alert_sensors(runtime: Runtime) -> list[dg.SensorDefinition]:
         return dg.SkipReason(f"stalled: {', '.join(stalled) or 'none'}")
 
     return [pipeline_failure_alert, pipeline_stall_alert]
+
+
+def _lakehouse_retry_sensors(runtime: Runtime, job) -> list[dg.SensorDefinition]:
+    """Run the lakehouse job again on a day with nothing published: the engine turned it away, or
+    the stack was down at 04:15 (a schedule does not catch up). Off without a lakehouse."""
+    if runtime.lakehouse is None:
+        return []
+
+    @dg.sensor(
+        name="lakehouse_retry",
+        job=job,
+        minimum_interval_seconds=600,
+        default_status=dg.DefaultSensorStatus.RUNNING,
+    )
+    def lakehouse_retry(context: dg.SensorEvaluationContext):
+        # the run slot is shared with scans, so a launched run can wait over an hour for it
+        waiting = context.instance.get_runs(
+            dg.RunsFilter(job_name=job.name, statuses=list(NOT_FINISHED_STATUSES)), limit=1
+        )
+        if waiting:
+            return dg.SkipReason("a lakehouse run is queued or running")
+        with connect(runtime.db, autocommit=True) as conn:
+            key = retry_key(conn, runtime.clock.now())
+        return dg.RunRequest(run_key=key) if key else dg.SkipReason("no retry due")
+
+    return [lakehouse_retry]
 
 
 def _execute(

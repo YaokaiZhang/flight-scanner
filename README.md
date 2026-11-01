@@ -27,7 +27,7 @@ sources ──► landing (raw payloads + parsed rows) ──► dbt: staging �
 ```
 
 - **Dagster** runs the scan every 30 minutes (`scan` job) and the optional Databricks
-  `lakehouse` job daily at 04:15 Helsinki time. Telegram 👍/👎 feedback is read by a sensor.
+  `lakehouse` job daily at 04:15 Helsinki time, retried up to twice if nothing publishes. Telegram 👍/👎 feedback is read by a sensor.
 - **Postgres** holds everything: app tables (`app`), parsed source rows (`landing`) and the dbt
   models (`staging`, `marts`, `analytics`). Migrations apply automatically on startup.
 - **FastAPI** (`flight_scanner.api`) serves Watches, Places, Deals, routes and price history,

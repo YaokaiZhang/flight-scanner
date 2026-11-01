@@ -37,6 +37,7 @@ from flight_scanner.sources.polite_http import HttpResponse, Transport, urllib_t
 
 TERMINAL = {"TERMINATED", "SKIPPED", "INTERNAL_ERROR"}
 _QUOTA = re.compile(r"quota|resource_exhausted|rate limit", re.IGNORECASE)
+_DISABLED_FOR_NOW = re.compile(r"feature_disabled.*temporarily", re.IGNORECASE | re.DOTALL)
 
 
 def _typed(value: str | None, type_name: str) -> Any:
@@ -203,6 +204,8 @@ class DatabricksLakehouse:
                     raise LakehouseUnavailable("over_quota", f"{resp.status} {text}")
                 if resp.status < 400:
                     return resp
+                if _DISABLED_FOR_NOW.search(text):
+                    raise LakehouseUnavailable("unavailable", f"{resp.status} {text}")
                 if resp.status < 500:
                     raise LakehouseError(f"{method} {path}: {resp.status} {text}")
                 if last:

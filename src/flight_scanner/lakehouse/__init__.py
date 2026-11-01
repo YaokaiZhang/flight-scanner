@@ -20,7 +20,7 @@ from flight_scanner.lakehouse.base import (
 )
 from flight_scanner.lakehouse.databricks import DatabricksLakehouse
 from flight_scanner.lakehouse.export import EXPORT_TABLES, export_parquet
-from flight_scanner.lakehouse.job import LakehouseRun, latest_run, run_daily
+from flight_scanner.lakehouse.job import LakehouseRun, latest_run, retry_key, run_daily
 
 __all__ = [
     "EXPORT_TABLES",
@@ -35,6 +35,7 @@ __all__ = [
     "build_lakehouse",
     "export_parquet",
     "latest_run",
+    "retry_key",
     "run_daily",
 ]
 

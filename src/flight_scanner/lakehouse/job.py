@@ -12,7 +12,7 @@ from __future__ import annotations
 import shutil
 import uuid
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, time, timedelta
 from decimal import Decimal
 from pathlib import Path
 from typing import Any
@@ -24,6 +24,10 @@ from flight_scanner.lakehouse.base import Lakehouse, LakehouseResult, LakehouseU
 from flight_scanner.lakehouse.export import export_parquet
 
 KEY = ("tier", "origin_city", "destination", "departure_month", "stay_bucket")
+# retries of a day with nothing published; each attempt spends Free Edition quota
+RETRY_FROM = time(4, 30)  # Helsinki: after the 04:15 schedule has had its chance
+RETRY_EVERY = timedelta(hours=2)
+MAX_ATTEMPTS = 3  # a day, the scheduled run included
 VALUES = ("method", "median_per_adult_eur", "mad_eur", "observations", "observation_days")
 BACKTEST_COLUMNS = (
     "deal_id",
@@ -138,6 +142,23 @@ def _publish_backtest(conn: psycopg.Connection, run_id: int, result: LakehouseRe
             [(run_id, *(r[c] for c in BACKTEST_COLUMNS)) for r in rows],
         )
     return len(rows)
+
+
+def retry_key(conn: psycopg.Connection, now: datetime) -> str | None:
+    """The run key of the attempt due now, or None. A day is retried until something is published,
+    but not once its quota is spent: Free Edition stays shut until the next day."""
+    local = now.astimezone(OWNER_TZ)
+    if local.time() < RETRY_FROM:
+        return None
+    runs = conn.execute(
+        "SELECT as_of, status FROM analytics.lakehouse_runs WHERE export_date = %s ORDER BY id",
+        (local.date(),),
+    ).fetchall()
+    if len(runs) >= MAX_ATTEMPTS or any(r["status"] in ("published", "over_quota") for r in runs):
+        return None
+    if runs and now - runs[-1]["as_of"] < RETRY_EVERY:
+        return None
+    return f"lakehouse-{local.date().isoformat()}-attempt-{len(runs) + 1}"
 
 
 def latest_run(conn: psycopg.Connection) -> LakehouseRun | None:
