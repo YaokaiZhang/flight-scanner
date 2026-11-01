@@ -9,7 +9,7 @@ from flight_scanner.db import connect
 from flight_scanner.notify.base import RecordingNotifier
 from flight_scanner.notify.telegram import TelegramNotifier, TelegramSettings
 from flight_scanner.pipeline.definitions import _pipeline_alert_sensors, build_definitions
-from flight_scanner.pipeline_alerts import run_failed
+from flight_scanner.pipeline_alerts import GIVE_UP_AFTER, retry_undelivered, run_failed
 from flight_scanner.testing.fake_telegram import FakeTelegram
 from flight_scanner.testing.harness import PipelineHarness
 
@@ -142,6 +142,65 @@ def test_an_unreachable_channel_does_not_stop_the_other_channels(db):
     with connect(db, autocommit=True) as conn:
         run_failed(conn, [Broken(), notifier], "scan", "r", "", START)
     assert len(notifier.ops) == 1
+
+
+class Flaky(RecordingNotifier):
+    """A channel that cannot be reached until `down` is cleared."""
+
+    def __init__(self) -> None:
+        super().__init__("flaky")
+        self.down = True
+
+    def send_ops(self, text: str) -> None:
+        if self.down:
+            raise OSError("down")
+        super().send_ops(text)
+
+
+def test_a_failure_alert_that_cannot_be_sent_is_retried_until_it_arrives(db):
+    flaky, healthy = Flaky(), RecordingNotifier()
+    with connect(db, autocommit=True) as conn:
+        run_failed(conn, [flaky, healthy], "scan", "r", "boom", START)
+        retry_undelivered(conn, [flaky, healthy], START + timedelta(minutes=5))
+        assert flaky.ops == []
+
+        flaky.down = False
+        retry_undelivered(conn, [flaky, healthy], START + timedelta(minutes=10))
+        assert len(flaky.ops) == 1 and "the scan run r failed. boom" in flaky.ops[0]
+        assert "delayed" in flaky.ops[0]
+        assert len(healthy.ops) == 1  # the channel that worked is not told twice
+
+        retry_undelivered(conn, [flaky, healthy], START + timedelta(minutes=15))
+        assert len(flaky.ops) == 1
+
+
+def test_a_stall_alert_that_cannot_be_sent_arrives_on_a_later_tick(pipeline):
+    flaky = Flaky()
+    pipeline.runtime.notifiers = [flaky]
+    pipeline.create_watch(WATCH)
+    scan(pipeline)
+
+    pipeline.clock.advance(hours=2, minutes=1)
+    cursor = tick(pipeline)
+    assert flaky.ops == []
+
+    flaky.down = False
+    pipeline.clock.advance(minutes=5)
+    cursor = tick(pipeline, cursor)
+    assert len(flaky.ops) == 1 and "no prices from fake" in flaky.ops[0]
+
+    pipeline.clock.advance(minutes=5)
+    tick(pipeline, cursor)
+    assert len(flaky.ops) == 1
+
+
+def test_an_alert_undelivered_for_a_day_is_dropped(db):
+    flaky = Flaky()
+    with connect(db, autocommit=True) as conn:
+        run_failed(conn, [flaky], "scan", "r", "", START)
+        flaky.down = False
+        retry_undelivered(conn, [flaky], START + GIVE_UP_AFTER + timedelta(minutes=1))
+    assert flaky.ops == []
 
 
 def test_telegram_receives_the_message_escaped():

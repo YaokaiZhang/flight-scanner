@@ -398,7 +398,8 @@ def _feedback_sensors(runtime: Runtime) -> list[dg.SensorDefinition]:
 
 def _pipeline_alert_sensors(runtime: Runtime) -> list[dg.SensorDefinition]:
     """Tell the owner when a run fails, and when prices stop landing for any reason. A stuck run
-    never fails, so only the second catches a stuck queue. Both need the daemon to be running."""
+    never fails, so only the second catches a stuck queue, and it also resends alerts a channel
+    could not take. Both need the daemon to be running."""
 
     @dg.run_failure_sensor(
         name="pipeline_failure_alert",
@@ -424,11 +425,11 @@ def _pipeline_alert_sensors(runtime: Runtime) -> list[dg.SensorDefinition]:
     )
     def pipeline_stall_alert(context: dg.SensorEvaluationContext):
         previous = json.loads(context.cursor or "[]")
+        now = runtime.clock.now()
         with connect(runtime.db, autocommit=True) as conn:
-            stalled = data_health.stalled_sources(
-                conn, [s.name for s in runtime.sources], runtime.clock.now()
-            )
-        pipeline_alerts.stall_changed(runtime.notifiers, previous, stalled)
+            pipeline_alerts.retry_undelivered(conn, runtime.notifiers, now)
+            stalled = data_health.stalled_sources(conn, [s.name for s in runtime.sources], now)
+            pipeline_alerts.stall_changed(conn, runtime.notifiers, previous, stalled, now)
         context.update_cursor(json.dumps(stalled))
         return dg.SkipReason(f"stalled: {', '.join(stalled) or 'none'}")
 
