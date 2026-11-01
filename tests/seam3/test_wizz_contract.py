@@ -190,3 +190,12 @@ def test_bot_protection_blocks_the_source_without_any_workaround():
     with pytest.raises(SourceBlocked):
         a.fetch(a.plan([Demand("BUD", "BCN", NOV)])[0])
     assert len(transport.calls) == 2  # no retry
+
+
+def test_a_captcha_on_the_version_lookup_blocks_the_source():
+    captcha = HttpResponse(405, {"x-amzn-waf-action": "captcha"}, b"<title>Human Verification")
+    transport = ScriptedTransport(captcha)
+    a, _ = adapter(transport)
+    with pytest.raises(SourceBlocked):
+        a.fetch(a.plan([Demand("BUD", "BCN", NOV)])[0])
+    assert len(transport.calls) == 1  # no retry, no search

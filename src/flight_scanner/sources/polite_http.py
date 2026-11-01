@@ -38,7 +38,7 @@ Transport = Callable[[str, str, dict[str, str], bytes | None, float], HttpRespon
 
 BLOCKED_STATUSES = {401, 403, 407, 409, 451}
 _CHALLENGE_MARKERS = (b"captcha", b"verify you are human", b"are you a robot", b"kpsdk")
-_CHALLENGE_HEADERS = ("x-kpsdk-ct", "x-kpsdk-r", "cf-mitigated")
+_CHALLENGE_HEADERS = ("x-kpsdk-ct", "x-kpsdk-r", "cf-mitigated", "x-amzn-waf-action")
 
 
 def urllib_transport(
