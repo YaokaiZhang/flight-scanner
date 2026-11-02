@@ -68,6 +68,8 @@ export type Deal = {
   watch_name: string;
   origin: string;
   destination: string;
+  origin_city: string | null;
+  destination_city: string | null;
   outbound_date: string;
   return_date: string | null;
   adults: number;

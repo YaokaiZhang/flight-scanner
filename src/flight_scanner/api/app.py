@@ -61,6 +61,8 @@ class Deal(BaseModel):
     watch_name: str
     origin: str
     destination: str
+    origin_city: str | None = None  # the airport's city (or its own name); null if unknown
+    destination_city: str | None = None
     outbound_date: date
     return_date: date | None
     adults: int
@@ -96,7 +98,7 @@ _DEALS_SQL = f"""SELECT d.*, w.name AS watch_name, f.*
                  LEFT JOIN LATERAL ({feedback.LATEST_FOR_DEAL}) f ON true"""
 
 
-def _deal(row: dict) -> Deal:
+def _deal(row: dict, ref: ReferenceData) -> Deal:
     """A Deal as its Alerts describe it (same fallback booking link and % below Baseline)."""
     booking_url = row["booking_url"] or booking_link(
         row["origin"], row["destination"], row["outbound_date"], row["return_date"]
@@ -119,6 +121,8 @@ def _deal(row: dict) -> Deal:
     live = row["verified_price_total_eur"]
     return Deal(
         **{**row, "booking_url": booking_url},
+        origin_city=ref.city_name(row["origin"]),
+        destination_city=ref.city_name(row["destination"]),
         verified_price_per_adult_eur=None
         if live is None
         else round(float(live) / row["adults"], 2),
@@ -312,14 +316,14 @@ def create_app(
                   ORDER BY d.detected_at DESC, d.id DESC LIMIT 200""",
             {"w": watch_id, "s": status},
         )
-        return [_deal(r) for r in rows]
+        return [_deal(r, ref) for r in rows]
 
     @app.get("/deals/{deal_id}")
     def get_deal(deal_id: int, c: Conn) -> Deal:
         row = c.execute(_DEALS_SQL + " WHERE d.id = %s", (deal_id,)).fetchone()
         if row is None:
             raise HTTPException(404, "deal not found")
-        return _deal(row)
+        return _deal(row, ref)
 
     @app.post("/deals/{deal_id}/feedback")
     def rate_deal(deal_id: int, body: FeedbackIn, c: Conn) -> Deal:

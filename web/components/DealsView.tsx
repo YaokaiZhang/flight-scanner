@@ -6,6 +6,7 @@ import { formatDate, formatEur, formatInstant, formatMinutes, formatStops } from
 
 const ICONS = {
   check: "M3 8.5l3 3 7-7",
+  chevron: "M6 3l5 5-5 5",
   out: "M6 3H3v10h10v-3M9 3h4v4M13 3L7 9",
   up: "M5 14V7l3-5c1.2 0 1.8.8 1.6 2L9 7h3.6c.9 0 1.5.8 1.3 1.6l-1.2 4.2c-.2.7-.8 1.2-1.5 1.2H5zM2 7h3v7H2z",
   down: "M11 2v7l-3 5c-1.2 0-1.8-.8-1.6-2L7 9H3.4c-.9 0-1.5-.8-1.3-1.6l1.2-4.2C3.5 2.5 4.1 2 4.8 2H11zM14 9h-3V2h3z",
@@ -71,6 +72,97 @@ function verificationText(d: Deal): string {
   return cached;
 }
 
+const cities = (d: Deal) => `${d.origin_city ?? d.origin} → ${d.destination_city ?? d.destination}`;
+
+type RouteGroup = { key: string; deals: Deal[] };
+
+// Routes A to Z by airport code; within a Route, earliest departure first.
+function groupByRoute(deals: Deal[]): RouteGroup[] {
+  const groups = new Map<string, Deal[]>();
+  for (const d of deals) {
+    const key = `${d.origin}-${d.destination}`;
+    groups.set(key, [...(groups.get(key) ?? []), d]);
+  }
+  const byTrip = (a: Deal, b: Deal) =>
+    a.outbound_date.localeCompare(b.outbound_date) || (a.return_date ?? "").localeCompare(b.return_date ?? "");
+  return [...groups]
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([key, ds]) => ({ key, deals: ds.sort(byTrip) }));
+}
+
+const dateSpan = (dates: string[]) => {
+  const sorted = [...new Set(dates)].sort();
+  const [first, last] = [sorted[0], sorted[sorted.length - 1]];
+  return first === last ? formatDate(first) : `${formatDate(first)} – ${formatDate(last)}`;
+};
+
+// A failed Deal is no longer on offer, so it only counts if the whole Route failed.
+function RouteRow({ group, open, selected, onToggle }: { group: RouteGroup; open: boolean; selected: boolean; onToggle: () => void }) {
+  const [head] = group.deals;
+  const live = group.deals.filter((d) => d.verification !== "failed");
+  const counted = live.length > 0 ? live : group.deals;
+  const prices = counted.map(perAdult);
+  const [low, high] = [Math.min(...prices), Math.max(...prices)];
+  const returns = counted.flatMap((d) => d.return_date ?? []);
+  const watchNames = [...new Set(group.deals.map((d) => d.watch_name))];
+  const verified = group.deals.filter((d) => d.verification === "verified").length;
+  return (
+    <button className={`deal-row route-row${selected ? " has-selected" : ""}`} aria-expanded={open} onClick={onToggle}>
+      <div>
+        <div className="route">
+          <span className="fold"><Icon name="chevron" /></span>
+          {head.origin}<span className="arrow" aria-label="to">→</span>{head.destination}
+        </div>
+        <div className="sub cities">{cities(head)}</div>
+        <div className="sub">{watchNames.length === 1 ? watchNames[0] : `${watchNames.length} Watches`}</div>
+      </div>
+      <div>
+        <div className="when">Out {dateSpan(counted.map((d) => d.outbound_date))}</div>
+        {returns.length > 0 && <div className="when">Back {dateSpan(returns)}</div>}
+        <div className="tags">
+          <span className="tag plain">{group.deals.length} Deals</span>
+          {verified > 0 && <span className="tag verified"><Icon name="check" />{verified} verified</span>}
+        </div>
+      </div>
+      <div className="price">
+        <b className={low === high ? undefined : "span"}>
+          {low === high ? formatEur(low) : `${formatEur(low)}–${formatEur(high)}`}<small>/adult</small>
+        </b>
+      </div>
+    </button>
+  );
+}
+
+function DealRow({ deal: d, selected, nested, onSelect }: { deal: Deal; selected: boolean; nested?: boolean; onSelect: () => void }) {
+  return (
+    <button className="deal-row" aria-pressed={selected} onClick={onSelect}>
+      <div>
+        {!nested && (
+          <>
+            <div className="route">
+              {d.origin}<span className="arrow" aria-label="to">→</span>{d.destination}
+            </div>
+            <div className="sub cities">{cities(d)}</div>
+          </>
+        )}
+        <div className="sub">{d.watch_name}</div>
+      </div>
+      <div>
+        <div className="when">
+          {formatDate(d.outbound_date)}
+          {d.return_date ? ` → ${formatDate(d.return_date)}` : " · one way"}
+        </div>
+        <div className="tags"><StatusTags deal={d} /></div>
+      </div>
+      <div className="price">
+        <b>{formatEur(perAdult(d))}<small>/adult</small></b>
+        {d.baseline_per_adult_eur !== null && <span className="sub">base {formatEur(d.baseline_per_adult_eur)}</span>}
+        {d.adults > 1 && <span className="sub">{formatEur(total(d))} total</span>}
+      </div>
+    </button>
+  );
+}
+
 export function DealsView() {
   const [deals, setDeals] = useState<Deal[] | null>(null);
   const [watches, setWatches] = useState<Watch[]>([]);
@@ -79,6 +171,7 @@ export function DealsView() {
   const [status, setStatus] = useState<DealStatus | "all">("all");
   const [watchId, setWatchId] = useState<number | null>(null);
   const [rateError, setRateError] = useState<string | null>(null);
+  const [openRoutes, setOpenRoutes] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     api.listWatches().then(setWatches, () => setWatches([]));
@@ -91,7 +184,7 @@ export function DealsView() {
         if (!live) return;
         setDeals(d);
         setError(null);
-        setSelectedId((cur) => (d.some((x) => x.id === cur) ? cur : (d[0]?.id ?? null)));
+        setSelectedId((cur) => (d.some((x) => x.id === cur) ? cur : (groupByRoute(d)[0]?.deals[0].id ?? null)));
       },
       (e: ApiError) => live && setError(`Could not load Deals (${e.status ?? "network"})`),
     );
@@ -101,6 +194,17 @@ export function DealsView() {
   }, [status, watchId]);
 
   const selected = deals?.find((d) => d.id === selectedId) ?? null;
+  const groups = groupByRoute(deals ?? []);
+
+  function toggleRoute(group: RouteGroup) {
+    const opening = !openRoutes.has(group.key);
+    const next = new Set(openRoutes);
+    if (opening) next.add(group.key);
+    else next.delete(group.key);
+    setOpenRoutes(next);
+    // Keep the inspector on a Deal the feed is showing.
+    if (opening && !group.deals.some((d) => d.id === selectedId)) setSelectedId(group.deals[0].id);
+  }
   const filtered = status !== "all" || watchId !== null;
   const watchName = watches.find((w) => w.id === watchId)?.name;
 
@@ -121,7 +225,7 @@ export function DealsView() {
         <header className="page-head">
           <div>
             <h1>Deals</h1>
-            <p className="lede">{deals ? <><b>{deals.length}</b> {deals.length === 1 ? "Deal" : "Deals"}, newest first</> : "Loading"}</p>
+            <p className="lede">{deals ? <><b>{deals.length}</b> {deals.length === 1 ? "Deal" : "Deals"} on {groups.length} {groups.length === 1 ? "route" : "routes"}</> : "Loading"}</p>
           </div>
           <div className="controls">
             <div className="seg" role="group" aria-label="Verification status">
@@ -160,34 +264,32 @@ export function DealsView() {
               <span>Route</span><span>Dates</span><span className="num">Price</span>
             </div>
             <ul className="deal-list" aria-label="Deals">
-              {deals.map((d) => (
-                <li key={d.id}>
-                  <button
-                    className="deal-row"
-                    aria-pressed={d.id === selectedId}
-                    onClick={() => setSelectedId(d.id)}
-                  >
-                    <div>
-                      <div className="route">
-                        {d.origin}<span className="arrow" aria-label="to">→</span>{d.destination}
-                      </div>
-                      <div className="sub">{d.watch_name}</div>
-                    </div>
-                    <div>
-                      <div className="when">
-                        {formatDate(d.outbound_date)}
-                        {d.return_date ? ` → ${formatDate(d.return_date)}` : " · one way"}
-                      </div>
-                      <div className="tags"><StatusTags deal={d} /></div>
-                    </div>
-                    <div className="price">
-                      <b>{formatEur(perAdult(d))}<small>/adult</small></b>
-                      {d.baseline_per_adult_eur !== null && <span className="sub">base {formatEur(d.baseline_per_adult_eur)}</span>}
-                      {d.adults > 1 && <span className="sub">{formatEur(total(d))} total</span>}
-                    </div>
-                  </button>
-                </li>
-              ))}
+              {groups.map((g) => {
+                const hasSelected = g.deals.some((d) => d.id === selectedId);
+                if (g.deals.length === 1) {
+                  const [d] = g.deals;
+                  return (
+                    <li key={g.key}>
+                      <DealRow deal={d} selected={d.id === selectedId} onSelect={() => setSelectedId(d.id)} />
+                    </li>
+                  );
+                }
+                const open = openRoutes.has(g.key);
+                return (
+                  <li key={g.key}>
+                    <RouteRow group={g} open={open} selected={hasSelected && !open} onToggle={() => toggleRoute(g)} />
+                    {open && (
+                      <ul className="route-deals" aria-label={`Deals ${g.deals[0].origin} to ${g.deals[0].destination}`}>
+                        {g.deals.map((d) => (
+                          <li key={d.id}>
+                            <DealRow deal={d} nested selected={d.id === selectedId} onSelect={() => setSelectedId(d.id)} />
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </li>
+                );
+              })}
             </ul>
           </>
         )}
@@ -200,6 +302,7 @@ export function DealsView() {
               <div className="route-big">
                 {selected.origin}<span className="arrow">→</span>{selected.destination}
               </div>
+              <p className="meta">{cities(selected)}</p>
               <p className="meta">{selected.watch_name}</p>
             </section>
             <section>

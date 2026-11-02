@@ -52,6 +52,8 @@ def test_deals_carry_alert_details_and_no_rating_yet(api, pipeline):
     pipeline.run()
 
     [deal] = api.get("/deals").json()
+    assert deal["origin_city"] == "Helsinki"
+    assert deal["destination_city"] == "Barcelona"
     assert deal["airlines"] == "VY"
     assert deal["stops"] == 0
     assert deal["travel_minutes"] == 250

@@ -158,6 +158,13 @@ class ReferenceData:
     def unknown(self, places: PlaceSet) -> list[PlaceRef]:
         return [p for p in [*places.include, *places.exclude] if not self.known(p)]
 
+    def city_name(self, iata: str) -> str | None:
+        """The city an airport serves, or its own name if it has none; None if unknown."""
+        a = self.airports.get(iata)
+        if a is None:
+            return None
+        return self.cities[a.city][0] if a.city in self.cities else a.name
+
     def describe(self, ref: PlaceRef) -> Place | None:
         return self._place(ref.kind, ref.code) if self.known(ref) else None
 

@@ -181,6 +181,15 @@ select.input {
 .deal-row:hover { background: var(--swash-faint); }
 .deal-row[aria-pressed="true"] { background: var(--swash); }
 .deal-row[aria-pressed="true"] .route { color: var(--ink-deep); }
+.deal-row.has-selected { background: var(--swash); }
+.route-row[aria-expanded="true"] { border-bottom: 1px dashed var(--construction); }
+.fold { display: inline-block; margin-right: 6px; color: var(--pencil); transition: transform 0.2s ease; }
+.route-row[aria-expanded="true"] .fold { transform: rotate(90deg); }
+.route-deals { list-style: none; padding-left: 20px; }
+.route-deals li + li { border-top: 1px solid var(--construction); }
+.price b.span { font-size: 16px; white-space: nowrap; }
+.price b.span small { display: block; margin: 2px 0 0; }
+.sub.cities { color: var(--graphite); }
 .route { font-size: 15px; font-weight: 500; letter-spacing: -0.01em; }
 .sub { font-size: 11px; color: var(--pencil); margin-top: 2px; }
 .when { font-size: 12px; color: var(--graphite); white-space: nowrap; }
