@@ -72,7 +72,10 @@ function verificationText(d: Deal): string {
   return cached;
 }
 
-const cities = (d: Deal) => `${d.origin_city ?? d.origin} → ${d.destination_city ?? d.destination}`;
+const place = (city: string | null, country: string | null, code: string) =>
+  [city ?? code, country].filter(Boolean).join(", ");
+const cities = (d: Deal) =>
+  `${place(d.origin_city, d.origin_country, d.origin)} → ${place(d.destination_city, d.destination_country, d.destination)}`;
 
 type RouteGroup = { key: string; deals: Deal[] };
 

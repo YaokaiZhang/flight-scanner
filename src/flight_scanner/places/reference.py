@@ -165,6 +165,13 @@ class ReferenceData:
             return None
         return self.cities[a.city][0] if a.city in self.cities else a.name
 
+    def country_name(self, iata: str) -> str | None:
+        """The country an airport is in; None if unknown."""
+        a = self.airports.get(iata)
+        if a is None or a.country not in self.countries:
+            return None
+        return self.countries[a.country][0]
+
     def describe(self, ref: PlaceRef) -> Place | None:
         return self._place(ref.kind, ref.code) if self.known(ref) else None
 

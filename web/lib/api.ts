@@ -70,6 +70,8 @@ export type Deal = {
   destination: string;
   origin_city: string | null;
   destination_city: string | null;
+  origin_country: string | null;
+  destination_country: string | null;
   outbound_date: string;
   return_date: string | null;
   adults: number;

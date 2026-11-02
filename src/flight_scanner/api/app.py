@@ -63,6 +63,8 @@ class Deal(BaseModel):
     destination: str
     origin_city: str | None = None  # the airport's city (or its own name); null if unknown
     destination_city: str | None = None
+    origin_country: str | None = None
+    destination_country: str | None = None
     outbound_date: date
     return_date: date | None
     adults: int
@@ -123,6 +125,8 @@ def _deal(row: dict, ref: ReferenceData) -> Deal:
         **{**row, "booking_url": booking_url},
         origin_city=ref.city_name(row["origin"]),
         destination_city=ref.city_name(row["destination"]),
+        origin_country=ref.country_name(row["origin"]),
+        destination_country=ref.country_name(row["destination"]),
         verified_price_per_adult_eur=None
         if live is None
         else round(float(live) / row["adults"], 2),

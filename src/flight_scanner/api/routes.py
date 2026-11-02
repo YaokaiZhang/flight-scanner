@@ -95,8 +95,7 @@ def _where(request: Request, code: str) -> tuple[str | None, str | None, str | N
     a = ref.airports.get(code)
     if a is None:
         return None, None, None
-    country = ref.countries[a.country][0] if a.country in ref.countries else None
-    return ref.city_name(code), a.name, country
+    return ref.city_name(code), a.name, ref.country_name(code)
 
 
 @router.get("/routes")
