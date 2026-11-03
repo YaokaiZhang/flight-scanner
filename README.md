@@ -99,7 +99,7 @@ This is for a laptop or a shared login node. It needs PostgreSQL 16 (`initdb`, `
 
 ### Apptainer mode (no Docker, no conda)
 
-On a host with Apptainer but without Docker (e.g. roihu), [`scripts/apptainer.sh`](scripts/apptainer.sh)
+On a host with Apptainer but without Docker, [`scripts/apptainer.sh`](scripts/apptainer.sh)
 runs local mode inside one Apptainer instance. The image
 ([docker/flight-scanner.def](docker/flight-scanner.def)) brings PostgreSQL 16, Python 3.12 with uv
 and Node 22; it is built with `--fakeroot` on first start.
