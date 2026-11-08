@@ -1,0 +1,57 @@
+# Builds the two container images on every push to main and pushes them to GitHub's container
+# registry (ghcr.io/<owner>/flight-scanner-python and -web), tagged with the first 12 characters
+# of the commit. infra/deploy-openshift.sh deploys those tags. Every push builds, even one that
+# only changes docs, so every commit on main has images; the layer cache makes those quick.
+name: Images
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write # push to ghcr.io with the workflow's own token, no secret to manage
+
+concurrency:
+  group: images-${{ github.ref }}
+  cancel-in-progress: false # a cancelled build would leave a commit without images
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    strategy:
+      matrix:
+        include:
+          - image: flight-scanner-python
+            context: .
+            file: docker/python.Dockerfile
+          - image: flight-scanner-web
+            context: web
+            file: web/Dockerfile
+    steps:
+      - uses: actions/checkout@v4
+      - name: Image name and tag
+        id: meta
+        run: |
+          echo "name=ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/${{ matrix.image }}" >> "$GITHUB_OUTPUT"
+          echo "tag=${GITHUB_SHA::12}" >> "$GITHUB_OUTPUT"
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/build-push-action@v6
+        with:
+          context: ${{ matrix.context }}
+          file: ${{ matrix.file }}
+          platforms: linux/amd64
+          push: true
+          tags: |
+            ${{ steps.meta.outputs.name }}:${{ steps.meta.outputs.tag }}
+            ${{ steps.meta.outputs.name }}:main
+          labels: org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
+          cache-from: type=gha,scope=${{ matrix.image }}
+          cache-to: type=gha,scope=${{ matrix.image }},mode=max

@@ -19,8 +19,20 @@ spec:
       # instead of crash-looping until it is.
       initContainers:
         - name: wait-for-postgres
-          image: postgres:16
-          command: ["sh", "-c", "until pg_isready -h postgres -p 5432; do sleep 2; done"]
+          image: postgres:16 # only for its pg_isready
+          # The same connection settings as the app: host and port from the in-cluster Postgres
+          # ConfigMap or from .env, PGSSLMODE from .env if set. -U avoids libpq looking up the
+          # container's user, which fails under the random user IDs OpenShift assigns.
+          command:
+            - sh
+            - -c
+            - until pg_isready -h "$POSTGRES_HOST" -p "${POSTGRES_PORT:-5432}" -U "$POSTGRES_USER" -d "$POSTGRES_DB"; do sleep 2; done
+          envFrom:
+            - secretRef:
+                name: flight-scanner-env
+            - configMapRef:
+                name: flight-scanner-db
+                optional: true
       containers:
         - name: api
           image: flight-scanner-python # the overlay sets the registry and tag
@@ -31,12 +43,9 @@ spec:
           envFrom:
             - secretRef:
                 name: flight-scanner-env
-          # Values set under env win over envFrom, as Compose's `environment` wins over env_file.
-          env:
-            - name: POSTGRES_HOST
-              value: postgres
-            - name: POSTGRES_PORT
-              value: "5432"
+            - configMapRef:
+                name: flight-scanner-db
+                optional: true
           # /health queries Postgres, so it answers "can this pod serve requests?" (readiness).
           # It must not decide liveness: a Postgres outage would then restart a healthy API
           # over and over. Liveness only asks whether the process still accepts connections.

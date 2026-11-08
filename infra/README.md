@@ -21,6 +21,10 @@ The split matters: **Terraform owns the cloud resources** (things Azure bills yo
 too, but then every image change would be an infrastructure change. Here you change
 infrastructure rarely and deploy the app often.
 
+The same manifests also run on an OpenShift cluster with a managed PostgreSQL, which needs no
+Terraform and can cost nothing if you have access to such a platform: see
+[openshift.md](openshift.md).
+
 ## The concepts, and where to see them
 
 ### Terraform
@@ -48,7 +52,7 @@ read every plan before you apply it.
 | Cluster, node | The control plane you talk to with `kubectl`, and the VMs that run pods | made by Terraform |
 | Pod | One or more containers scheduled together; disposable | made for you by the objects below |
 | Deployment | Keeps N identical pods running, and rolls them on change | [api.yaml](k8s/base/api.yaml), [web.yaml](k8s/base/web.yaml) |
-| StatefulSet | Like a Deployment, but with a stable pod name and its own volume | [postgres.yaml](k8s/base/postgres.yaml) |
+| StatefulSet | Like a Deployment, but with a stable pod name and its own volume | [postgres.yaml](k8s/components/in-cluster-postgres/postgres.yaml) |
 | Service | Stable DNS name for a set of pods (`postgres`, `api`) | bottom of each file |
 | PersistentVolumeClaim | A request for storage that outlives pods | `raw-data` in [dagster.yaml](k8s/base/dagster.yaml) |
 | Secret | Settings and keys, injected as environment variables | generated from `.env` by [deploy.sh](deploy.sh) |
@@ -57,6 +61,7 @@ read every plan before you apply it.
 | Init container | Runs to completion before the main container | `wait-for-postgres` |
 | Namespace | A folder for the app's objects | [namespace.yaml](k8s/base/namespace.yaml) |
 | Kustomize | Base manifests plus small per-environment patches | [base/](k8s/base), [overlays/](k8s/overlays) |
+| Kustomize component | An optional piece an overlay opts into | [in-cluster-postgres/](k8s/components/in-cluster-postgres) |
 
 Kubernetes is declarative too: `kubectl apply` sends the desired state, and controllers in the
 cluster keep working until reality matches. That is why a crashed pod comes back by itself:

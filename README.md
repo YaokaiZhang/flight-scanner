@@ -41,7 +41,8 @@ sources ──► landing (raw payloads + parsed rows) ──► dbt: staging �
   nothing for 2 hours, which also catches a stuck queue. Both sensors need the Dagster daemon.
 - Architecture decisions are in [docs/adr/](docs/adr/): Round trips composed from Leg prices,
   free cached-first sources with budgeted Verification, the operational loop on one server
-  with the analytical layer on Databricks, and the optional Azure deployment.
+  with the analytical layer on Databricks, and the optional Kubernetes deployments (Azure, then
+  OpenShift).
 
 ## Quick start
 
@@ -116,10 +117,14 @@ State, ports and `.env` work as in local mode. The image goes to `FS_SIF` (defau
 `$FS_STATE_DIR/flight-scanner.sif`), the instance is named `FS_INSTANCE` (default `flight-scanner`)
 and the container's venv is `$FS_STATE_DIR/venv`, apart from any host `.venv`.
 
-### Azure (Kubernetes)
+### Kubernetes (OpenShift or Azure)
 
-To run the stack on Azure Kubernetes Service instead, with Terraform for the infrastructure and
-Azure Monitor alerts, follow [infra/README.md](infra/README.md).
+The same Kubernetes manifests (`infra/k8s`) run the stack on a cluster:
+
+- **OpenShift with a managed PostgreSQL**: no infrastructure to provision, images built by GitHub
+  Actions. Follow [infra/openshift.md](infra/openshift.md).
+- **Azure Kubernetes Service**, with Terraform for the infrastructure and Azure Monitor alerts.
+  Follow [infra/README.md](infra/README.md).
 
 ### Trying it without API keys
 
@@ -215,6 +220,6 @@ dbt/              staging → history → baselines → marts and backtest model
 databricks/       Databricks asset bundle and the medallion SQL
 web/              Next.js UI and Playwright tests
 docker/           images and Dagster config for Compose
-infra/            Azure deployment: Terraform (AKS, registry, monitoring, alerts) and Kubernetes manifests
+infra/            Kubernetes manifests and deploy scripts (OpenShift, AKS); Terraform for AKS
 docs/             PRD, ADRs, design notes, spec and tickets
 ```

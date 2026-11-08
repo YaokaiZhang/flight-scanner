@@ -8,7 +8,8 @@ ENV UV_COMPILE_BYTECODE=1 \
     PATH=/opt/venv/bin:$PATH \
     FS_DBT_PROJECT_DIR=/app/dbt \
     DAGSTER_HOME=/opt/dagster/home \
-    FS_DATA_DIR=/data
+    FS_DATA_DIR=/data \
+    POSTGRES_PORT=5432
 
 WORKDIR /app
 COPY pyproject.toml uv.lock ./
@@ -20,4 +21,9 @@ RUN uv sync --frozen --no-dev \
 
 COPY docker/dagster.yaml /opt/dagster/home/dagster.yaml
 COPY docker/workspace.yaml /app/workspace.yaml
-RUN mkdir -p /data
+# OpenShift runs containers as a random user ID that belongs to group 0 (root's group, without
+# root's powers). Give group 0 the owner's rights where the services write at runtime: Dagster's
+# home (compute logs), the dbt project (target/, logs/) and the data directory.
+RUN mkdir -p /data \
+    && chgrp -R 0 /opt/dagster/home /app/dbt /data \
+    && chmod -R g=u /opt/dagster/home /app/dbt /data

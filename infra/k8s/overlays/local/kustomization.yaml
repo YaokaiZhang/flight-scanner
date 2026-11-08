@@ -6,6 +6,12 @@ kind: Kustomization
 resources:
   - ../../base
 
+components:
+  - ../../components/in-cluster-postgres
+
+# The base sets this for its own resources; set here too, it also covers the component's.
+namespace: flight-scanner
+
 # Images you built and loaded into the cluster yourself. A tag other than "latest" makes
 # Kubernetes use the loaded image instead of trying to pull it from Docker Hub.
 images:

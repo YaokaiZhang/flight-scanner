@@ -7,6 +7,12 @@ kind: Kustomization
 resources:
   - ../../base
 
+components:
+  - ../../components/in-cluster-postgres
+
+# The base sets this for its own resources; set here too, it also covers the component's.
+namespace: flight-scanner
+
 patches:
   # Azure Files (SMB): the only built-in AKS storage that several nodes can mount at once.
   - target:

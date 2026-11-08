@@ -1,0 +1,26 @@
+# Postgres running inside the cluster, as in compose.yaml. A Component is a reusable piece an
+# overlay can opt into (`components:`), unlike the base, which every overlay gets. overlays/aks and
+# overlays/local include it; overlays/openshift doesn't, because it uses a managed PostgreSQL.
+apiVersion: kustomize.config.k8s.io/v1alpha1
+kind: Component
+
+labels:
+  - pairs:
+      app.kubernetes.io/part-of: flight-scanner
+
+resources:
+  - postgres.yaml
+
+configMapGenerator:
+  # The init script runs once, on an empty Postgres volume, as with Docker Compose. (Kustomize
+  # won't read files outside its folders, so this is a copy of docker/postgres-init.sql.)
+  - name: postgres-init
+    files:
+      - 10-dagster.sql=postgres-init.sql
+  # Where the app finds the database. The app pods read this ConfigMap after the .env Secret, so
+  # these values win over any POSTGRES_HOST/PORT in .env, as `environment:` does in compose.yaml.
+  # Without this component the ConfigMap doesn't exist and the values come from .env.
+  - name: flight-scanner-db
+    literals:
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432

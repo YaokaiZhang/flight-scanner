@@ -1,0 +1,81 @@
+# The base on an OpenShift cluster, with a managed PostgreSQL outside it. infra/deploy-openshift.sh
+# adds the image names, your project (namespace) and the Secret made from .env on top of this.
+# Preview what would be applied: kubectl kustomize infra/k8s/overlays/openshift
+#
+# What differs from overlays/aks:
+# - No Postgres here. The app reads POSTGRES_HOST, POSTGRES_PORT and PGSSLMODE from .env.
+# - No Namespace object: on OpenShift a namespace is a project, which you create with
+#   `oc new-project`, and ordinary users may not create Namespace objects.
+# - The raw payload volume is a plain disk (ReadWriteOnce), and the two Dagster pods that share
+#   it are always scheduled onto the same node, since ReadWriteOnce means one node, not one pod.
+# - Pods ask to run as a non-root user. OpenShift picks a random user ID for every project and
+#   rejects containers that insist on root; the images are built to cope (group 0 can write
+#   where they need to write).
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - ../../base
+
+# A placeholder: the deploy script replaces it with your current project (`oc project -q`).
+namespace: flight-scanner
+
+patches:
+  - patch: |-
+      $patch: delete
+      apiVersion: v1
+      kind: Namespace
+      metadata:
+        name: flight-scanner
+
+  # Uses the cluster's default storage class. Set storageClassName here to pick another one.
+  - target:
+      kind: PersistentVolumeClaim
+      name: raw-data
+    patch: |-
+      - op: replace
+        path: /spec/accessModes
+        value: ["ReadWriteOnce"]
+
+  # Both pods carry the label flight-scanner/raw-data and require a node that already runs a pod
+  # with it. The first pod to start matches its own rule, so it may go anywhere; the other
+  # follows it. Without this, the second pod could land on another node and wait forever for a
+  # disk that is attached elsewhere.
+  - target:
+      kind: Deployment
+      name: dagster-(daemon|webserver)
+    patch: |-
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: any
+      spec:
+        template:
+          metadata:
+            labels:
+              flight-scanner/raw-data: "true"
+          spec:
+            affinity:
+              podAffinity:
+                requiredDuringSchedulingIgnoredDuringExecution:
+                  - topologyKey: kubernetes.io/hostname
+                    labelSelector:
+                      matchLabels:
+                        flight-scanner/raw-data: "true"
+
+  # Pod-level security settings that OpenShift's default ("restricted") policy expects. The user
+  # ID itself is left out on purpose: OpenShift assigns one from the project's range.
+  - target:
+      kind: Deployment
+    patch: |-
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: any
+      spec:
+        template:
+          spec:
+            securityContext:
+              runAsNonRoot: true
+              seccompProfile:
+                type: RuntimeDefault
