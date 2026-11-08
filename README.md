@@ -40,8 +40,8 @@ sources ──► landing (raw payloads + parsed rows) ──► dbt: staging �
   owner's notifiers hear when a run fails (at most every 6 hours per job) and when a source lands
   nothing for 2 hours, which also catches a stuck queue. Both sensors need the Dagster daemon.
 - Architecture decisions are in [docs/adr/](docs/adr/): Round trips composed from Leg prices,
-  free cached-first sources with budgeted Verification, and the operational loop on one server
-  with the analytical layer on Databricks.
+  free cached-first sources with budgeted Verification, the operational loop on one server
+  with the analytical layer on Databricks, and the optional Azure deployment.
 
 ## Quick start
 
@@ -115,6 +115,11 @@ and Node 22; it is built with `--fakeroot` on first start.
 State, ports and `.env` work as in local mode. The image goes to `FS_SIF` (default
 `$FS_STATE_DIR/flight-scanner.sif`), the instance is named `FS_INSTANCE` (default `flight-scanner`)
 and the container's venv is `$FS_STATE_DIR/venv`, apart from any host `.venv`.
+
+### Azure (Kubernetes)
+
+To run the stack on Azure Kubernetes Service instead, with Terraform for the infrastructure and
+Azure Monitor alerts, follow [infra/README.md](infra/README.md).
 
 ### Trying it without API keys
 
@@ -210,5 +215,6 @@ dbt/              staging → history → baselines → marts and backtest model
 databricks/       Databricks asset bundle and the medallion SQL
 web/              Next.js UI and Playwright tests
 docker/           images and Dagster config for Compose
+infra/            Azure deployment: Terraform (AKS, registry, monitoring, alerts) and Kubernetes manifests
 docs/             PRD, ADRs, design notes, spec and tickets
 ```

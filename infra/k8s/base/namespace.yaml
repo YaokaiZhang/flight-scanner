@@ -1,0 +1,6 @@
+# A namespace groups the app's objects: `kubectl -n flight-scanner get all` shows everything,
+# and deleting the namespace deletes everything in it (including the volumes' claims).
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: flight-scanner

@@ -1,0 +1,26 @@
+# The base on a one-node local cluster (kind, minikube, Docker Desktop), to try the manifests
+# for free before AKS. Steps are in infra/README.md, "Try it locally first".
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - ../../base
+
+# Images you built and loaded into the cluster yourself. A tag other than "latest" makes
+# Kubernetes use the loaded image instead of trying to pull it from Docker Hub.
+images:
+  - name: flight-scanner-python
+    newTag: local
+  - name: flight-scanner-web
+    newTag: local
+
+patches:
+  # Local clusters' default storage can't do ReadWriteMany. On a single node it doesn't need
+  # to: ReadWriteOnce means one *node*, and both Dagster pods run on the same one.
+  - target:
+      kind: PersistentVolumeClaim
+      name: raw-data
+    patch: |-
+      - op: replace
+        path: /spec/accessModes
+        value: ["ReadWriteOnce"]

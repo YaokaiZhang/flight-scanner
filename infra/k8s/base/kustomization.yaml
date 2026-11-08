@@ -1,0 +1,29 @@
+# Kustomize (built into kubectl: `kubectl apply -k`) combines plain YAML manifests. This base
+# describes the app the same way everywhere. overlays/aks and overlays/local patch the parts
+# that differ, such as storage classes and image names, without copying the rest.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+# Every resource below is created in this namespace.
+namespace: flight-scanner
+
+labels:
+  - pairs:
+      app.kubernetes.io/part-of: flight-scanner
+
+resources:
+  - namespace.yaml
+  - postgres.yaml
+  - api.yaml
+  - dagster.yaml
+  - web.yaml
+
+# The init script runs once, on an empty Postgres volume, as with Docker Compose. (Kustomize
+# won't read files outside this folder, so this is a copy of docker/postgres-init.sql.)
+configMapGenerator:
+  - name: postgres-init
+    files:
+      - 10-dagster.sql=postgres-init.sql
+
+# Not listed: the Secret `flight-scanner-env`, made from your .env by infra/deploy.sh. Secrets
+# are never committed.

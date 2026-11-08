@@ -1,0 +1,8 @@
+# Copy to terraform.tfvars (git-ignored). Terraform reads it automatically.
+alert_email = "you@example.com"
+
+# Optional; the defaults are in variables.tf.
+# location           = "swedencentral"
+# node_vm_size       = "Standard_B2ms"
+# monthly_budget_eur = 120
+# log_daily_quota_gb = 0.5

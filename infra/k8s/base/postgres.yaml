@@ -1,0 +1,93 @@
+# Postgres as a StatefulSet. A Deployment treats its pods as interchangeable and disposable; a
+# StatefulSet gives its pod a stable name (postgres-0) and its own volume that follows it across
+# restarts and rescheduling. That is what a database needs.
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgres
+spec:
+  serviceName: postgres
+  replicas: 1
+  # The selector is how the StatefulSet finds the pods it owns: by label.
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      # Time for Postgres to shut down cleanly on SIGTERM before it is killed.
+      terminationGracePeriodSeconds: 60
+      containers:
+        - name: postgres
+          image: postgres:16
+          ports:
+            - name: postgres
+              containerPort: 5432
+          # POSTGRES_USER, POSTGRES_PASSWORD and POSTGRES_DB come from the .env Secret.
+          envFrom:
+            - secretRef:
+                name: flight-scanner-env
+          env:
+            # A fresh Azure disk has a lost+found folder at its root, and initdb refuses a
+            # non-empty directory. So the data lives one level down.
+            - name: PGDATA
+              value: /var/lib/postgresql/data/pgdata
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/postgresql/data
+            - name: init
+              mountPath: /docker-entrypoint-initdb.d
+              readOnly: true
+          # Readiness: should this pod receive traffic now? Liveness: is it stuck, so that
+          # restarting it would help? Both run `pg_isready`, but liveness gives up much later.
+          readinessProbe:
+            exec:
+              command: ["sh", "-c", 'pg_isready -U "$POSTGRES_USER" -d "$POSTGRES_DB"']
+            periodSeconds: 10
+          livenessProbe:
+            exec:
+              command: ["sh", "-c", 'pg_isready -U "$POSTGRES_USER" -d "$POSTGRES_DB"']
+            initialDelaySeconds: 60
+            periodSeconds: 30
+            failureThreshold: 6
+          # Requests are what the scheduler reserves on a node; limits are the ceiling. Going
+          # over the memory limit gets the container OOM-killed and restarted.
+          resources:
+            requests:
+              cpu: 100m # 0.1 CPU
+              memory: 256Mi
+            limits:
+              memory: 1Gi
+      volumes:
+        - name: init
+          configMap:
+            name: postgres-init
+  # One PersistentVolumeClaim per pod, named data-postgres-0. On AKS the default storage class
+  # turns it into an Azure managed disk. Deleting the StatefulSet keeps the claim and the disk;
+  # deleting the claim (or the namespace) deletes the data.
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes: ["ReadWriteOnce"] # mounted by one node at a time
+        resources:
+          requests:
+            storage: 32Gi
+---
+# A Service gives pods a stable DNS name inside the cluster. Other pods reach this one at
+# postgres:5432, wherever it runs and whatever its IP. "Headless" (clusterIP: None) means the
+# name resolves straight to the pod's IP, which is how StatefulSets are usually addressed.
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+spec:
+  clusterIP: None
+  selector:
+    app: postgres
+  ports:
+    - name: postgres
+      port: 5432
+      targetPort: postgres

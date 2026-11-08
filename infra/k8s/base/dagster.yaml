@@ -1,0 +1,149 @@
+# Dagster: the webserver (UI on 3001) and the daemon (schedules, sensors, the run queue).
+# Runs execute as subprocesses of whichever pod launched them: the daemon for scheduled scans,
+# the webserver for runs started from its UI. Both therefore mount the raw payload store.
+
+# The raw payload store (FS_DATA_DIR=/data), shared by two pods. ReadWriteMany means several
+# nodes may mount it at once, which plain disks can't do. overlays/aks uses Azure Files.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: raw-data
+spec:
+  accessModes: ["ReadWriteMany"]
+  resources:
+    requests:
+      storage: 20Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dagster-daemon
+spec:
+  # Exactly one daemon, ever. The default rolling update starts the new pod before stopping the
+  # old one, which would briefly mean two daemons each running the schedule. Recreate stops the
+  # old pod first.
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: dagster-daemon
+  template:
+    metadata:
+      labels:
+        app: dagster-daemon
+    spec:
+      initContainers:
+        - name: wait-for-postgres
+          image: postgres:16
+          command: ["sh", "-c", "until pg_isready -h postgres -p 5432; do sleep 2; done"]
+      containers:
+        - name: dagster-daemon
+          image: flight-scanner-python
+          command:
+            - sh
+            - -c
+            - python -m flight_scanner fail-orphaned-runs && exec dagster-daemon run -w /app/workspace.yaml
+          envFrom:
+            - secretRef:
+                name: flight-scanner-env
+          env:
+            - name: POSTGRES_HOST
+              value: postgres
+            - name: POSTGRES_PORT
+              value: "5432"
+          volumeMounts:
+            - name: raw-data
+              mountPath: /data
+          # The daemon serves no port, but it writes heartbeats to Postgres; this command exits
+          # 1 when they have gone stale, i.e. the daemon is hung. Kubernetes then restarts it.
+          livenessProbe:
+            exec:
+              command: ["dagster-daemon", "liveness-check"]
+            initialDelaySeconds: 120
+            periodSeconds: 60
+            timeoutSeconds: 30
+            failureThreshold: 5
+          resources:
+            requests:
+              cpu: 200m
+              memory: 1Gi
+            limits:
+              # A scan runs dbt inside this pod.
+              memory: 3Gi
+      volumes:
+        - name: raw-data
+          persistentVolumeClaim:
+            claimName: raw-data
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dagster-webserver
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dagster-webserver
+  template:
+    metadata:
+      labels:
+        app: dagster-webserver
+    spec:
+      initContainers:
+        - name: wait-for-postgres
+          image: postgres:16
+          command: ["sh", "-c", "until pg_isready -h postgres -p 5432; do sleep 2; done"]
+      containers:
+        - name: dagster-webserver
+          image: flight-scanner-python
+          command: ["dagster-webserver", "-h", "0.0.0.0", "-p", "3001", "-w", "/app/workspace.yaml"]
+          ports:
+            - name: http
+              containerPort: 3001
+          envFrom:
+            - secretRef:
+                name: flight-scanner-env
+          env:
+            - name: POSTGRES_HOST
+              value: postgres
+            - name: POSTGRES_PORT
+              value: "5432"
+          volumeMounts:
+            - name: raw-data
+              mountPath: /data
+          readinessProbe:
+            httpGet:
+              path: /server_info
+              port: http
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /server_info
+              port: http
+            initialDelaySeconds: 60
+            periodSeconds: 30
+            failureThreshold: 4
+          resources:
+            requests:
+              cpu: 50m
+              memory: 384Mi
+            limits:
+              # Room for a run started from the UI, which executes in this pod.
+              memory: 2Gi
+      volumes:
+        - name: raw-data
+          persistentVolumeClaim:
+            claimName: raw-data
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dagster-webserver
+spec:
+  selector:
+    app: dagster-webserver
+  ports:
+    - name: http
+      port: 3001
+      targetPort: http

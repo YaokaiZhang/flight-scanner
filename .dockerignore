@@ -7,3 +7,7 @@ docs
 dbt/target
 dbt/logs
 **/__pycache__
+# `az acr build` uploads this context to Azure: keep secrets and local state out of it.
+.env
+.local
+infra

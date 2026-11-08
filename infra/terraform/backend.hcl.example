@@ -1,0 +1,6 @@
+# Copy to backend.hcl (git-ignored) and fill in from `terraform -chdir=bootstrap output -raw backend_config`.
+resource_group_name  = "flight-scanner-tfstate"
+storage_account_name = "fstfstateXXXXXX"
+container_name       = "tfstate"
+key                  = "flight-scanner.tfstate"
+use_azuread_auth     = true

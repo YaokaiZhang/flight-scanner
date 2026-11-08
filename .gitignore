@@ -18,3 +18,11 @@ web/next-env.d.ts
 .local/
 .impeccable/
 _site/
+# Terraform: provider downloads, state (holds secrets), and your own settings
+.terraform/
+*.tfstate
+*.tfstate.*
+infra/terraform/terraform.tfvars
+infra/terraform/backend.hcl
+# The overlay infra/deploy.sh generates (holds a copy of .env)
+infra/k8s/.deploy/
