@@ -7,6 +7,7 @@ storage:
       password: {env: POSTGRES_PASSWORD}
       db_name: {env: DAGSTER_PG_DB}
       port: {env: POSTGRES_PORT}
+      scheme: postgresql+psycopg2  # SQLAlchemy 2.1 defaults to psycopg 3, which breaks Dagster's NOTIFY
 
 run_coordinator:
   module: dagster._core.run_coordinator

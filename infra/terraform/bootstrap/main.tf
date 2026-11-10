@@ -30,7 +30,7 @@ provider "azurerm" {
 variable "location" {
   description = "Azure region for the state storage."
   type        = string
-  default     = "swedencentral"
+  default     = "germanywestcentral"
 }
 
 data "azurerm_client_config" "current" {}
