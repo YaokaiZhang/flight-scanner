@@ -24,5 +24,6 @@ _site/
 *.tfstate.*
 infra/terraform/terraform.tfvars
 infra/terraform/backend.hcl
+terraform/tfplan
 # The overlay infra/deploy.sh generates (holds a copy of .env)
 infra/k8s/.deploy/

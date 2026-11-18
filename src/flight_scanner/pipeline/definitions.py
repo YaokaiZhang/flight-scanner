@@ -22,7 +22,7 @@ from flight_scanner.clock import today
 from flight_scanner.db import connect
 from flight_scanner.deal_context import add_deal_context
 from flight_scanner.ingestion import ingest
-from flight_scanner.lakehouse import LakehouseRun, latest_run, retry_key, run_daily
+from flight_scanner.lakehouse import LakehouseRun, latest_run, retry_key, run_daily, stale_since
 from flight_scanner.pipeline import dbt as dbt_files
 from flight_scanner.pipeline.runtime import Runtime
 from flight_scanner.raw_archive import archive_raw
@@ -443,7 +443,9 @@ def _pipeline_alert_sensors(runtime: Runtime) -> list[dg.SensorDefinition]:
 
 def _lakehouse_retry_sensors(runtime: Runtime, job) -> list[dg.SensorDefinition]:
     """Run the lakehouse job again on a day with nothing published: the engine turned it away, or
-    the stack was down at 04:15 (a schedule does not catch up). Off without a lakehouse."""
+    the stack was down at 04:15 (a schedule does not catch up). And tell the owner when days go by
+    with nothing published: such a run still succeeds, so the failure alert never fires. Off
+    without a lakehouse."""
     if runtime.lakehouse is None:
         return []
 
@@ -464,7 +466,22 @@ def _lakehouse_retry_sensors(runtime: Runtime, job) -> list[dg.SensorDefinition]
             key = retry_key(conn, runtime.clock.now())
         return dg.RunRequest(run_key=key) if key else dg.SkipReason("no retry due")
 
-    return [lakehouse_retry]
+    @dg.sensor(
+        name="lakehouse_stale_alert",
+        minimum_interval_seconds=600,
+        default_status=dg.DefaultSensorStatus.RUNNING,
+    )
+    def lakehouse_stale_alert(context: dg.SensorEvaluationContext):
+        now = runtime.clock.now()
+        with connect(runtime.db, autocommit=True) as conn:
+            since = stale_since(conn, now)
+            pipeline_alerts.lakehouse_changed(
+                conn, runtime.notifiers, bool(context.cursor), since, latest_run(conn), now
+            )
+        context.update_cursor(since.isoformat() if since else "")
+        return dg.SkipReason(f"last published {since:%Y-%m-%d %H:%M}" if since else "publishing")
+
+    return [lakehouse_retry, lakehouse_stale_alert]
 
 
 def _execute(

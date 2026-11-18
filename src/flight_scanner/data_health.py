@@ -160,16 +160,27 @@ def _sources(
     tasks = {
         r["source"]: r
         for r in conn.execute(
-            """SELECT source,
-                      max(finished_at) FILTER (WHERE status = 'scanned') AS success_at,
-                      max(finished_at) FILTER (WHERE status = 'failed'
-                          AND error NOT LIKE 'RequestRejected:%%') AS failure_at,
-                      (array_agg(error ORDER BY finished_at DESC, id DESC)
-                          FILTER (WHERE status = 'failed'
-                              AND error NOT LIKE 'RequestRejected:%%'))[1] AS error
-               FROM app.scan_tasks
-               WHERE finished_at <= %(now)s
-               GROUP BY source""",
+            # one index walk per source (scan_tasks_outcome), not a pass over the whole table
+            """WITH RECURSIVE src AS (
+                   SELECT min(source) AS source FROM app.scan_tasks
+                   WHERE finished_at <= %(now)s
+                   UNION ALL
+                   SELECT (SELECT min(source) FROM app.scan_tasks
+                           WHERE finished_at <= %(now)s AND source > src.source)
+                   FROM src WHERE src.source IS NOT NULL)
+               SELECT src.source, ok.finished_at AS success_at, bad.finished_at AS failure_at,
+                      bad.error
+               FROM src
+               LEFT JOIN LATERAL (
+                   SELECT finished_at FROM app.scan_tasks
+                   WHERE source = src.source AND status = 'scanned' AND finished_at <= %(now)s
+                   ORDER BY finished_at DESC LIMIT 1) ok ON true
+               LEFT JOIN LATERAL (
+                   SELECT finished_at, error FROM app.scan_tasks
+                   WHERE source = src.source AND status = 'failed' AND finished_at <= %(now)s
+                     AND error NOT LIKE 'RequestRejected:%%'
+                   ORDER BY finished_at DESC, id DESC LIMIT 1) bad ON true
+               WHERE src.source IS NOT NULL""",
             {"now": now},
         )
     }

@@ -2,6 +2,8 @@
 
   run_failed(conn, notifiers, job, run_id, error, now)    at most once per REPEAT_AFTER per job
   stall_changed(conn, notifiers, previous, stalled, now)  when the set of stalled sources changes
+  lakehouse_changed(conn, notifiers, was_stale, since, latest, now)   when the lakehouse
+                                                         stops or resumes publishing
   retry_undelivered(conn, notifiers, now)                 resend what a channel could not take
 
 A channel that cannot be reached is logged and never raises: these run in Dagster sensors, which
@@ -19,6 +21,8 @@ from datetime import datetime, timedelta
 import psycopg
 from psycopg.types.json import Jsonb
 
+from flight_scanner.clock import OWNER_TZ
+from flight_scanner.lakehouse import LakehouseRun
 from flight_scanner.notify.base import Notifier, OpsNotifier
 
 log = logging.getLogger(__name__)
@@ -133,3 +137,26 @@ def stall_changed(
             f"Flight Scanner: prices are landing again from {', '.join(recovered)}.",
             now,
         )
+
+
+def lakehouse_changed(
+    conn: psycopg.Connection,
+    notifiers: Sequence[Notifier],
+    was_stale: bool,
+    since: datetime | None,
+    latest: LakehouseRun | None,
+    now: datetime,
+) -> None:
+    """`since` is when it last published while that is too long ago (None when it is not)."""
+    if since is not None and not was_stale:
+        last = f"{latest.status}: {latest.detail or 'no detail'}"[:300] if latest else "none"
+        _send(
+            conn,
+            notifiers,
+            f"Flight Scanner: the lakehouse has published nothing since "
+            f"{since.astimezone(OWNER_TZ):%Y-%m-%d %H:%M %Z}. Detection keeps the older "
+            f"Baselines. Last attempt: {last}",
+            now,
+        )
+    elif since is None and was_stale:
+        _send(conn, notifiers, "Flight Scanner: the lakehouse published again.", now)

@@ -28,6 +28,8 @@ KEY = ("tier", "origin_city", "destination", "departure_month", "stay_bucket")
 RETRY_FROM = time(4, 30)  # Helsinki: after the 04:15 schedule has had its chance
 RETRY_EVERY = timedelta(hours=2)
 MAX_ATTEMPTS = 3  # a day, the scheduled run included
+# a whole day's attempts missed, plus slack for the next morning's run, before the owner hears
+STALE_AFTER = timedelta(hours=36)
 VALUES = ("method", "median_per_adult_eur", "mad_eur", "observations", "observation_days")
 BACKTEST_COLUMNS = (
     "deal_id",
@@ -159,6 +161,17 @@ def retry_key(conn: psycopg.Connection, now: datetime) -> str | None:
     if runs and now - runs[-1]["as_of"] < RETRY_EVERY:
         return None
     return f"lakehouse-{local.date().isoformat()}-attempt-{len(runs) + 1}"
+
+
+def stale_since(conn: psycopg.Connection, now: datetime) -> datetime | None:
+    """When the lakehouse last published (or first ran, if it never has), when that is more than
+    STALE_AFTER ago; otherwise None. No runs at all is not stale: the first is still to come."""
+    row = conn.execute(
+        """SELECT max(as_of) FILTER (WHERE status = 'published') AS published, min(as_of) AS first
+           FROM analytics.lakehouse_runs"""
+    ).fetchone()
+    since = row["published"] or row["first"]
+    return since if since is not None and now - since > STALE_AFTER else None
 
 
 def latest_run(conn: psycopg.Connection) -> LakehouseRun | None:
